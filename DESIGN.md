@@ -13,3 +13,12 @@ Source of truth: `../anzwebsite/DESIGN.md`. This supersedes the initial Jalanin 
 - Source body color is #607793. Use darker tonal #455e7d for small labels and supporting copy to preserve readable contrast.
 - Keep the functional three-panel editor, responsive layouts, keyboard/focus behaviour and reduced-motion support.
 - Graphics use original local geometry/icons. No invented endorsements or immigration outcomes.
+
+## Workspace readability and surfaces (updated)
+
+- Functional UI overrides the marketing scale: navigation, question lists, editor labels/fields, AI input and supporting copy use 15px; metadata/helper text uses 13px minimum. Tiny IDs and decorative chips are secondary only.
+- Builder and respondent question headings use `clamp(2rem, 1.5rem + 1.5vw, 3rem)`, line-height 1.15, tracking -0.03em. Avoid hero-sized headings competing with small editing controls.
+- Workspace buttons use 13px and a 42px minimum height; form controls use a 46px minimum height.
+- Question canvas, AI composer, content cards and flow nodes are borderless, with 18px corners, white-to-pale-blue gradients and subtle blue-tinted shadows. Keep input outlines and focus indicators for usability.
+- Expand editor side panels to accommodate readable controls; stack panels responsively rather than reducing type size.
+- AI provides selected-question context, short conversation history, clarification requests, a validated repair attempt, actual change summaries and proposal preview. Approval and publishing remain separate. Prevent outdated proposals overwriting newer manual edits.

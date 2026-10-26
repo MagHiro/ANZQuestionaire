@@ -32,6 +32,7 @@ import {
 import { Runner } from '@/components/Runner'
 import { QuestionEditor } from './QuestionEditor'
 import { describeChanges } from '@/core/changes'
+import type { AiContext } from '@/core/ai-proposal'
 
 type Props = {
   id: string
@@ -64,8 +65,12 @@ export function Builder({
   const [instruction, setInstruction] = useState('')
   const [proposal, setProposal] = useState<{
     summary: string
+    clarification?: string
     definition: Definition
   } | null>(null)
+  const [aiHistory, setAiHistory] = useState<AiContext['history']>([])
+  const [proposalBase, setProposalBase] = useState('')
+  const [proposalPreview, setProposalPreview] = useState(false)
   const [undo, setUndo] = useState<Definition[]>([])
   const [saved, setSaved] = useState(JSON.stringify(initial))
   const [origins, setOrigins] = useState(initialOrigins.join('\n'))
@@ -189,12 +194,33 @@ export function Builder({
     edit({ ...definition, questions })
   }
   async function askAI() {
+    if (proposal && proposalBase !== JSON.stringify(definition)) {
+      setMessage('Discard the outdated proposal before requesting changes to your updated draft.')
+      return
+    }
     setBusy(true)
     setMessage('')
     try {
-      const result = await generateProposal(id, definition, instruction)
-      if (result.proposal) setProposal(result.proposal)
-      else setMessage(result.error || 'No proposal returned.')
+      const candidate = proposal?.definition || definition
+      const result = await generateProposal(id, candidate, instruction, {
+        selectedQuestionId: current.id,
+        history: aiHistory.slice(-8),
+      })
+      if (result.proposal) {
+        setProposal(result.proposal)
+        setProposalBase(JSON.stringify(definition))
+        const turns: AiContext['history'] = [
+          { role: 'user', content: instruction },
+          {
+            role: 'assistant',
+            content:
+              result.proposal.summary +
+              (result.proposal.clarification ? '\n' + result.proposal.clarification : ''),
+          },
+        ]
+        setAiHistory((items) => [...items, ...turns].slice(-8))
+        setInstruction('')
+      } else setMessage(result.error || 'No proposal returned.')
     } catch {
       setMessage('Unable to contact the AI. Your draft has not changed.')
     } finally {
@@ -416,10 +442,44 @@ export function Builder({
                 <div className="ai-title">
                   <Sparkles size={19} />
                   <div>
-                    <h3>A second pair of hands.</h3>
-                    <p>Describe a change. Review it before it touches your draft.</p>
+                    <h3>Your questionnaire co-creator.</h3>
+                    <p>
+                      Create a full questionnaire, refine this question, or describe a branching
+                      rule.
+                    </p>
                   </div>
                 </div>
+                <p className="ai-context">
+                  Working with: <strong>{current.title}</strong>
+                  {proposal ? ' · Refining the pending proposal' : ''}
+                </p>
+                <div className="ai-prompts">
+                  {[
+                    'Make this question clearer and more engaging, without changing its logic.',
+                    'Review the questionnaire for confusing wording and unnecessary repetition.',
+                    'Help me create a complete questionnaire. Ask what you need to know first.',
+                  ].map((prompt, index) => (
+                    <button
+                      type="button"
+                      key={prompt}
+                      disabled={busy}
+                      onClick={() => setInstruction(prompt)}
+                    >
+                      {['Refine this question', 'Improve the flow', 'Build from an idea'][index]}
+                    </button>
+                  ))}
+                </div>
+                {aiHistory.length > 0 && (
+                  <details className="ai-history">
+                    <summary>Recent conversation · {aiHistory.length / 2} exchanges</summary>
+                    {aiHistory.map((item, index) => (
+                      <p key={index}>
+                        <strong>{item.role === 'user' ? 'You' : 'Assistant'}:</strong>{' '}
+                        {item.content}
+                      </p>
+                    ))}
+                  </details>
+                )}
                 <label className="sr-only" htmlFor="ai-instruction">
                   Instructions for AI
                 </label>
@@ -432,7 +492,10 @@ export function Builder({
                   rows={3}
                 />
                 <div className="ai-bottom">
-                  <span>AI suggests. You decide.</span>
+                  <span>
+                    AI suggests. You decide.{' '}
+                    {proposal ? 'Your next request refines this proposal.' : ''}
+                  </span>
                   <button
                     className="button primary compact"
                     disabled={busy || instruction.trim().length < 3}
@@ -446,6 +509,15 @@ export function Builder({
                   <div className="proposal">
                     <h3>Proposed changes</h3>
                     <p>{proposal.summary}</p>
+                    {proposal.clarification && (
+                      <p className="notice">{proposal.clarification} Reply above to clarify.</p>
+                    )}
+                    {proposalBase !== JSON.stringify(definition) && (
+                      <p className="error">
+                        Your draft changed after this proposal. Discard it and ask again to avoid
+                        overwriting manual edits.
+                      </p>
+                    )}
                     <ul className="small">
                       {describeChanges(definition, proposal.definition).map((change, index) => (
                         <li key={index}>{change}</li>
@@ -457,10 +529,28 @@ export function Builder({
                     </p>
                     <div className="button-row">
                       <button
+                        className="button secondary compact"
+                        onClick={() => {
+                          setProposalPreview(true)
+                          setPreview(true)
+                        }}
+                      >
+                        Preview proposal
+                      </button>
+                      <button
                         className="button primary compact"
+                        disabled={
+                          busy ||
+                          !!proposal.clarification ||
+                          proposalBase !== JSON.stringify(definition)
+                        }
                         onClick={() => {
                           edit(proposal.definition)
-                          setSelected(proposal.definition.questions[0].id)
+                          setSelected(
+                            proposal.definition.questions.some((q) => q.id === selected)
+                              ? selected
+                              : proposal.definition.questions[0].id,
+                          )
                           setProposal(null)
                         }}
                       >
@@ -468,7 +558,10 @@ export function Builder({
                       </button>
                       <button
                         className="button secondary compact"
-                        onClick={() => setProposal(null)}
+                        onClick={() => {
+                          setProposal(null)
+                          setAiHistory([])
+                        }}
                       >
                         Discard
                       </button>
@@ -745,12 +838,19 @@ export function Builder({
           <button
             className="preview-close button secondary"
             autoFocus
-            onClick={() => setPreview(false)}
+            onClick={() => {
+              setPreview(false)
+              setProposalPreview(false)
+            }}
           >
             <X size={18} />
             Close preview
           </button>
-          <Runner key={JSON.stringify(definition)} definition={definition} preview />
+          <Runner
+            key={JSON.stringify(proposalPreview && proposal ? proposal.definition : definition)}
+            definition={proposalPreview && proposal ? proposal.definition : definition}
+            preview
+          />
         </div>
       )}
     </div>

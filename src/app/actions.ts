@@ -10,7 +10,8 @@ import { blankDefinition, definitionSchema, validateDefinition } from '@/core/qu
 import { db } from '@/server/db'
 import { createSession, rateLimit, requireStaff, tokenHash } from '@/server/auth'
 import { getQuestionnaire, publishQuestionnaire, saveDraft } from '@/server/questionnaires'
-import { getAiConfiguration, validateBaseUrl } from '@/server/ai-settings'
+import { authorQuestionnaire } from '@/server/ai-author'
+import { aiContextSchema } from '@/core/ai-proposal'
 
 export async function loginAction(_state: string, form: FormData): Promise<string> {
   const email = String(form.get('email') || '')
@@ -144,57 +145,21 @@ export async function updateIntegration(id: string, origins: string[], webhook: 
     }
   }
 }
-export async function generateProposal(id: string, definition: unknown, instruction: string) {
+export async function generateProposal(
+  id: string,
+  definition: unknown,
+  instruction: string,
+  context: unknown = {},
+) {
   const actor = await requireStaff()
   await getQuestionnaire(id)
   try {
     const current = definitionSchema.parse(definition)
     z.string().min(3).max(12000).parse(instruction)
     await rateLimit(`ai:${actor.id}`, 20, 3600)
-    const { baseUrl: AI_BASE_URL, apiKey: AI_API_KEY, model: AI_MODEL } = await getAiConfiguration()
-    if (!AI_BASE_URL || !AI_API_KEY || !AI_MODEL)
-      throw new Error(
-        'AI is not configured. You can still use the manual editor or import a definition.',
-      )
-    const response = await fetch(`${validateBaseUrl(AI_BASE_URL)}/chat/completions`, {
-      method: 'POST',
-      redirect: 'error',
-      headers: {
-        Authorization: `Bearer ${AI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      signal: AbortSignal.timeout(60000),
-      body: JSON.stringify({
-        model: AI_MODEL,
-        response_format: { type: 'json_object' },
-        messages: [
-          {
-            role: 'system',
-            content: `You edit questionnaires. Return JSON only: {"summary":"brief changes", "definition":{...}}. Preserve unrelated questions, IDs and logic. Never invent legal, migration or medical criteria. If criteria are missing, explain in summary and preserve existing criteria. Definition schema: ${JSON.stringify(z.toJSONSchema(definitionSchema))}. Branches may ONLY target later questions or $end. next="" means sequential. Question types: radio,dropdown,text,textarea,email,number. Do not include responses or executable code.`,
-          },
-          { role: 'user', content: JSON.stringify({ current, instruction }) },
-        ],
-      }),
-    })
-    if (!response.ok)
-      throw new Error('The AI provider could not complete this request. Please try again.')
-    const data: unknown = await response.json()
-    const envelope = z
-      .object({
-        choices: z
-          .array(
-            z.object({
-              message: z.object({ content: z.string().max(500000) }),
-            }),
-          )
-          .min(1),
-      })
-      .parse(data)
-    const proposal = z
-      .object({ summary: z.string().max(4000), definition: definitionSchema })
-      .parse(JSON.parse(envelope.choices[0].message.content))
-    validateDefinition(proposal.definition)
-    return { proposal }
+    return {
+      proposal: await authorQuestionnaire(current, instruction, aiContextSchema.parse(context)),
+    }
   } catch (error) {
     return {
       error: error instanceof Error ? error.message : 'Unable to generate proposal.',
