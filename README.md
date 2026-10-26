@@ -35,7 +35,7 @@ unset PASSWORD
 pnpm dev
 ```
 
-Passwords must be at least 14 characters and at most 72 bytes. Add editors using the same operator command with role `editor`. There is no public signup, password-reset email or user-management UI yet. Operators can revoke all sessions for an account directly through a controlled DB operation; establish an account-recovery procedure before onboarding staff.
+Passwords must be at least 12 characters and at most 72 bytes. Add editors using the same operator command with role `editor`. There is no public signup, password-reset email or user-management UI yet. Operators can revoke all sessions for an account directly through a controlled DB operation; establish an account-recovery procedure before onboarding staff.
 
 AI is optional: configure `AI_BASE_URL`, `AI_API_KEY`, and `AI_MODEL`. Without them manual editing, import, preview and publishing still work. Hermes can be used if its serving endpoint implements the required OpenAI-compatible chat and JSON response interface. No specific external provider has been validated with real credentials yet.
 

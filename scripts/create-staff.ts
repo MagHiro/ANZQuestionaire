@@ -14,8 +14,8 @@ async function run() {
   let input = ''
   for await (const chunk of process.stdin) input += chunk
   const password = input.trim()
-  if (password.length < 14 || Buffer.byteLength(password) > 72)
-    throw new Error('Password must be at least 14 characters and at most 72 bytes.')
+  if (password.length < 12 || Buffer.byteLength(password) > 72)
+    throw new Error('Password must be at least 12 characters and at most 72 bytes.')
   await db().query('INSERT INTO staff(id,email,name,password_hash,role) VALUES($1,$2,$3,$4,$5)', [
     randomUUID(),
     email.toLowerCase(),
