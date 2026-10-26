@@ -1,0 +1,82 @@
+import { test, expect } from '@playwright/test'
+
+test('question navigation preserves order, handles reorder, and panels scroll independently', async ({
+  page,
+}) => {
+  await page.goto('/login')
+  await page.getByLabel('Email address').fill('admin@example.test')
+  await page.getByLabel('Password').fill('Browser-test-password-2026')
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+  await page.getByLabel('Questionnaire title', { exact: true }).fill('Navigation test')
+  await page.getByRole('button', { name: 'Create questionnaire' }).click()
+  await page.getByRole('textbox', { name: 'Question', exact: true }).fill('First question')
+  await page.getByRole('button', { name: 'Add question', exact: true }).click()
+  await page.getByRole('textbox', { name: 'Question', exact: true }).fill('Second question')
+  const items = page.locator('.question-nav-item')
+  await page.getByRole('button', { name: 'Previous question', exact: true }).click()
+  await expect(page.getByRole('textbox', { name: 'Question', exact: true })).toHaveValue(
+    'First question',
+  )
+  await expect(items.nth(0)).toContainText('First question')
+  await page.getByRole('button', { name: 'Next question', exact: true }).click()
+  await expect(page.getByRole('textbox', { name: 'Question', exact: true })).toHaveValue(
+    'Second question',
+  )
+  await expect(items.nth(1)).toContainText('Second question')
+
+  const handle = page.getByRole('button', { name: 'Reorder question 2', exact: true })
+  await handle.focus()
+  await page.keyboard.press('Space')
+  await expect(page.locator('.sortable-row.dragging')).toHaveCount(1)
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+  )
+  await page.keyboard.press(test.info().project.name === 'mobile' ? 'ArrowLeft' : 'ArrowUp')
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+  )
+  await page.keyboard.press('Space')
+  await expect(items.nth(0)).toContainText('Second question')
+  if (test.info().project.name === 'desktop') {
+    const source = await page
+      .getByRole('button', { name: 'Reorder question 1', exact: true })
+      .boundingBox()
+    const target = await page
+      .getByRole('button', { name: 'Reorder question 2', exact: true })
+      .boundingBox()
+    await page.mouse.move(source!.x + source!.width / 2, source!.y + source!.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(target!.x + target!.width / 2, target!.y + target!.height / 2, {
+      steps: 12,
+    })
+    await page.mouse.up()
+    await expect(items.nth(1)).toContainText('Second question')
+    await expect(page.locator('.sortable-row.dragging')).toHaveCount(0)
+    await page.evaluate(
+      () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+    )
+  }
+  await expect(page.getByRole('textbox', { name: 'Question', exact: true })).toHaveValue(
+    'Second question',
+  )
+  await page.getByRole('button', { name: 'Logic', exact: true }).click()
+  await page.locator('.flow-node summary').first().click()
+  await expect(page.locator('.flow-node[open]').getByLabel('Default next step')).toBeVisible()
+
+  if (test.info().project.name === 'desktop') {
+    await page.getByRole('button', { name: 'Create', exact: true }).click()
+    for (let i = 0; i < 18; i++)
+      await page.getByRole('button', { name: 'Add question', exact: true }).click()
+    const measurements = await page.evaluate(() => {
+      const list = document.querySelector('.question-nav-list')!
+      const settings = document.querySelector('.settings-panel')!
+      list.scrollTop = 300
+      settings.scrollTop = 200
+      return { list: list.scrollTop, settings: settings.scrollTop, document: window.scrollY }
+    })
+    expect(measurements.list).toBeGreaterThan(0)
+    expect(measurements.settings).toBeGreaterThan(0)
+    expect(measurements.document).toBe(0)
+    await page.screenshot({ path: 'test-results/builder-panels-desktop.png' })
+  }
+})

@@ -499,12 +499,6 @@ input[type='radio'] {
   background: linear-gradient(135deg, #fff, #eef4ff);
   box-shadow: 0 10px 30px -20px #24308555;
 }
-.email-builder {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  margin-top: 32px;
-}
 .email-preview {
   width: 100%;
   min-height: 650px;
@@ -537,11 +531,6 @@ input[type='radio'] {
 @media (prefers-reduced-motion: reduce) {
   .activity-spinner {
     animation: none;
-  }
-}
-@media (max-width: 800px) {
-  .email-builder {
-    grid-template-columns: 1fr;
   }
 }
 .email-format-toolbar {
@@ -584,6 +573,328 @@ input[type='radio'] {
   overflow: hidden;
   background: white;
 }
+
+/* Editing workspaces: fixed desktop shell, independently scrolling panels. */
+.sortable-row {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  position: relative;
+  border-radius: 10px;
+}
+.sortable-row.dragging {
+  z-index: 20;
+  background: #eef4ff;
+  box-shadow: 0 8px 24px #24308522;
+}
+.drag-handle {
+  display: grid;
+  place-items: center;
+  flex: 0 0 28px;
+  align-self: stretch;
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #455e7d;
+  cursor: grab;
+  touch-action: none;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+.drag-handle:hover {
+  background: #eef4ff;
+}
+.sortable-row > .question-nav-item {
+  flex: 1;
+  min-width: 0;
+}
+.question-nav .panel-heading,
+.question-editor .panel-heading {
+  font-size: 15px;
+  font-weight: 500;
+}
+.question-nav .type-chip {
+  min-width: 26px;
+  justify-content: center;
+}
+.question-nav .type-chip small {
+  font-size: 13px;
+}
+.builder-body-wide .content-panel {
+  width: 100%;
+  max-width: 1040px;
+  margin-inline: auto;
+}
+.logic-panel h1 {
+  font-size: clamp(1.875rem, 2.5vw, 2.75rem);
+}
+.logic-panel .flow-node {
+  display: block;
+  text-align: left;
+  padding: 0;
+}
+.flow-node summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px;
+  cursor: pointer;
+  list-style: none;
+}
+.flow-node summary::-webkit-details-marker {
+  display: none;
+}
+.flow-node summary > div {
+  flex: 1;
+  min-width: 0;
+}
+.flow-node summary > span {
+  flex: 0 0 32px;
+  color: #243085;
+}
+.flow-node[open] summary > svg {
+  transform: rotate(90deg);
+}
+.flow-node .question-editor {
+  padding: 0 22px 22px;
+}
+.flow-node .rule-section {
+  border-top: 1px solid #d9e1ea;
+  padding-top: 20px;
+}
+.email-page {
+  padding: 20px 24px 0;
+  background: #fbfcfe;
+}
+.email-page > h1 {
+  font-size: 24px;
+  margin: 8px 0 16px;
+}
+.email-workspace {
+  min-width: 0;
+}
+.email-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  padding: 0 0 20px;
+}
+.email-toolbar label {
+  min-width: 0;
+  font-size: 13px;
+}
+.email-subject {
+  flex: 1;
+}
+.email-panels {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 380px;
+  border-top: 1px solid #d9e1ea;
+}
+.email-panels > * {
+  min-width: 0;
+  padding: 24px 20px;
+}
+.email-panels h2 {
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0;
+  margin: 0 0 12px;
+}
+.email-customize > .panel-heading h2 {
+  text-transform: capitalize;
+  margin: 0;
+}
+.email-blocks {
+  border-right: 1px solid #d9e1ea;
+}
+.email-customize {
+  border-left: 1px solid #d9e1ea;
+  background: white;
+}
+.email-block-item {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 12px;
+  border-radius: 10px;
+  color: #06234f;
+  font-size: 15px;
+}
+.email-block-item.selected {
+  background: #eef4ff;
+}
+.email-block-item span {
+  display: block;
+  text-transform: capitalize;
+}
+.email-block-item small {
+  display: block;
+  color: #455e7d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.email-block-palette {
+  display: grid;
+  gap: 10px;
+}
+.email-block-palette .button {
+  justify-content: flex-start;
+}
+.email-canvas {
+  background: #eef4ff;
+}
+.email-canvas .email-preview {
+  display: block;
+  min-height: 740px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px #24308515;
+}
+.email-customize label {
+  font-size: 15px;
+}
+.email-workspace .button {
+  min-height: 42px;
+  font-size: 13px;
+}
+.email-variables {
+  font-size: 13px;
+  color: #455e7d;
+}
+.email-variables summary {
+  cursor: pointer;
+}
+@media (min-width: 1100px) {
+  .builder {
+    height: 100dvh;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .builder-header,
+  .builder > .notice {
+    flex-shrink: 0;
+  }
+  .builder-body {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .question-nav {
+    width: 270px;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .question-nav > * {
+    flex-shrink: 0;
+  }
+  .question-nav-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .question-nav .nav-bottom {
+    padding-top: 8px;
+  }
+  .builder-canvas,
+  .settings-panel {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    min-height: 0;
+  }
+  .settings-panel {
+    width: 360px;
+  }
+  .email-page {
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .email-page > * {
+    flex-shrink: 0;
+  }
+  .email-workspace {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .email-toolbar,
+  .email-workspace > .notice {
+    flex-shrink: 0;
+  }
+  .email-panels {
+    flex: 1;
+    min-height: 0;
+  }
+  .email-panels > * {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+@media (max-width: 1099px) {
+  .email-toolbar {
+    flex-wrap: wrap;
+  }
+  .email-panels {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+  .email-customize {
+    grid-column: 1 / -1;
+    border-left: 0;
+    border-top: 1px solid #d9e1ea;
+  }
+  .email-customize .email-block-settings {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .email-page {
+    padding: 16px 12px;
+  }
+  .email-toolbar {
+    align-items: stretch;
+  }
+  .email-toolbar label,
+  .email-toolbar .button-row {
+    width: 100%;
+    flex: auto;
+  }
+  .email-panels {
+    display: flex;
+    flex-direction: column;
+  }
+  .email-blocks {
+    border-right: 0;
+  }
+  .email-block-palette {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .email-panels > * {
+    padding: 20px 12px;
+  }
+  .question-nav-list .sortable-row {
+    flex-shrink: 0;
+  }
+  .question-nav-list .question-nav-item {
+    min-width: 150px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sortable-row {
+    transition: none !important;
+  }
+}
 .email-rich-content {
   min-height: 180px;
   padding: 18px;
@@ -608,9 +919,6 @@ input[type='radio'] {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-}
-.email-builder > section {
-  min-width: 0;
 }
 @media (max-width: 600px) {
   .email-block-settings {

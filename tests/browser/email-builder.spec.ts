@@ -20,8 +20,15 @@ test('administrator can compose, preview and save notification blocks', async ({
   await expect(
     page.frameLocator('iframe[title="Email preview"]').getByText(message, { exact: true }),
   ).toBeVisible()
+  await page.getByRole('button', { name: 'Move block up', exact: true }).click()
+  await expect(page.getByRole('textbox', { name: 'Content', exact: true })).toHaveText(message)
+  await expect(page.locator('.email-block-item[aria-pressed="true"]')).toContainText(message)
   await page.getByRole('button', { name: 'Save template' }).click()
-  await expect(page.getByRole('status')).toHaveText('Template saved.')
+  await expect(page.locator('.notice[role="status"]')).toHaveText('Template saved.')
+  await page.screenshot({
+    path: `test-results/email-panels-${test.info().project.name}.png`,
+    fullPage: true,
+  })
   await expect(
     page
       .frameLocator('iframe[title="Email preview"]')

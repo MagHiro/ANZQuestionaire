@@ -9,12 +9,12 @@ test('staff can create, edit, preview, publish and receive a real submission', a
     .getByLabel('Questionnaire title', { exact: true })
     .fill(`Learning feedback ${test.info().project.name}`)
   await page.getByRole('button', { name: 'Create questionnaire' }).click()
-  await expect(page.getByText('QUESTION SETTINGS')).toBeVisible()
+  await expect(page.getByText('Question settings', { exact: true })).toBeVisible()
   await page
     .getByRole('textbox', { name: 'Question', exact: true })
     .fill('What would you like to learn next?')
   await page.getByRole('button', { name: 'Save draft' }).click()
-  await expect(page.getByRole('status')).toContainText('Draft saved.')
+  await expect(page.locator('.notice[role="status"]')).toContainText('Draft saved.')
   await page.getByRole('button', { name: 'Try it out' }).click()
   await page.getByRole('textbox', { name: 'What would you like to learn next?' }).fill('Leadership')
   await page.getByRole('button', { name: 'Continue', exact: true }).click()
@@ -29,7 +29,7 @@ test('staff can create, edit, preview, publish and receive a real submission', a
   })
   page.once('dialog', (dialog) => dialog.accept())
   await page.getByRole('button', { name: 'Publish', exact: true }).click()
-  await expect(page.getByRole('status')).toContainText('Version 1 published')
+  await expect(page.locator('.notice[role="status"]')).toContainText('Version 1 published')
   await page.getByRole('button', { name: 'Share', exact: true }).click()
   const url = await page.getByLabel('Public questionnaire link').inputValue()
   const embedHeaders = await page.request.get(url)
@@ -38,7 +38,7 @@ test('staff can create, edit, preview, publish and receive a real submission', a
     .getByLabel('Allowed embedding origins — one per line')
     .fill('https://www.anzmigrate.com')
   await page.getByRole('button', { name: 'Save integration settings' }).click()
-  await expect(page.getByRole('status')).toContainText('Integration settings saved')
+  await expect(page.locator('.notice[role="status"]')).toContainText('Integration settings saved')
   const allowedEmbed = await page.request.get(url)
   expect(allowedEmbed.headers()['content-security-policy']).toContain(
     'frame-ancestors https://www.anzmigrate.com',

@@ -10,15 +10,11 @@ export default async function EmailSettings() {
     'SELECT * FROM email_templates',
   )
   return (
-    <main className="results-main">
+    <main className="email-page">
       <Link href="/" className="text-button">
         ← Workspace
       </Link>
       <h1>Email builder</h1>
-      <p>
-        Build reusable notification emails. SMTP and the email worker must be configured for
-        delivery. Test sends go only to your staff account.
-      </p>
       <EmailBuilder
         initial={result.rows.map((row) => ({
           ...row,

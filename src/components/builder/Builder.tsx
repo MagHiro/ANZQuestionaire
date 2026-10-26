@@ -12,7 +12,6 @@ import {
   Undo2,
   Sparkles,
   Trash2,
-  GripVertical,
   Check,
   X,
 } from 'lucide-react'
@@ -34,6 +33,7 @@ import { QuestionEditor } from './QuestionEditor'
 import { describeChanges } from '@/core/changes'
 import type { AiContext } from '@/core/ai-proposal'
 import { OutcomeSettings } from './OutcomeSettings'
+import { SortableList, SortableItem, arrayMove } from '@/components/SortableList'
 
 type Props = {
   id: string
@@ -81,6 +81,12 @@ export function Builder({
   const current = definition.questions.find((q) => q.id === selected) || definition.questions[0]
   const dirty = saved !== JSON.stringify(definition)
   const previewRef = useRef<HTMLDivElement>(null)
+  const questionListRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    questionListRef.current
+      ?.querySelector('[aria-current="step"]')
+      ?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }, [selected])
   useEffect(() => {
     if (!dirty) return
     const warn = (event: BeforeUnloadEvent) => {
@@ -186,14 +192,9 @@ export function Builder({
     setSelected(definition.questions.find((q) => q.id !== current.id)!.id)
   }
   function move(direction: number) {
-    const questions = [...definition.questions]
-    const index = questions.findIndex((q) => q.id === current.id)
-    if (index + direction < 0 || index + direction >= questions.length) return
-    ;[questions[index], questions[index + direction]] = [
-      questions[index + direction],
-      questions[index],
-    ]
-    edit({ ...definition, questions })
+    const index = definition.questions.findIndex((q) => q.id === current.id)
+    const next = definition.questions[index + direction]
+    if (next) setSelected(next.id)
   }
   async function askAI() {
     if (proposal && proposalBase !== JSON.stringify(definition)) {
@@ -318,29 +319,42 @@ export function Builder({
           </button>
         </div>
       )}
-      <div className="builder-body" inert={preview}>
+      <div
+        className={`builder-body ${tab !== 'create' ? 'builder-body-wide' : ''}`}
+        inert={preview}
+      >
         <aside className="question-nav">
           <div className="panel-heading">
-            <span className="eyebrow">YOUR QUESTIONS</span>
+            <span>Questions</span>
             <span className="count">{definition.questions.length}</span>
           </div>
-          <div className="question-nav-list">
-            {definition.questions.map((q, index) => (
-              <button
-                className={`question-nav-item ${q.id === current.id ? 'selected' : ''}`}
-                key={q.id}
-                onClick={() => {
-                  setSelected(q.id)
-                  setTab('create')
-                }}
-              >
-                <span className={`type-chip type-${q.type}`}>
-                  {q.type === 'radio' || q.type === 'dropdown' ? '☷' : 'T'}
-                  <small>{index + 1}</small>
-                </span>
-                <span>{q.title || 'Untitled question'}</span>
-              </button>
-            ))}
+          <div className="question-nav-list" ref={questionListRef}>
+            <SortableList
+              ids={definition.questions.map((q) => q.id)}
+              onMove={(from, to) =>
+                edit({ ...definition, questions: arrayMove(definition.questions, from, to) })
+              }
+            >
+              {definition.questions.map((q, index) => (
+                <SortableItem key={q.id} id={q.id} label={`question ${index + 1}`}>
+                  <button
+                    className={`question-nav-item ${q.id === current.id ? 'selected' : ''}`}
+                    key={q.id}
+                    aria-current={q.id === current.id ? 'step' : undefined}
+                    onClick={() => {
+                      setSelected(q.id)
+                      setTab('create')
+                    }}
+                  >
+                    <span className={`type-chip type-${q.type}`}>
+                      {q.type === 'radio' || q.type === 'dropdown' ? '☷' : 'T'}
+                      <small>{index + 1}</small>
+                    </span>
+                    <span>{q.title || 'Untitled question'}</span>
+                  </button>
+                </SortableItem>
+              ))}
+            </SortableList>
           </div>
           <button
             className="button secondary add-question"
@@ -395,14 +409,16 @@ export function Builder({
                 <div>
                   <button
                     className="icon-button"
-                    aria-label="Move question earlier"
+                    aria-label="Previous question"
+                    disabled={current.id === definition.questions[0].id}
                     onClick={() => move(-1)}
                   >
                     <ArrowLeft size={16} />
                   </button>
                   <button
                     className="icon-button"
-                    aria-label="Move question later"
+                    aria-label="Next question"
+                    disabled={current.id === definition.questions.at(-1)?.id}
                     onClick={() => move(1)}
                   >
                     <ArrowRight size={16} />
@@ -426,7 +442,6 @@ export function Builder({
                 </div>
               </div>
               <div className="question-stage">
-                <span className="eyebrow">{current.page}</span>
                 <div className="stage-question">
                   <span className="stage-number">
                     {definition.questions.findIndex((q) => q.id === current.id) + 1}
@@ -434,9 +449,7 @@ export function Builder({
                   </span>
                   <div>
                     <h1>{current.title || 'Your question goes here'}</h1>
-                    <p className="muted">
-                      {current.description || 'A little context can make all the difference.'}
-                    </p>
+                    {current.description && <p className="muted">{current.description}</p>}
                     <div className="stage-options">
                       {current.type === 'radio' || current.type === 'dropdown' ? (
                         current.options.map((o, i) => (
@@ -457,10 +470,6 @@ export function Builder({
                   </div>
                 </div>
               </div>
-              <div className="canvas-caption">
-                <GripVertical size={14} />
-                Edit on the right. Preview the full conversation above.
-              </div>
               {issue && (
                 <p className="validation-note" role="status">
                   Before publishing: {issue}
@@ -470,11 +479,7 @@ export function Builder({
                 <div className="ai-title">
                   <Sparkles size={19} />
                   <div>
-                    <h3>Your questionnaire co-creator.</h3>
-                    <p>
-                      Create a full questionnaire, refine this question, or describe a branching
-                      rule.
-                    </p>
+                    <h3>Edit with AI</h3>
                   </div>
                 </div>
                 <p className="ai-context">
@@ -605,60 +610,66 @@ export function Builder({
               </section>
             </>
           ) : tab === 'logic' ? (
-            <section className="content-panel">
-              <span className="eyebrow">THE PATH THROUGH</span>
-              <h1>A conversation, not a checklist.</h1>
+            <section className="content-panel logic-panel">
+              <h1>Question flow</h1>
               <p className="muted">
-                Every answer has somewhere to go. Edit conditions in the question settings.
+                Visitors start at question 1. Each answer follows the first matching rule below; if
+                none match, they follow the usual next step. Open a question to change its rules.
               </p>
               {issue ? (
                 <p className="error">{issue}</p>
               ) : (
                 <p className="success">
                   <Check size={16} />
-                  Flow checks passed. No broken links or cycles.
+                  All questions lead to a valid next step.
                 </p>
               )}
               <div className="flow-list">
                 {definition.questions.map((q, i) => (
-                  <button
-                    key={q.id}
-                    className="flow-node"
-                    onClick={() => {
-                      setSelected(q.id)
-                      setTab('create')
-                    }}
-                  >
-                    <span>{i + 1}</span>
-                    <div>
-                      <strong>{q.title}</strong>
-                      {q.branches.map((b, n) => (
-                        <p key={n}>
-                          If “{q.options.find((o) => o.value === b.equals)?.label || b.equals}” →{' '}
-                          {b.target === '$end'
+                  <details key={q.id} className="flow-node">
+                    <summary>
+                      <span>{i + 1}</span>
+                      <div>
+                        <strong>{q.title}</strong>
+                        {q.branches.map((b, n) => (
+                          <p key={n}>
+                            {['checkbox', 'multiselect'].includes(q.type)
+                              ? 'When the selection includes'
+                              : 'When the answer is'}{' '}
+                            “{q.options.find((o) => o.value === b.equals)?.label || b.equals}”, go
+                            to{' '}
+                            {b.target === '$end'
+                              ? 'Finish'
+                              : definition.questions.find((item) => item.id === b.target)?.title ||
+                                'Missing question'}
+                          </p>
+                        ))}
+                        <p>
+                          {q.branches.length
+                            ? 'For any other answer, go to '
+                            : 'After answering, go to '}
+                          {q.next === '$end'
                             ? 'Finish'
-                            : definition.questions.find((item) => item.id === b.target)?.title ||
-                              'Missing question'}
+                            : definition.questions.find((item) => item.id === q.next)?.title ||
+                              definition.questions[i + 1]?.title ||
+                              'Finish'}
                         </p>
-                      ))}
-                      <p>
-                        Otherwise →{' '}
-                        {q.next === '$end'
-                          ? 'Finish'
-                          : definition.questions.find((item) => item.id === q.next)?.title ||
-                            definition.questions[i + 1]?.title ||
-                            'Finish'}
-                      </p>
-                    </div>
-                    <ArrowRight size={17} />
-                  </button>
+                      </div>
+                      <ArrowRight size={17} />
+                    </summary>
+                    <QuestionEditor
+                      question={q}
+                      questions={definition.questions}
+                      onChange={changeQuestion}
+                      rulesOnly
+                    />
+                  </details>
                 ))}
               </div>
             </section>
           ) : tab === 'share' ? (
             <section className="content-panel stack">
-              <span className="eyebrow">A HOME FOR YOUR QUESTIONS</span>
-              <h1>Build here. Share anywhere.</h1>
+              <h1>Share questionnaire</h1>
               <p className="muted">
                 Publish a release, then add its embed to your website. Draft changes stay private.
               </p>
@@ -731,8 +742,7 @@ export function Builder({
             </section>
           ) : (
             <section className="content-panel stack">
-              <span className="eyebrow">MAKE IT YOURS</span>
-              <h1>The details matter.</h1>
+              <h1>Questionnaire settings</h1>
               <OutcomeSettings definition={definition} onChange={edit} />
               <label>
                 Questionnaire title

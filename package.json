@@ -20,6 +20,9 @@
     "webhooks:deliver": "tsx scripts/deliver-webhooks.ts"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@fontsource/poppins": "^5.3.0",
     "@radix-ui/react-select": "^2.4.1",
     "@tiptap/extension-text-align": "^3.32.0",
