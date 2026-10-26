@@ -544,3 +544,76 @@ input[type='radio'] {
     grid-template-columns: 1fr;
   }
 }
+.email-format-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  border-bottom: 1px solid #d4dfef;
+  background: #f3f7ff;
+  border-radius: 12px 12px 0 0;
+}
+.email-format-toolbar button {
+  border: 0;
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #243085;
+  background: white;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.email-format-toolbar button[aria-pressed='true'] {
+  background: #243085;
+  color: white;
+}
+.email-format-toolbar select {
+  font-size: 13px;
+  min-height: 36px;
+  padding: 7px 30px 7px 8px;
+  width: auto;
+}
+.email-format-toolbar input[type='color'] {
+  width: 44px;
+  min-height: 36px;
+  padding: 4px;
+}
+.email-rich-editor {
+  border: 1px solid #d4dfef;
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+}
+.email-rich-content {
+  min-height: 180px;
+  padding: 18px;
+  outline: none;
+  overflow-wrap: anywhere;
+}
+.email-rich-content:focus {
+  box-shadow: inset 0 0 0 2px #243085;
+}
+.email-rich-content p {
+  margin: 0 0 12px;
+}
+.email-rich-content ul,
+.email-rich-content ol {
+  padding-left: 24px;
+}
+.email-rich-content blockquote {
+  padding-left: 16px;
+  border-left: 3px solid #bac9eb;
+}
+.email-block-settings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.email-builder > section {
+  min-width: 0;
+}
+@media (max-width: 600px) {
+  .email-block-settings {
+    grid-template-columns: 1fr;
+  }
+}

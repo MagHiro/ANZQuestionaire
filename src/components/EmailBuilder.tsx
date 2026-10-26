@@ -2,6 +2,9 @@
 import { useState } from 'react'
 import { defaultEmailBlocks, renderEmail, type EmailBlock } from '@/core/email-template'
 import { saveEmailTemplate, testEmailTemplate } from '@/app/settings/email/actions'
+import { EmailRichTextEditor } from './EmailRichTextEditor'
+import { EmailBlockSettings } from './EmailBlockSettings'
+import { richEmailPlainText } from '@/core/email-rich-text'
 
 export function EmailBuilder({
   initial,
@@ -41,23 +44,45 @@ export function EmailBuilder({
         </label>
         <p className="small">Variables: {'{{questionnaire_title}}, {{message}}, {{status_url}}'}</p>
         {current.blocks.map((block, index) => (
-          <section className="result-card stack" key={index}>
+          <section className="result-card stack" key={`${kind}-${index}-${block.type}`}>
             <h3>
               {index + 1}. {block.type}
             </h3>
-            <label>
-              Content
-              <textarea
-                value={block.text}
-                onChange={(e) =>
+            {block.type === 'text' ? (
+              <EmailRichTextEditor
+                text={block.text}
+                document={block.richText}
+                onChange={(doc) =>
                   update({
                     blocks: current.blocks.map((b, i) =>
-                      i === index ? { ...b, text: e.target.value } : b,
+                      i === index ? { ...b, richText: doc, text: richEmailPlainText(doc) } : b,
                     ),
                   })
                 }
               />
-            </label>
+            ) : (
+              <label>
+                Content
+                <textarea
+                  value={block.text}
+                  onChange={(e) =>
+                    update({
+                      blocks: current.blocks.map((b, i) =>
+                        i === index ? { ...b, text: e.target.value } : b,
+                      ),
+                    })
+                  }
+                />
+              </label>
+            )}
+            <EmailBlockSettings
+              block={block}
+              onChange={(patch) =>
+                update({
+                  blocks: current.blocks.map((b, i) => (i === index ? { ...b, ...patch } : b)),
+                })
+              }
+            />
             {block.type === 'button' && (
               <label>
                 Button URL
