@@ -34,6 +34,7 @@ export function Runner({
   const [review, setReview] = useState(false)
   const [statusUrl, setStatusUrl] = useState('')
   const [result, setResult] = useState<ReturnType<typeof responseResult>>(null)
+  const [direction, setDirection] = useState<'forward' | 'back'>('forward')
   const current = definition.questions.find((q) => q.id === trail[trail.length - 1])!
   const value = answers[current.id] || ''
   useEffect(() => {
@@ -75,6 +76,7 @@ export function Runner({
       [current.id, value],
     ])
     setAnswers(retained)
+    setDirection('forward')
     if (nextId === '$end') setReview(true)
     else setTrail([...trail, nextId])
   }
@@ -159,9 +161,7 @@ export function Runner({
         <span className="runner-wordmark">
           Questionnaire<span> / {definition.title}</span>
         </span>
-        <span className="small muted">
-          {preview ? 'Preview · answers are not saved' : 'A little clarity starts here'}
-        </span>
+        {preview && <span className="small muted">Preview · answers are not saved</span>}
       </header>
       <div
         className="runner-progress"
@@ -173,10 +173,12 @@ export function Runner({
       >
         <span style={{ width: `${progress}%` }} />
       </div>
-      <main className="runner-content">
+      <main
+        key={review ? 'review' : current.id}
+        className={`runner-content runner-step runner-step-${direction}`}
+      >
         {review ? (
           <>
-            <span className="eyebrow">ONE LAST LOOK</span>
             <h1 ref={heading} tabIndex={-1}>
               Ready when you are.
             </h1>
@@ -244,6 +246,7 @@ export function Runner({
               disabled={busy}
               onClick={() => {
                 setError('')
+                setDirection('back')
                 if (review) setReview(false)
                 else {
                   const shortened = trail.slice(0, -1)

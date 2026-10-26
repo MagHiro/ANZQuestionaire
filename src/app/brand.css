@@ -617,3 +617,90 @@ input[type='radio'] {
     grid-template-columns: 1fr;
   }
 }
+/* Short state transitions, never a delay before the next question is usable. */
+.runner-step-forward {
+  animation: question-forward 180ms ease-out both;
+}
+.runner-step-back {
+  animation: question-back 180ms ease-out both;
+}
+@keyframes question-forward {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes question-back {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.runner .runner-progress > span {
+  transition: width 220ms ease-out;
+}
+.runner .answer-choice {
+  transition:
+    background-color 140ms ease-out,
+    box-shadow 140ms ease-out,
+    transform 140ms ease-out;
+}
+.runner .answer-choice:active {
+  transform: scale(0.99);
+}
+.runner .answer-choice.selected {
+  box-shadow: inset 0 0 0 2px #243085;
+}
+.runner.completion .completion-icon {
+  animation: completion-arrive 220ms ease-out both;
+}
+@keyframes completion-arrive {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@media (max-width: 600px) {
+  .runner .runner-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .runner .runner-content {
+    padding-inline: 20px;
+  }
+  .runner .runner-actions {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .runner .answer-choice {
+    min-height: 52px;
+  }
+  .runner .runner-wordmark {
+    overflow-wrap: anywhere;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .runner .runner-step,
+  .runner.completion .completion-icon {
+    animation: none;
+  }
+  .runner .runner-progress > span,
+  .runner .answer-choice {
+    transition: none;
+  }
+  .runner .answer-choice:active {
+    transform: none;
+  }
+}
