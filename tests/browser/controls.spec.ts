@@ -1,0 +1,35 @@
+import { test, expect } from '@playwright/test'
+
+test('styled calendar, multiple-selection and dropdown controls work in preview', async ({
+  page,
+}) => {
+  await page.goto('/login')
+  await page.getByLabel('Email address').fill('admin@example.test')
+  await page.getByLabel('Password').fill('Browser-test-password-2026')
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+  await page
+    .getByLabel('Questionnaire title', { exact: true })
+    .fill(`Controls ${test.info().project.name}`)
+  await page.getByRole('button', { name: 'Create questionnaire' }).click()
+  await page.getByRole('combobox', { name: 'Question type', exact: true }).selectOption('date')
+  await page.getByRole('button', { name: 'Try it out' }).click()
+  await page.getByRole('button', { name: 'What would you like us to know?', exact: true }).click()
+  await expect(page.locator('.calendar-panel')).toBeVisible()
+  await page.locator('.rdp-day_button').filter({ hasText: /^15$/ }).first().click()
+  await page.getByRole('button', { name: 'Continue', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Ready when you are.' })).toBeVisible()
+  await page.getByRole('button', { name: 'Close preview' }).click()
+  await page.getByRole('combobox', { name: 'Question type', exact: true }).selectOption('checkbox')
+  await page.getByRole('button', { name: 'Try it out' }).click()
+  await page.getByRole('checkbox', { name: 'Yes', exact: true }).check()
+  await page.getByRole('checkbox', { name: 'No', exact: true }).check()
+  await page.getByRole('button', { name: 'Continue', exact: true }).click()
+  await expect(page.getByText('Yes, No', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Close preview' }).click()
+  await page.getByRole('combobox', { name: 'Question type', exact: true }).selectOption('dropdown')
+  await page.getByRole('button', { name: 'Try it out' }).click()
+  await page.getByRole('combobox', { name: 'What would you like us to know?' }).click()
+  await page.getByRole('option', { name: 'Yes', exact: true }).click()
+  await page.getByRole('button', { name: 'Continue', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Ready when you are.' })).toBeVisible()
+})

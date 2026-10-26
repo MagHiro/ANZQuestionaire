@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, Check, CheckCheck } from 'lucide-react'
+import { QuestionInput } from './inputs/QuestionInput'
+import { responseResult, selectedValues } from '@/core/questionnaire'
 import {
   answerError,
   evaluateResponse,
@@ -30,6 +32,8 @@ export function Runner({
   const submissionId = useRef<string>('')
   const [consent, setConsent] = useState(false)
   const [review, setReview] = useState(false)
+  const [statusUrl, setStatusUrl] = useState('')
+  const [result, setResult] = useState<ReturnType<typeof responseResult>>(null)
   const current = definition.questions.find((q) => q.id === trail[trail.length - 1])!
   const value = answers[current.id] || ''
   useEffect(() => {
@@ -80,6 +84,7 @@ export function Runner({
       return
     }
     if (preview) {
+      setResult(responseResult(definition, answers))
       setComplete(true)
       return
     }
@@ -98,7 +103,10 @@ export function Runner({
       })
       if (!response.ok)
         throw new Error('Unable to submit. Please try again; your answers are still here.')
-      const data: { id: string } = await response.json()
+      const data: { id: string; statusUrl?: string; result?: ReturnType<typeof responseResult> } =
+        await response.json()
+      setStatusUrl(data.statusUrl || '')
+      setResult(data.result || null)
       setComplete(true)
       for (const origin of parentOrigins)
         if (window.parent !== window)
@@ -129,6 +137,19 @@ export function Runner({
           {definition.completionTitle}
         </h1>
         <p>{definition.completionMessage}</p>
+        {result && (
+          <section className="result-card">
+            <h2>{result.title}</h2>
+            <p>{result.message}</p>
+          </section>
+        )}
+        {statusUrl && (
+          <a className="button primary" href={statusUrl} target="_blank" rel="noopener noreferrer">
+            {definition.payment?.enabled
+              ? 'Continue to payment / report status'
+              : 'View confirmation'}
+          </a>
+        )}
         {preview && <p className="preview-note">Preview only. No response was saved.</p>}
       </div>
     )
@@ -167,7 +188,12 @@ export function Runner({
                   <div key={id}>
                     <dt>{q.title}</dt>
                     <dd>
-                      {q.options.find((o) => o.value === answers[id])?.label ||
+                      {(['checkbox', 'multiselect'].includes(q.type)
+                        ? selectedValues(answers[id] || '')
+                            .map((v) => q.options.find((o) => o.value === v)?.label || v)
+                            .join(', ')
+                        : '') ||
+                        q.options.find((o) => o.value === answers[id])?.label ||
                         answers[id] ||
                         'Not answered'}
                     </dd>
@@ -202,70 +228,7 @@ export function Runner({
               <p className="runner-intro">{definition.description}</p>
             )}
             <div className="answer-area">
-              {current.type === 'radio' ? (
-                <fieldset aria-labelledby="question-title">
-                  <legend className="sr-only">Choose one answer</legend>
-                  {current.options.map((o, i) => (
-                    <label
-                      key={o.value}
-                      className={`answer-choice ${value === o.value ? 'selected' : ''}`}
-                    >
-                      <input
-                        type="radio"
-                        name={current.id}
-                        value={o.value}
-                        checked={value === o.value}
-                        onChange={() => change(o.value)}
-                      />
-                      <span className="choice-letter">{i + 1}</span>
-                      <span>{o.label}</span>
-                      {value === o.value && <Check size={19} />}
-                    </label>
-                  ))}
-                </fieldset>
-              ) : current.type === 'dropdown' ? (
-                <select
-                  aria-labelledby="question-title"
-                  value={value}
-                  onChange={(e) => change(e.target.value)}
-                >
-                  <option value="">Choose an answer…</option>
-                  {current.options.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              ) : current.type === 'textarea' ? (
-                <textarea
-                  aria-labelledby="question-title"
-                  value={value}
-                  onChange={(e) => change(e.target.value)}
-                  rows={4}
-                  maxLength={10000}
-                  placeholder="Your answer goes here…"
-                />
-              ) : (
-                <input
-                  aria-labelledby="question-title"
-                  type={
-                    current.type === 'number'
-                      ? 'number'
-                      : current.type === 'email'
-                        ? 'email'
-                        : 'text'
-                  }
-                  value={value}
-                  onChange={(e) => change(e.target.value)}
-                  maxLength={10000}
-                  placeholder={
-                    current.type === 'email' ? 'you@example.com' : 'Your answer goes here…'
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') next()
-                  }}
-                />
-              )}
+              <QuestionInput question={current} value={value} onChange={change} />
             </div>
           </>
         )}

@@ -35,6 +35,11 @@ export default async function Dashboard() {
             AI settings
           </Link>
         )}
+        {staff.role === 'admin' && (
+          <Link href="/settings/email" className="nav-item">
+            Email builder
+          </Link>
+        )}
         <div className="sidebar-note">
           <span className="mini-spark">✳</span>
           <h3>Start with curiosity.</h3>

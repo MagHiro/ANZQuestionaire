@@ -13,7 +13,7 @@ export function QuestionEditor({
 }) {
   const update = (patch: Partial<Question>) => onChange({ ...question, ...patch })
   const later = questions.slice(questions.findIndex((q) => q.id === question.id) + 1)
-  const choice = question.type === 'radio' || question.type === 'dropdown'
+  const choice = ['radio', 'dropdown', 'checkbox', 'multiselect'].includes(question.type)
   return (
     <div className="question-editor stack">
       <div className="panel-heading">
@@ -26,7 +26,7 @@ export function QuestionEditor({
           value={question.type}
           onChange={(e) => {
             const type = e.target.value as Question['type']
-            const needsOptions = type === 'radio' || type === 'dropdown'
+            const needsOptions = ['radio', 'dropdown', 'checkbox', 'multiselect'].includes(type)
             update({
               type,
               branches: [],
@@ -47,6 +47,11 @@ export function QuestionEditor({
           <option value="dropdown">Dropdown</option>
           <option value="email">Email address</option>
           <option value="number">Number</option>
+          <option value="date">Date picker</option>
+          <option value="checkbox">Multiple selection boxes</option>
+          <option value="multiselect">Searchable multi-select</option>
+          <option value="tel">Phone number</option>
+          <option value="url">Website URL</option>
         </select>
       </label>
       <label>
@@ -154,7 +159,9 @@ export function QuestionEditor({
         {question.branches.map((b, index) => (
           <div className="branch-editor" key={index}>
             <label>
-              If answer is
+              {['checkbox', 'multiselect'].includes(question.type)
+                ? 'If selection includes'
+                : 'If answer is'}
               {choice ? (
                 <select
                   value={b.equals}

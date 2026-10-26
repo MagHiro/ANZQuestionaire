@@ -7,7 +7,9 @@ export async function authorQuestionnaire(
   current: Definition,
   instruction: string,
   context: AiContext,
+  progress: (stage: string) => void = () => {},
 ) {
+  progress('Loading provider configuration')
   const config = await getAiConfiguration()
   if (!config.apiKey || !config.model)
     throw new Error('AI is not configured. Ask an administrator to open AI settings.')
@@ -27,6 +29,7 @@ export async function authorQuestionnaire(
     },
   ]
   for (let attempt = 0; attempt < 2; attempt++) {
+    progress(attempt ? 'Requesting corrected proposal' : 'Generating questionnaire proposal')
     const response = await fetch(`${validateBaseUrl(config.baseUrl)}/chat/completions`, {
       method: 'POST',
       redirect: 'error',
@@ -55,6 +58,7 @@ export async function authorQuestionnaire(
       .parse(await response.json())
     const content = envelope.choices[0].message.content
     try {
+      progress('Validating questions, branching and result rules')
       return parseAiProposal(content)
     } catch (error) {
       if (attempt === 1)

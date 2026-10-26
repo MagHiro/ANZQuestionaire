@@ -4,6 +4,7 @@ import { requireStaff } from '@/server/auth'
 import { getQuestionnaire } from '@/server/questionnaires'
 import { db } from '@/server/db'
 import { answersSchema, definitionSchema } from '@/core/questionnaire'
+import { ReportManager } from '@/components/ReportManager'
 export default async function ResponsesPage({
   params,
   searchParams,
@@ -21,8 +22,9 @@ export default async function ResponsesPage({
     created_at: Date
     version: number
     definition: unknown
+    payment_status: string
   }>(
-    'SELECT r.id,r.answers,r.created_at,v.version,v.definition FROM responses r JOIN releases v ON v.id=r.release_id WHERE v.questionnaire_id=$1 ORDER BY r.created_at DESC,r.id DESC LIMIT 26 OFFSET $2',
+    'SELECT r.id,r.answers,r.created_at,r.payment_status,v.version,v.definition FROM responses r JOIN releases v ON v.id=r.release_id WHERE v.questionnaire_id=$1 ORDER BY r.created_at DESC,r.id DESC LIMIT 26 OFFSET $2',
     [id, (Math.floor(page) - 1) * 25],
   )
   return (
@@ -66,6 +68,7 @@ export default async function ResponsesPage({
                 )
               })}
             </dl>
+            <ReportManager id={row.id} paymentStatus={row.payment_status} />
           </details>
         )
       })}

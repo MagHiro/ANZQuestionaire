@@ -33,6 +33,7 @@ import { Runner } from '@/components/Runner'
 import { QuestionEditor } from './QuestionEditor'
 import { describeChanges } from '@/core/changes'
 import type { AiContext } from '@/core/ai-proposal'
+import { OutcomeSettings } from './OutcomeSettings'
 
 type Props = {
   id: string
@@ -63,6 +64,7 @@ export function Builder({
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [instruction, setInstruction] = useState('')
+  const [aiStage, setAiStage] = useState('')
   const [proposal, setProposal] = useState<{
     summary: string
     clarification?: string
@@ -202,10 +204,35 @@ export function Builder({
     setMessage('')
     try {
       const candidate = proposal?.definition || definition
-      const result = await generateProposal(id, candidate, instruction, {
-        selectedQuestionId: current.id,
-        history: aiHistory.slice(-8),
+      setAiStage('Preparing questionnaire context')
+      const response = await fetch('/api/ai/proposal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id,
+          definition: candidate,
+          instruction,
+          context: { selectedQuestionId: current.id, history: aiHistory.slice(-8) },
+        }),
       })
+      if (!response.ok || !response.body) throw new Error('Unable to start AI request.')
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      let result: Awaited<ReturnType<typeof generateProposal>> = { error: 'No proposal returned.' }
+      while (true) {
+        const chunk = await reader.read()
+        buffer += decoder.decode(chunk.value, { stream: !chunk.done })
+        let newline: number
+        while ((newline = buffer.indexOf('\n')) >= 0) {
+          const event = JSON.parse(buffer.slice(0, newline))
+          buffer = buffer.slice(newline + 1)
+          if (typeof event.stage === 'string') setAiStage(event.stage)
+          if (event.proposal) result = { proposal: event.proposal }
+          if (event.error) result = { error: event.error }
+        }
+        if (chunk.done) break
+      }
       if (result.proposal) {
         setProposal(result.proposal)
         setProposalBase(JSON.stringify(definition))
@@ -224,6 +251,7 @@ export function Builder({
     } catch {
       setMessage('Unable to contact the AI. Your draft has not changed.')
     } finally {
+      setAiStage('')
       setBusy(false)
     }
   }
@@ -453,6 +481,12 @@ export function Builder({
                   Working with: <strong>{current.title}</strong>
                   {proposal ? ' · Refining the pending proposal' : ''}
                 </p>
+                {aiStage && (
+                  <div className="ai-progress" role="status" aria-live="polite">
+                    <span className="activity-spinner" />
+                    {aiStage}…
+                  </div>
+                )}
                 <div className="ai-prompts">
                   {[
                     'Make this question clearer and more engaging, without changing its logic.',
@@ -699,6 +733,7 @@ export function Builder({
             <section className="content-panel stack">
               <span className="eyebrow">MAKE IT YOURS</span>
               <h1>The details matter.</h1>
+              <OutcomeSettings definition={definition} onChange={edit} />
               <label>
                 Questionnaire title
                 <input

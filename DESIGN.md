@@ -1,5 +1,15 @@
 # ANZ Questionnaire Design Direction
 
+## Interactive controls and workflow feedback
+
+- Respondent dropdowns use a branded Radix popup with keyboard navigation; multi-select uses searchable styled selection cards.
+- Dates use a branded calendar with month/year selectors, not an unstyled browser date popup.
+- Text, email, phone, URL, number, textarea, checkbox, file controls and editor selects share Poppins, blue focus rings, rounded pale-blue surfaces and readable 15px+ text.
+- AI progress announces real server stages in an accessible live region; never simulate percentages or expose hidden reasoning.
+- Results are optional, ordered conditional cards. Confirmation remains available with or without a matching result.
+- Paid workflows explicitly separate answer submission, Stripe payment verification and private report publication.
+- Visual email composition uses reorderable header, text, button and footer blocks with a sandboxed preview.
+
 Source of truth: `../anzwebsite/DESIGN.md`. This supersedes the initial Jalanin baseline.
 
 - Self-host Poppins at weights 400, 500 and 600; headings/body 400, tiny uppercase labels 500, buttons 600.

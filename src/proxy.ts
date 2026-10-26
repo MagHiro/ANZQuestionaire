@@ -3,6 +3,16 @@ import { db } from '@/server/db'
 
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next()
+  if (!request.nextUrl.pathname.startsWith('/embed/')) {
+    response.headers.set('Cache-Control', 'no-store')
+    response.headers.set('Referrer-Policy', 'no-referrer')
+    response.headers.set('X-Robots-Tag', 'noindex')
+    response.headers.set(
+      'Content-Security-Policy',
+      "frame-ancestors 'none'; object-src 'none'; base-uri 'self'",
+    )
+    return response
+  }
   const slug = request.nextUrl.pathname.split('/')[2]
   let ancestors = "'none'"
   try {
@@ -26,4 +36,4 @@ export async function proxy(request: NextRequest) {
   response.headers.set('Cache-Control', 'no-store')
   return response
 }
-export const config = { matcher: '/embed/:path*' }
+export const config = { matcher: ['/embed/:path*', '/confirmation/:path*', '/api/reports/:path*'] }

@@ -13,7 +13,7 @@ export default defineConfig({
       command: 'pnpm exec next start -p 3199',
       env: {
         DATABASE_URL: 'postgresql://test:test-local-only@127.0.0.1:55439/postgres',
-        APP_URL: 'http://127.0.0.1:3199',
+        APP_URL: 'https://questionnaire.example',
         SETTINGS_ENCRYPTION_KEY: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       },
       url: 'http://127.0.0.1:3199/login',

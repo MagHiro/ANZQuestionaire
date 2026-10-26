@@ -68,6 +68,13 @@ export async function publishQuestionnaire(id: string, revision: number, actor: 
     if (!record || record.revision !== revision)
       throw new Error('Save your latest draft before publishing.')
     const definition = validateDefinition(record.draft)
+    if (
+      definition.payment?.enabled &&
+      (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET)
+    )
+      throw new Error(
+        'Configure Stripe credentials and the signed webhook before publishing a paid questionnaire.',
+      )
     const version = await client.query<{ version: number }>(
       'SELECT COALESCE(MAX(version),0)+1 AS version FROM releases WHERE questionnaire_id=$1',
       [id],

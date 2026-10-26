@@ -52,6 +52,28 @@ test('staff can create, edit, preview, publish and receive a real submission', a
   await page.getByRole('checkbox', { name: /I’m ready/ }).check()
   await page.getByRole('button', { name: 'Submit answers' }).click()
   await expect(page.getByRole('heading', { name: 'Thank you. You’re all done.' })).toBeVisible()
+  const confirmationLink = await page
+    .getByRole('link', { name: 'View confirmation', exact: true })
+    .getAttribute('href')
+  expect(confirmationLink).toBeTruthy()
+  const confirmation = new URL(confirmationLink!)
+  const privatePath = confirmation.pathname + confirmation.search
+  const privatePage = await page.request.get(privatePath)
+  expect(privatePage.ok()).toBe(true)
+  expect(privatePage.headers()['cache-control']).toContain('no-store')
+  expect(privatePage.headers()['referrer-policy']).toBe('no-referrer')
+  expect(await privatePage.text()).toContain('Thank you. You’re all done.')
+  expect((await page.request.get(confirmation.pathname)).status()).toBe(404)
+  const responseId = confirmation.pathname.split('/').pop()
+  const respondent = await page.context().browser()!.newContext()
+  expect(
+    (
+      await respondent.request.get(
+        `http://127.0.0.1:3199/api/reports/${responseId}${confirmation.search}`,
+      )
+    ).status(),
+  ).toBe(404)
+  await respondent.close()
   await page.goto(builder.replace('/builder/', '/responses/'))
   await page.locator('summary').first().click()
   await expect(page.getByText('Communication', { exact: true })).toBeVisible()

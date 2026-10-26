@@ -2,7 +2,14 @@ import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import { db } from '@/server/db'
 import { rateLimit } from '@/server/auth'
-import { answersSchema, evaluateResponse, validateDefinition } from '@/core/questionnaire'
+import {
+  answersSchema,
+  evaluateResponse,
+  validateDefinition,
+  responseResult,
+} from '@/core/questionnaire'
+import { confirmationUrl } from '@/server/respondent-access'
+import { queueEmail } from '@/server/email'
 
 const schema = z
   .object({
@@ -28,22 +35,40 @@ export async function POST(request: Request) {
     )
     if (!record.rows[0])
       return Response.json({ error: 'Questionnaire unavailable.' }, { status: 404 })
-    const evaluation = evaluateResponse(
-      validateDefinition(record.rows[0].definition),
-      input.answers,
+    const definition = validateDefinition(record.rows[0].definition)
+    const evaluation = evaluateResponse(definition, input.answers)
+    const resultOption = responseResult(definition, input.answers)
+    const statusUrl = confirmationUrl(input.submissionId)
+    const emailQuestion = definition.questions.find(
+      (q) => q.type === 'email' && evaluation.answers[q.id],
     )
+    const email = definition.payment?.enabled
+      ? evaluation.answers[definition.payment.emailQuestionId]
+      : emailQuestion
+        ? evaluation.answers[emailQuestion.id]
+        : null
+    if (definition.payment?.enabled && (!email || !z.email().safeParse(email).success))
+      return Response.json(
+        { error: 'A valid respondent email must be on the submitted path.' },
+        { status: 400 },
+      )
     if (!evaluation.complete)
       return Response.json({ error: 'Please complete all applicable questions.' }, { status: 400 })
     const client = await db().connect()
     try {
       await client.query('BEGIN')
       const result = await client.query<{ id: string }>(
-        'INSERT INTO responses(id,release_id,answers,path) VALUES($1,$2,$3,$4) ON CONFLICT(id) DO NOTHING RETURNING id',
+        'INSERT INTO responses(id,release_id,answers,path,result,respondent_email,payment_status,amount_minor,currency) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT(id) DO NOTHING RETURNING id',
         [
           input.submissionId,
           input.releaseId,
           JSON.stringify(evaluation.answers),
           JSON.stringify(evaluation.path),
+          resultOption ? JSON.stringify(resultOption) : null,
+          email,
+          definition.payment?.enabled ? 'unpaid' : 'not_required',
+          definition.payment?.enabled ? definition.payment.amountMinor : null,
+          definition.payment?.enabled ? definition.payment.currency : null,
         ],
       )
       if (!result.rows.length) {
@@ -79,6 +104,12 @@ export async function POST(request: Request) {
           [event.id, input.submissionId, record.rows[0].webhook_url, JSON.stringify(event)],
         )
       }
+      if (result.rows.length && email)
+        await queueEmail(client, input.submissionId, 'submission', email, {
+          questionnaire_title: definition.title,
+          message: definition.completionMessage,
+          status_url: statusUrl,
+        })
       await client.query('COMMIT')
     } catch (error) {
       await client.query('ROLLBACK')
@@ -86,7 +117,10 @@ export async function POST(request: Request) {
     } finally {
       client.release()
     }
-    return Response.json({ id: input.submissionId }, { status: 201 })
+    return Response.json(
+      { id: input.submissionId, result: resultOption, statusUrl },
+      { status: 201 },
+    )
   } catch (error) {
     if (error instanceof z.ZodError || error instanceof SyntaxError)
       return Response.json({ error: 'Invalid submission.' }, { status: 400 })

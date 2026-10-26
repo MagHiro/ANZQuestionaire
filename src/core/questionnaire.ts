@@ -19,7 +19,19 @@ export const questionSchema = z
     title: z.string().min(1).max(500),
     description: z.string().max(2000).default(''),
     page: z.string().min(1).max(120).default('Your answers'),
-    type: z.enum(['radio', 'dropdown', 'text', 'textarea', 'email', 'number']),
+    type: z.enum([
+      'radio',
+      'dropdown',
+      'text',
+      'textarea',
+      'email',
+      'number',
+      'date',
+      'checkbox',
+      'multiselect',
+      'tel',
+      'url',
+    ]),
     required: z.boolean().default(true),
     options: z.array(option).max(100).default([]),
     branches: z.array(branch).max(100).default([]),
@@ -34,6 +46,41 @@ export const definitionSchema = z
     completionTitle: z.string().min(1).max(300),
     completionMessage: z.string().max(2000),
     questions: z.array(questionSchema).min(1).max(200),
+    results: z
+      .array(
+        z
+          .object({
+            id: identifier,
+            title: z.string().min(1).max(300),
+            message: z.string().max(4000),
+            match: z.enum(['all', 'any']),
+            conditions: z
+              .array(
+                z
+                  .object({
+                    questionId: identifier,
+                    operator: z.enum(['equals', 'notEquals', 'contains', 'gte', 'lte']),
+                    value: z.string().min(1).max(1000),
+                  })
+                  .strict(),
+              )
+              .min(1)
+              .max(50),
+          })
+          .strict(),
+      )
+      .max(50)
+      .optional(),
+    payment: z
+      .object({
+        enabled: z.boolean(),
+        amountMinor: z.number().int().min(100).max(10000000),
+        currency: z.enum(['sgd', 'aud', 'nzd', 'usd']),
+        emailQuestionId: identifier,
+        reportExpected: z.boolean(),
+      })
+      .strict()
+      .optional(),
   })
   .strict()
 export type Definition = z.infer<typeof definitionSchema>
@@ -52,7 +99,7 @@ export function validateDefinition(input: unknown): Definition {
   if (new Set(ids).size !== ids.length) throw new Error('Question IDs must be unique.')
   const reachable = new Set([ids[0]])
   definition.questions.forEach((q, index) => {
-    const choice = q.type === 'radio' || q.type === 'dropdown'
+    const choice = ['radio', 'dropdown', 'checkbox', 'multiselect'].includes(q.type)
     if (choice && q.options.length < 2) throw new Error(`${q.id}: add at least two choices.`)
     if (!choice && q.options.length)
       throw new Error(`${q.id}: only choice questions can have options.`)
@@ -76,7 +123,77 @@ export function validateDefinition(input: unknown): Definition {
   })
   for (const id of ids)
     if (!reachable.has(id)) throw new Error(`${id}: this question cannot be reached.`)
+  if (
+    definition.payment?.enabled &&
+    !definition.questions.some(
+      (q) => q.id === definition.payment?.emailQuestionId && q.type === 'email' && q.required,
+    )
+  )
+    throw new Error('Paid questionnaires need a required email question.')
+  if (definition.payment?.enabled) {
+    // A required email is not sufficient if branching can skip it. Traverse the
+    // forward-only graph with that node removed; Finish must be unreachable.
+    const emailId = definition.payment.emailQuestionId
+    const pending = [ids[0]]
+    const visited = new Set<string>()
+    while (pending.length) {
+      const id = pending.pop()!
+      if (id === emailId || visited.has(id)) continue
+      if (id === '$end')
+        throw new Error('Every paid submission path must include the required email question.')
+      visited.add(id)
+      const index = ids.indexOf(id)
+      pending.push(
+        defaultNext(definition, index),
+        ...definition.questions[index].branches.map((b) => b.target),
+      )
+    }
+  }
+  if (new Set(definition.results?.map((r) => r.id)).size !== (definition.results?.length || 0))
+    throw new Error('Result IDs must be unique.')
+  for (const result of definition.results || [])
+    for (const condition of result.conditions) {
+      const q = definition.questions.find((q) => q.id === condition.questionId)
+      if (!q) throw new Error(`Result ${result.id}: question does not exist.`)
+      if (
+        ['gte', 'lte'].includes(condition.operator) &&
+        (q.type !== 'number' || !Number.isFinite(Number(condition.value)))
+      )
+        throw new Error(`Result ${result.id}: numeric conditions need a number question and value.`)
+      if (condition.operator === 'contains' && !['checkbox', 'multiselect'].includes(q.type))
+        throw new Error(`Result ${result.id}: contains needs a multiple-selection question.`)
+    }
   return definition
+}
+
+export function selectedValues(value: string): string[] {
+  try {
+    const parsed: unknown = JSON.parse(value)
+    return z.array(z.string()).parse(parsed)
+  } catch {
+    return []
+  }
+}
+
+/** Results are ordered; first matching result wins. Unvisited/blank answers never match. */
+export function responseResult(definition: Definition, input: Answers) {
+  const evaluation = evaluateResponse(definition, input)
+  if (!evaluation.complete) return null
+  return (
+    definition.results?.find((result) => {
+      const matches = result.conditions.map((c) => {
+        const answer = evaluation.answers[c.questionId]
+        if (!answer?.trim()) return false
+        if (c.operator === 'equals') return answer === c.value
+        if (c.operator === 'notEquals') return answer !== c.value
+        if (c.operator === 'contains') return selectedValues(answer).includes(c.value)
+        return c.operator === 'gte'
+          ? Number(answer) >= Number(c.value)
+          : Number(answer) <= Number(c.value)
+      })
+      return result.match === 'all' ? matches.every(Boolean) : matches.some(Boolean)
+    }) || null
+  )
 }
 
 export function answerError(q: Question, value: string | undefined): string | null {
@@ -87,12 +204,45 @@ export function answerError(q: Question, value: string | undefined): string | nu
   if (q.type === 'email' && !z.email().safeParse(value).success)
     return 'Enter a valid email address.'
   if (q.type === 'number' && !Number.isFinite(Number(value))) return 'Enter a valid number.'
+  if (['checkbox', 'multiselect'].includes(q.type)) {
+    const parsed = z.array(z.string()).safeParse(
+      (() => {
+        try {
+          return JSON.parse(value)
+        } catch {
+          return null
+        }
+      })(),
+    )
+    if (!parsed.success) return 'Choose valid answers.'
+    const selected = selectedValues(value)
+    if (!selected.length) return q.required ? 'Select at least one answer.' : null
+    if (
+      new Set(selected).size !== selected.length ||
+      selected.some((v) => !q.options.some((o) => o.value === v))
+    )
+      return 'Choose valid answers.'
+  }
+  if (
+    q.type === 'date' &&
+    (!/^\d{4}-\d{2}-\d{2}$/.test(value) ||
+      !Number.isFinite(Date.parse(value)) ||
+      new Date(value).toISOString().slice(0, 10) !== value)
+  )
+    return 'Choose a valid date.'
+  if (q.type === 'url' && !z.url({ protocol: /^https?$/ }).safeParse(value).success)
+    return 'Enter a valid HTTP or HTTPS URL.'
+  if (q.type === 'tel' && !/^[+\d][\d ()-]{5,30}$/.test(value)) return 'Enter a valid phone number.'
   return null
 }
 
 export function nextQuestion(definition: Definition, q: Question, answer: string): string {
   return (
-    q.branches.find((b) => b.equals === answer)?.target ||
+    q.branches.find((b) =>
+      ['checkbox', 'multiselect'].includes(q.type)
+        ? selectedValues(answer).includes(b.equals)
+        : b.equals === answer,
+    )?.target ||
     defaultNext(
       definition,
       definition.questions.findIndex((item) => item.id === q.id),

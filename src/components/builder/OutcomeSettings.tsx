@@ -1,0 +1,195 @@
+'use client'
+import type { Definition } from '@/core/questionnaire'
+
+export function OutcomeSettings({
+  definition: d,
+  onChange,
+}: {
+  definition: Definition
+  onChange: (d: Definition) => void
+}) {
+  const results = d.results || []
+  const payment = d.payment || {
+    enabled: false,
+    amountMinor: 19900,
+    currency: 'sgd' as const,
+    emailQuestionId: d.questions.find((q) => q.type === 'email')?.id || 'email',
+    reportExpected: true,
+  }
+  return (
+    <section className="stack">
+      <h2>Results & payment</h2>
+      <p className="muted">
+        Results are optional. First matching result wins; no match shows the normal confirmation.
+        Only answers on the submitted path are evaluated.
+      </p>
+      {results.map((r, index) => {
+        const update = (patch: Partial<typeof r>) =>
+          onChange({ ...d, results: results.map((v, i) => (i === index ? { ...v, ...patch } : v)) })
+        return (
+          <section className="result-card stack" key={r.id}>
+            <label>
+              Result title
+              <input value={r.title} onChange={(e) => update({ title: e.target.value })} />
+            </label>
+            <label>
+              Result message
+              <textarea value={r.message} onChange={(e) => update({ message: e.target.value })} />
+            </label>
+            <label>
+              Match
+              <select
+                value={r.match}
+                onChange={(e) => update({ match: e.target.value === 'all' ? 'all' : 'any' })}
+              >
+                <option value="all">All conditions</option>
+                <option value="any">Any condition</option>
+              </select>
+            </label>
+            {r.conditions.map((c, ci) => {
+              const condition = (patch: Partial<typeof c>) =>
+                update({
+                  conditions: r.conditions.map((v, i) => (i === ci ? { ...v, ...patch } : v)),
+                })
+              return (
+                <div className="stack" key={ci}>
+                  <label>
+                    Question
+                    <select
+                      value={c.questionId}
+                      onChange={(e) => condition({ questionId: e.target.value })}
+                    >
+                      {d.questions.map((q) => (
+                        <option key={q.id} value={q.id}>
+                          {q.title}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Operator
+                    <select
+                      value={c.operator}
+                      onChange={(e) => condition({ operator: e.target.value as typeof c.operator })}
+                    >
+                      {['equals', 'notEquals', 'contains', 'gte', 'lte'].map((op) => (
+                        <option key={op}>{op}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Stored answer value
+                    <input value={c.value} onChange={(e) => condition({ value: e.target.value })} />
+                  </label>
+                  <button
+                    className="text-button"
+                    onClick={() => update({ conditions: r.conditions.filter((_, i) => i !== ci) })}
+                  >
+                    Remove condition
+                  </button>
+                </div>
+              )
+            })}
+            <button
+              className="button secondary"
+              onClick={() =>
+                update({
+                  conditions: [
+                    ...r.conditions,
+                    { questionId: d.questions[0].id, operator: 'equals', value: 'yes' },
+                  ],
+                })
+              }
+            >
+              Add condition
+            </button>
+            <button
+              className="text-button danger"
+              onClick={() => onChange({ ...d, results: results.filter((_, i) => i !== index) })}
+            >
+              Remove result
+            </button>
+          </section>
+        )
+      })}
+      <button
+        className="button secondary"
+        onClick={() =>
+          onChange({
+            ...d,
+            results: [
+              ...results,
+              {
+                id: `result_${crypto.randomUUID().slice(0, 8)}`,
+                title: 'Your result',
+                message: '',
+                match: 'all',
+                conditions: [{ questionId: d.questions[0].id, operator: 'equals', value: 'yes' }],
+              },
+            ],
+          })
+        }
+      >
+        Add result option
+      </button>
+      <label className="toggle-label">
+        Paid questionnaire
+        <input
+          type="checkbox"
+          checked={payment.enabled}
+          onChange={(e) => onChange({ ...d, payment: { ...payment, enabled: e.target.checked } })}
+        />
+      </label>
+      {payment.enabled && (
+        <div className="stack">
+          <p>Answers → Stripe Checkout → verified payment → staff report upload and publication.</p>
+          <label>
+            Price (minor units, e.g. 19900 = $199.00)
+            <input
+              type="number"
+              min={100}
+              value={payment.amountMinor}
+              onChange={(e) =>
+                onChange({ ...d, payment: { ...payment, amountMinor: Number(e.target.value) } })
+              }
+            />
+          </label>
+          <label>
+            Currency
+            <select
+              value={payment.currency}
+              onChange={(e) =>
+                onChange({
+                  ...d,
+                  payment: { ...payment, currency: e.target.value as typeof payment.currency },
+                })
+              }
+            >
+              {['sgd', 'aud', 'nzd', 'usd'].map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Required respondent email question
+            <select
+              value={payment.emailQuestionId}
+              onChange={(e) =>
+                onChange({ ...d, payment: { ...payment, emailQuestionId: e.target.value } })
+              }
+            >
+              <option value="">Choose email question</option>
+              {d.questions
+                .filter((q) => q.type === 'email' && q.required)
+                .map((q) => (
+                  <option key={q.id} value={q.id}>
+                    {q.title}
+                  </option>
+                ))}
+            </select>
+          </label>
+        </div>
+      )}
+    </section>
+  )
+}

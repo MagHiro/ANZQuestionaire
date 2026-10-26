@@ -371,3 +371,176 @@ h3,
     font-size: 2rem;
   }
 }
+/* Shared interactive controls: keyboard semantics remain native/library-managed. */
+input:not([type='checkbox']):not([type='radio']):not([type='hidden']),
+textarea,
+select,
+.styled-select {
+  border: 1px solid #d4dfef;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fff, #f6f9ff);
+  color: var(--ink);
+  padding: 12px 15px;
+  min-height: 46px;
+  font: inherit;
+  max-width: 100%;
+}
+select {
+  appearance: none;
+  padding-right: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23243085'%3E%3Cpath d='m3 6 5 5 5-5'/%3E%3C/svg%3E");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+}
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: #243085;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.styled-select {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  text-align: left;
+}
+.select-menu {
+  z-index: 1000;
+  min-width: var(--radix-select-trigger-width);
+  max-height: 320px;
+  overflow: auto;
+  border-radius: 14px;
+  background: #fff;
+  padding: 8px;
+  box-shadow: 0 12px 40px #06234f26;
+}
+.select-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+}
+.select-item[data-highlighted],
+.select-item[data-state='checked'] {
+  background: #eef4ff;
+  color: #243085;
+}
+.calendar-panel {
+  margin-top: 12px;
+  background: linear-gradient(135deg, #fff, #eef4ff);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 12px 40px #06234f20;
+  width: fit-content;
+  max-width: 100%;
+}
+.rdp-root {
+  --rdp-accent-color: #243085;
+  --rdp-accent-background-color: #e4ecfc;
+  font-family: var(--font);
+}
+.rdp-month_caption,
+.rdp-nav,
+.rdp-dropdowns {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-block: 6px;
+}
+.rdp-day_button {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+}
+.rdp-selected .rdp-day_button {
+  background: #243085;
+  color: white;
+}
+.rdp-today {
+  color: #243085;
+  font-weight: 600;
+}
+.rdp-button_previous,
+.rdp-button_next {
+  border: 0;
+  background: #e4ecfc;
+  border-radius: 8px;
+  padding: 8px;
+}
+.rdp-weekday {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 0;
+}
+.rdp-dropdown {
+  font: inherit;
+}
+.rdp-chevron {
+  width: 16px;
+  fill: #243085;
+}
+.choice-group {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.result-card,
+.file-control {
+  padding: 24px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fff, #eef4ff);
+  box-shadow: 0 10px 30px -20px #24308555;
+}
+.email-builder {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 32px;
+}
+.email-preview {
+  width: 100%;
+  min-height: 650px;
+  border: 0;
+  border-radius: 18px;
+  background: #f3f7ff;
+}
+.ai-progress {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  background: #eaf0fc;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+.activity-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #bac9eb;
+  border-top-color: #243085;
+  border-radius: 50%;
+  animation: activity-spin 1s linear infinite;
+}
+@keyframes activity-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .activity-spinner {
+    animation: none;
+  }
+}
+@media (max-width: 800px) {
+  .email-builder {
+    grid-template-columns: 1fr;
+  }
+}
