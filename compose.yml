@@ -1,0 +1,62 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: questionnaire
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: questionnaire
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U questionnaire]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+    ports:
+      - 127.0.0.1:3100:3000
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+  operations:
+    build:
+      context: .
+      target: operations
+    env_file: .env
+    profiles: [operations]
+    depends_on:
+      db:
+        condition: service_healthy
+    command: [pnpm, db:migrate]
+  worker:
+    build:
+      context: .
+      target: operations
+    env_file: .env
+    restart: unless-stopped
+    profiles: [webhooks]
+    depends_on:
+      db:
+        condition: service_healthy
+    command: [sh, -c, 'while true; do pnpm webhooks:deliver; sleep 30; done']
+volumes:
+  postgres:

@@ -1,0 +1,5 @@
+next-env.d.ts
+.next/
+pnpm-lock.yaml
+test-results/
+playwright-report/
