@@ -14,6 +14,7 @@ export default defineConfig({
       env: {
         DATABASE_URL: 'postgresql://test:test-local-only@127.0.0.1:55439/postgres',
         APP_URL: 'http://127.0.0.1:3199',
+        SETTINGS_ENCRYPTION_KEY: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       },
       url: 'http://127.0.0.1:3199/login',
       reuseExistingServer: false,

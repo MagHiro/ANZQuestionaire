@@ -37,7 +37,7 @@ pnpm dev
 
 Passwords must be at least 12 characters and at most 72 bytes. Add editors using the same operator command with role `editor`. There is no public signup, password-reset email or user-management UI yet. Operators can revoke all sessions for an account directly through a controlled DB operation; establish an account-recovery procedure before onboarding staff.
 
-AI is optional: configure `AI_BASE_URL`, `AI_API_KEY`, and `AI_MODEL`. Without them manual editing, import, preview and publishing still work. Hermes can be used if its serving endpoint implements the required OpenAI-compatible chat and JSON response interface. No specific external provider has been validated with real credentials yet.
+AI is optional: administrators can open **AI settings** in the workspace (`/settings/ai`) to configure the endpoint, model and encrypted API key, and test the saved connection. Changes apply immediately without a restart. Operators must first configure `SETTINGS_ENCRYPTION_KEY` with 32 random bytes encoded as 64 hexadecimal characters; back up this key securely with your database recovery materials. Keys cannot be decrypted if it is lost. `AI_BASE_URL`, `AI_API_KEY`, and `AI_MODEL` remain fallback values until settings are saved in admin. Only trusted administrators may configure provider endpoints. Network egress policy should also block private/internal destinations. Without AI configuration manual editing, import, preview and publishing still work. Hermes can be used if its serving endpoint implements the required OpenAI-compatible chat and JSON response interface. No specific external provider has been validated with real credentials yet.
 
 ## Production deployment
 

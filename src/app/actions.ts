@@ -10,6 +10,7 @@ import { blankDefinition, definitionSchema, validateDefinition } from '@/core/qu
 import { db } from '@/server/db'
 import { createSession, rateLimit, requireStaff, tokenHash } from '@/server/auth'
 import { getQuestionnaire, publishQuestionnaire, saveDraft } from '@/server/questionnaires'
+import { getAiConfiguration, validateBaseUrl } from '@/server/ai-settings'
 
 export async function loginAction(_state: string, form: FormData): Promise<string> {
   const email = String(form.get('email') || '')
@@ -150,16 +151,14 @@ export async function generateProposal(id: string, definition: unknown, instruct
     const current = definitionSchema.parse(definition)
     z.string().min(3).max(12000).parse(instruction)
     await rateLimit(`ai:${actor.id}`, 20, 3600)
-    const { AI_BASE_URL, AI_API_KEY, AI_MODEL } = process.env
+    const { baseUrl: AI_BASE_URL, apiKey: AI_API_KEY, model: AI_MODEL } = await getAiConfiguration()
     if (!AI_BASE_URL || !AI_API_KEY || !AI_MODEL)
       throw new Error(
         'AI is not configured. You can still use the manual editor or import a definition.',
       )
-    const base = new URL(AI_BASE_URL)
-    if (base.protocol !== 'https:' && process.env.NODE_ENV === 'production')
-      throw new Error('AI endpoint must use HTTPS.')
-    const response = await fetch(`${AI_BASE_URL.replace(/\/$/, '')}/chat/completions`, {
+    const response = await fetch(`${validateBaseUrl(AI_BASE_URL)}/chat/completions`, {
       method: 'POST',
+      redirect: 'error',
       headers: {
         Authorization: `Bearer ${AI_API_KEY}`,
         'Content-Type': 'application/json',

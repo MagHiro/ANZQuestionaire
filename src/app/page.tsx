@@ -30,6 +30,11 @@ export default async function Dashboard() {
           <Layers size={18} />
           Questionnaires<span>{forms.length}</span>
         </Link>
+        {staff.role === 'admin' && (
+          <Link href="/settings/ai" className="nav-item">
+            AI settings
+          </Link>
+        )}
         <div className="sidebar-note">
           <span className="mini-spark">✳</span>
           <h3>Start with curiosity.</h3>
@@ -53,7 +58,13 @@ export default async function Dashboard() {
           <span>
             Workspace <span className="muted">/ Questionnaires</span>
           </span>
-          <span className="workspace-badge">ANZ workspace</span>
+          {staff.role === 'admin' ? (
+            <Link href="/settings/ai" className="workspace-badge">
+              AI settings
+            </Link>
+          ) : (
+            <span className="workspace-badge">ANZ workspace</span>
+          )}
         </header>
         <section className="dashboard-heading">
           <div>
