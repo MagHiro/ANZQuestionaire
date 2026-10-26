@@ -106,4 +106,4 @@ Browser tests launch their own disposable PostgreSQL server on port 55439 and th
 - `docs/questionnaire-format.md`: input format and question-provider template.
 - `docs/integration.md`: embedding and server-to-server security contract.
 
-Visual baseline: `/home/rafi/project/jalanin/design.md`, with self-hosted **Plus Jakarta Sans** replacing Google Sans Flex. White/neutral surfaces, regular-weight type, navy controls, restrained hierarchy. Builder layout reference: [Typeform on Mobbin](https://mobbin.com/screens/f985698e-8129-4fb2-b84d-e29755da1cbd). No third-party screenshots or branding assets are bundled.
+Visual baseline: `../anzwebsite/DESIGN.md`, mirrored in this project's `DESIGN.md`, with self-hosted **Poppins**, ANZ blue tones and the ANZ typography contract. The functional three-panel builder layout remains inspired by [Typeform on Mobbin](https://mobbin.com/screens/f985698e-8129-4fb2-b84d-e29755da1cbd). No third-party screenshots or branding assets are bundled.

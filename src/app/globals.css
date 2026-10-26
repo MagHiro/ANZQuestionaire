@@ -1,12 +1,12 @@
 :root {
-  --ink: #111;
-  --muted: #656565;
-  --navy: #102568;
-  --navy-hover: #243966;
-  --line: #e8e8e5;
-  --canvas: #f7f7f4;
-  --green: #26735a;
-  --font: 'Plus Jakarta Sans Variable', sans-serif;
+  --ink: #06234f;
+  --muted: #455e7d;
+  --navy: #243085;
+  --navy-hover: #30419a;
+  --line: #d9e1ea;
+  --canvas: #fbfcfe;
+  --green: #243085;
+  --font: 'Poppins', sans-serif;
 }
 * {
   box-sizing: border-box;
@@ -17,7 +17,7 @@ body {
   background: #fff;
   font-family: var(--font);
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.75;
 }
 a {
   color: inherit;

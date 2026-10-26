@@ -112,7 +112,7 @@ export default async function Dashboard() {
                   href={`/builder/${form.id}`}
                   className="form-art"
                   style={{
-                    background: ['#edf1fa', '#f4efe6', '#eaf2ec'][index % 3],
+                    background: ['#eef4ff', '#e4ecfc', '#f1f5fc'][index % 3],
                   }}
                 >
                   <span className="art-lines">

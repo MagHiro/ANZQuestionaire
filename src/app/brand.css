@@ -1,0 +1,195 @@
+/* ANZ typography contract; kept after layout styles so responsive overrides stay consistent. */
+h1,
+.dashboard-heading h1,
+.login-story h1,
+.stage-question h1,
+.content-panel h1,
+.runner-content h1 {
+  font-size: clamp(2.5rem, 1.9rem + 3.2vw, 4rem);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  font-weight: 400;
+  max-width: 40ch;
+}
+.login-story h1 {
+  max-width: 18ch;
+}
+h2,
+.login-panel h2,
+.section-heading h2 {
+  font-size: clamp(1.875rem, 1.45rem + 1.9vw, 2.75rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  font-weight: 400;
+  max-width: 18ch;
+}
+h3,
+.form-card h3,
+.ai-title h3,
+.question-editor h3 {
+  font-size: clamp(1rem, 0.95rem + 0.4vw, 1.0625rem);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+}
+.button,
+.compact,
+.header-actions .button,
+.create-card button,
+.stage-button {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: normal;
+}
+.eyebrow,
+.question-nav .eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+.eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  background: var(--navy);
+  margin-right: 9px;
+  vertical-align: middle;
+}
+.muted,
+.small,
+.question-description,
+.runner-intro,
+.runner-footer,
+.runner-wordmark > span,
+.canvas-caption,
+.ai-title p,
+.ai-bottom > span,
+.flow-node p,
+.history-row small,
+.review-list dt,
+.completion p,
+.sidebar-note p,
+.sidebar-note > .mini-spark,
+.nav-caption,
+.dashboard-footer {
+  color: var(--muted);
+}
+.question-description,
+.login-story > div > p,
+.completion p,
+.dashboard-heading p,
+.content-panel p.muted {
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  max-width: 65ch;
+}
+.sidebar,
+.question-nav,
+.builder-canvas,
+.runner,
+.create-card,
+.branch-editor {
+  background: var(--canvas);
+}
+.login-story,
+.nav-item.active,
+.question-nav-item.selected,
+.answer-choice,
+.stage-option,
+.status.live,
+.completion-icon,
+.avatar,
+.type-chip,
+.type-radio,
+.type-dropdown,
+.type-email {
+  background: #eef4ff;
+  color: var(--navy);
+}
+.answer-choice.selected,
+.answer-choice:hover {
+  background: #e4ecfc;
+}
+.answer-choice.selected {
+  border-color: var(--navy);
+}
+.stats {
+  border: 0;
+}
+.stats > div,
+.stats > div:first-child {
+  border: 0;
+  flex-direction: column;
+  text-align: center;
+}
+.stats > div > svg {
+  display: none;
+}
+.stats strong {
+  font-size: clamp(2rem, 1.7rem + 1.4vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+.stats span {
+  font-size: 0.8125rem;
+  line-height: 1.5rem;
+  letter-spacing: 0.015em;
+  max-width: 20ch;
+}
+.flow-node strong,
+.runner-wordmark,
+.brand {
+  font-weight: 400;
+}
+.art-number {
+  color: #24308528;
+}
+.art-lines i {
+  background: #24308533;
+}
+.mini-spark,
+.ai-title svg {
+  color: var(--navy);
+}
+.status.live i {
+  background: var(--navy);
+}
+.canvas-dot {
+  background: var(--navy);
+}
+.runner-content h1,
+.stage-question h1 {
+  overflow-wrap: anywhere;
+}
+.dashboard-footer {
+  box-shadow: 0 -8px 28px -16px rgb(19 35 78 / 0.18);
+}
+@media (max-width: 600px) {
+  .builder-header {
+    align-items: flex-start;
+  }
+  .builder-breadcrumb {
+    flex-basis: 100%;
+  }
+  .header-actions {
+    margin-left: auto;
+  }
+  .question-nav-list {
+    align-items: stretch;
+  }
+  .question-stage {
+    padding-inline: 15px;
+  }
+  .stage-question {
+    gap: 8px;
+  }
+  .stats span {
+    font-size: 0.75rem;
+  }
+}

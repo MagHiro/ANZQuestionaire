@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
-import '@fontsource-variable/plus-jakarta-sans'
+import '@fontsource/poppins/latin-400.css'
+import '@fontsource/poppins/latin-500.css'
+import '@fontsource/poppins/latin-600.css'
 import './globals.css'
+import './brand.css'
 
 export const metadata: Metadata = {
   title: { default: 'ANZ Questionnaire', template: '%s · ANZ Questionnaire' },
