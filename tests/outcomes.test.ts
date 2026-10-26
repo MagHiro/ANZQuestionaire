@@ -4,6 +4,7 @@ import {
   validateDefinition,
   responseResult,
   answerError,
+  nextQuestion,
   questionSchema,
 } from '../src/core/questionnaire'
 import { renderEmail } from '../src/core/email-template'
@@ -79,6 +80,11 @@ it('validates calendar dates and multiple selections', () => {
   })
   expect(answerError(multi, '["a","b"]')).toBeNull()
   expect(answerError(multi, '["a","a"]')).toBeTruthy()
+  multi.branches = [{ equals: 'b', target: '$end' }]
+  const d = blankDefinition()
+  d.questions = [multi, questionSchema.parse({ id: 'followup', title: 'More', type: 'text' })]
+  expect(nextQuestion(d, multi, '["a","b"]')).toBe('$end')
+  expect(nextQuestion(d, multi, '["a"]')).toBe('followup')
 })
 it('escapes email variables and rejects unsafe button URLs', () => {
   const result = renderEmail(
