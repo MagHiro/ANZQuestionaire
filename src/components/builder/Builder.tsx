@@ -45,7 +45,7 @@ type Props = {
   initialOrigins: string[]
   initialWebhook: string
 }
-type Tab = 'create' | 'logic' | 'share' | 'settings'
+type Tab = 'create' | 'logic' | 'outcomes' | 'share' | 'settings'
 export function Builder({
   id,
   initial,
@@ -284,12 +284,12 @@ export function Builder({
           </span>
         </div>
         <nav aria-label="Builder views">
-          {(['create', 'logic', 'share', 'settings'] as Tab[]).map((t) => (
+          {(['create', 'logic', 'outcomes', 'share', 'settings'] as Tab[]).map((t) => (
             <button key={t} className={tab === t ? 'selected-tab' : ''} onClick={() => setTab(t)}>
               {t === 'settings' ? 'Settings' : t[0].toUpperCase() + t.slice(1)}
             </button>
           ))}
-          <Link href={`/responses/${id}`}>Results</Link>
+          <Link href={`/responses/${id}`}>Responses</Link>
         </nav>
         <div className="header-actions">
           <button className="button secondary compact" disabled={busy || !dirty} onClick={save}>
@@ -399,91 +399,110 @@ export function Builder({
           </div>
         </aside>
         <main className="builder-canvas">
-          {tab === 'create' ? (
+          {tab === 'create' || tab === 'outcomes' ? (
             <>
-              <div className="canvas-toolbar">
-                <span>
-                  <span className="canvas-dot" />
-                  Question {definition.questions.findIndex((q) => q.id === current.id) + 1}
-                </span>
-                <div>
-                  <button
-                    className="icon-button"
-                    aria-label="Previous question"
-                    disabled={current.id === definition.questions[0].id}
-                    onClick={() => move(-1)}
-                  >
-                    <ArrowLeft size={16} />
-                  </button>
-                  <button
-                    className="icon-button"
-                    aria-label="Next question"
-                    disabled={current.id === definition.questions.at(-1)?.id}
-                    onClick={() => move(1)}
-                  >
-                    <ArrowRight size={16} />
-                  </button>
-                  <button
-                    className="icon-button"
-                    aria-label="Delete question"
-                    onClick={removeQuestion}
-                    disabled={definition.questions.length < 2}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                  <button
-                    className="button secondary compact"
-                    disabled={!!issue}
-                    onClick={() => setPreview(true)}
-                  >
-                    <Play size={14} />
-                    Try it out
-                  </button>
-                </div>
-              </div>
-              <div className="question-stage">
-                <div className="stage-question">
-                  <span className="stage-number">
-                    {definition.questions.findIndex((q) => q.id === current.id) + 1}
-                    <ArrowRight size={15} />
-                  </span>
-                  <div>
-                    <h1>{current.title || 'Your question goes here'}</h1>
-                    {current.description && <p className="muted">{current.description}</p>}
-                    <div className="stage-options">
-                      {current.type === 'radio' || current.type === 'dropdown' ? (
-                        current.options.map((o, i) => (
-                          <div className="stage-option" key={o.value}>
-                            <span>{String.fromCharCode(65 + i)}</span>
-                            {o.label}
-                          </div>
-                        ))
-                      ) : (
-                        <div className="stage-placeholder">
-                          {current.type === 'email' ? 'you@example.com' : 'Type your answer here…'}
-                        </div>
-                      )}
-                    </div>
-                    <span className="stage-button">
-                      Continue <ArrowRight size={15} />
+              {tab === 'outcomes' ? (
+                <section className="content-panel stack">
+                  <h1>Result options</h1>
+                  {issue && (
+                    <p className="validation-note" role="status">
+                      Before publishing: {issue}
+                    </p>
+                  )}
+                  <OutcomeSettings definition={definition} onChange={edit} />
+                </section>
+              ) : (
+                <>
+                  <div className="canvas-toolbar">
+                    <span>
+                      <span className="canvas-dot" />
+                      Question {definition.questions.findIndex((q) => q.id === current.id) + 1}
                     </span>
+                    <div>
+                      <button
+                        className="icon-button"
+                        aria-label="Previous question"
+                        disabled={current.id === definition.questions[0].id}
+                        onClick={() => move(-1)}
+                      >
+                        <ArrowLeft size={16} />
+                      </button>
+                      <button
+                        className="icon-button"
+                        aria-label="Next question"
+                        disabled={current.id === definition.questions.at(-1)?.id}
+                        onClick={() => move(1)}
+                      >
+                        <ArrowRight size={16} />
+                      </button>
+                      <button
+                        className="icon-button"
+                        aria-label="Delete question"
+                        onClick={removeQuestion}
+                        disabled={definition.questions.length < 2}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                      <button
+                        className="button secondary compact"
+                        disabled={!!issue}
+                        onClick={() => setPreview(true)}
+                      >
+                        <Play size={14} />
+                        Try it out
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </div>
-              {issue && (
-                <p className="validation-note" role="status">
-                  Before publishing: {issue}
-                </p>
+                  <div className="question-stage">
+                    <div className="stage-question">
+                      <span className="stage-number">
+                        {definition.questions.findIndex((q) => q.id === current.id) + 1}
+                        <ArrowRight size={15} />
+                      </span>
+                      <div>
+                        <h1>{current.title || 'Your question goes here'}</h1>
+                        {current.description && <p className="muted">{current.description}</p>}
+                        <div className="stage-options">
+                          {current.type === 'radio' || current.type === 'dropdown' ? (
+                            current.options.map((o, i) => (
+                              <div className="stage-option" key={o.value}>
+                                <span>{String.fromCharCode(65 + i)}</span>
+                                {o.label}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="stage-placeholder">
+                              {current.type === 'email'
+                                ? 'you@example.com'
+                                : 'Type your answer here…'}
+                            </div>
+                          )}
+                        </div>
+                        <span className="stage-button">
+                          Continue <ArrowRight size={15} />
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {issue && (
+                    <p className="validation-note" role="status">
+                      Before publishing: {issue}
+                    </p>
+                  )}
+                </>
               )}
               <section className="ai-composer">
                 <div className="ai-title">
                   <Sparkles size={19} />
                   <div>
-                    <h3>Edit with AI</h3>
+                    <h3>{tab === 'outcomes' ? 'Generate results with AI' : 'Edit with AI'}</h3>
                   </div>
                 </div>
                 <p className="ai-context">
-                  Working with: <strong>{current.title}</strong>
+                  Working with:{' '}
+                  <strong>
+                    {tab === 'outcomes' ? 'Result options and conditions' : current.title}
+                  </strong>
                   {proposal ? ' · Refining the pending proposal' : ''}
                 </p>
                 {aiStage && (
@@ -493,18 +512,31 @@ export function Builder({
                   </div>
                 )}
                 <div className="ai-prompts">
-                  {[
-                    'Make this question clearer and more engaging, without changing its logic.',
-                    'Review the questionnaire for confusing wording and unnecessary repetition.',
-                    'Help me create a complete questionnaire. Ask what you need to know first.',
-                  ].map((prompt, index) => (
+                  {(tab === 'outcomes'
+                    ? [
+                        'Help me create result options for this questionnaire. Ask me for the decision criteria before generating conditions. Preserve questions, branching, payment and confirmation settings.',
+                        'Review result options for unclear messages and overlapping conditions. Do not change decision criteria. Preserve questions, branching, payment and confirmation settings.',
+                        'Rewrite result messages in clear plain language without changing their conditions. Preserve all questions and other settings.',
+                      ]
+                    : [
+                        'Make this question clearer and more engaging, without changing its logic.',
+                        'Review the questionnaire for confusing wording and unnecessary repetition.',
+                        'Help me create a complete questionnaire. Ask what you need to know first.',
+                      ]
+                  ).map((prompt, index) => (
                     <button
                       type="button"
                       key={prompt}
                       disabled={busy}
                       onClick={() => setInstruction(prompt)}
                     >
-                      {['Refine this question', 'Improve the flow', 'Build from an idea'][index]}
+                      {
+                        (tab === 'outcomes'
+                          ? ['Create result options', 'Review conditions', 'Improve messages']
+                          : ['Refine this question', 'Improve the flow', 'Build from an idea'])[
+                          index
+                        ]
+                      }
                     </button>
                   ))}
                 </div>
@@ -527,7 +559,11 @@ export function Builder({
                   value={instruction}
                   onChange={(e) => setInstruction(e.target.value)}
                   maxLength={12000}
-                  placeholder="“Ask about qualifications only if they select Australia…”"
+                  placeholder={
+                    tab === 'outcomes'
+                      ? 'Describe each result and the answers that should lead to it…'
+                      : '“Ask about qualifications only if they select Australia…”'
+                  }
                   rows={3}
                 />
                 <div className="ai-bottom">
@@ -743,7 +779,7 @@ export function Builder({
           ) : (
             <section className="content-panel stack">
               <h1>Questionnaire settings</h1>
-              <OutcomeSettings definition={definition} onChange={edit} />
+              <OutcomeSettings definition={definition} onChange={edit} section="payment" />
               <label>
                 Questionnaire title
                 <input

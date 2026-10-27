@@ -62,6 +62,15 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await page.getByRole('button', { name: 'Logic', exact: true }).click()
   await page.locator('.flow-node summary').first().click()
   await expect(page.locator('.flow-node[open]').getByLabel('Default next step')).toBeVisible()
+  await page.getByRole('button', { name: 'Outcomes', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Result options', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Generate results with AI' })).toBeVisible()
+  await expect(page.getByLabel('Paid questionnaire')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Create result options', exact: true }).click()
+  await expect(page.getByLabel('Instructions for AI')).toHaveValue(/decision criteria/)
+  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await expect(page.getByLabel('Paid questionnaire')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Add result option', exact: true })).toHaveCount(0)
 
   if (test.info().project.name === 'desktop') {
     await page.getByRole('button', { name: 'Create', exact: true }).click()
