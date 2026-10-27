@@ -57,3 +57,11 @@ Source of truth: `../anzwebsite/DESIGN.md`. This supersedes the initial Jalanin 
 - Create with AI opens a prompt dialog; generation continues in the side panel. Render assistant summaries and conversation as safe Markdown without raw HTML. Staff still explicitly apply, save and publish proposals.
 - Saving remains available after publication, including when the draft is unchanged; draft saves never update the published release.
 - Payment uses one heading and major-currency price entry, stored as integer minor units. Responses use compact headers and status-labelled rows; PDF management is shown only for paid questionnaires.
+
+## AI research
+
+- Create with AI stays open in a large modal containing conversation, progress, proposal and actions.
+- Optional web search uses the internal SearXNG service, without exposing a public search port. Research planning receives only the staff instruction, not respondent submissions or questionnaire definitions.
+- Search is bounded to three queries and six results per query. It supplies search excerpts, not browser-verified page contents. Cite sources and preserve uncertainty; search engines can block requests or return incomplete/outdated snippets.
+- Web pages and snippets are untrusted evidence, not instructions. Missing criteria should prompt a focused plain-language question rather than demand a technical rule specification. Source-supported outcome criteria may be drafted for staff review; never claim adviser approval.
+- The app uses `WEB_SEARCH_URL` (set to `http://search:8080` by Compose). Start the service with `docker compose up -d search`. Search failures are explicit; staff can disable search and continue with supplied information.

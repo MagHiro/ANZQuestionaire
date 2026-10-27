@@ -24,6 +24,7 @@ export async function POST(request: Request) {
         definition: definitionSchema,
         instruction: z.string().min(3).max(12000),
         context: aiContextSchema,
+        webSearch: z.boolean().default(false),
       })
       .parse(JSON.parse(text))
     await getQuestionnaire(input.id)
@@ -47,6 +48,7 @@ export async function POST(request: Request) {
             input.instruction,
             input.context,
             (stage) => send({ stage }),
+            input.webSearch,
           )
           send({ proposal })
         } catch (error) {

@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Spinner } from '@/components/Spinner'
 import { Markdown } from '@/components/Markdown'
+import { OptionalPortal } from '@/components/OptionalPortal'
 import { OutcomeDialog } from './OutcomeDialog'
 import { LogicMap } from './LogicMap'
 import { useEffect, useRef, useState } from 'react'
@@ -80,6 +81,8 @@ export function Builder({
   const [proposalPreview, setProposalPreview] = useState(false)
   const [aiOpen, setAiOpen] = useState(true)
   const [aiPromptOpen, setAiPromptOpen] = useState(false)
+  const [webSearch, setWebSearch] = useState(true)
+  const [aiModalTarget, setAiModalTarget] = useState<HTMLDivElement | null>(null)
   const [leftCollapsed, setLeftCollapsed] = useState(false)
   const [rightCollapsed, setRightCollapsed] = useState(false)
   const [undo, setUndo] = useState<Definition[]>([])
@@ -226,6 +229,7 @@ export function Builder({
           id,
           definition: candidate,
           instruction,
+          webSearch,
           context: { selectedQuestionId: current.id, history: aiHistory.slice(-8) },
         }),
       })
@@ -311,7 +315,14 @@ export function Builder({
             {busy && operation === 'save' && <Spinner />}
             Save draft
           </button>
-          <button className="button secondary compact" onClick={() => setAiPromptOpen(true)}>
+          <button
+            className="button secondary compact"
+            onClick={() => {
+              if (tab !== 'outcomes') setTab('create')
+              setAiOpen(true)
+              setAiPromptOpen(true)
+            }}
+          >
             <Sparkles size={16} />
             Create with AI
           </button>
@@ -524,207 +535,226 @@ export function Builder({
                   </>
                 )}
               </div>
-              <section
-                className={`ai-composer ai-dock ${aiOpen ? 'ai-dock-open' : ''}`}
-                aria-label="AI assistant"
-              >
-                <button
-                  type="button"
-                  className="ai-dock-toggle"
-                  aria-expanded={aiOpen}
-                  aria-controls="ai-dock-content"
-                  onClick={() => setAiOpen(!aiOpen)}
+              <OptionalPortal target={aiPromptOpen ? aiModalTarget : null}>
+                <section
+                  className={`ai-composer ai-dock ${aiOpen ? 'ai-dock-open' : ''}`}
+                  aria-label="AI assistant"
                 >
-                  <Sparkles size={18} aria-hidden="true" />
-                  <span>{tab === 'outcomes' ? 'Generate results with AI' : 'Edit with AI'}</span>
-                  <span className="small">
-                    {proposal ? 'Proposal ready · ' : ''}
-                    {aiOpen ? 'Minimize' : 'Open'}
-                  </span>
-                </button>
-                <div id="ai-dock-content" hidden={!aiOpen} className="ai-dock-content">
-                  <p className="ai-context">
-                    Working with:{' '}
-                    <strong>
-                      {tab === 'outcomes' ? 'Result options and conditions' : current.title}
-                    </strong>
-                    {proposal ? ' · Refining the pending proposal' : ''}
-                  </p>
-                  {aiStage && (
-                    <div className="ai-progress" role="status" aria-live="polite">
-                      <span className="activity-spinner" />
-                      {aiStage}…
-                    </div>
-                  )}
-                  <div className="ai-prompts">
-                    {(tab === 'outcomes'
-                      ? [
-                          'Help me create result options for this questionnaire. Ask me for the decision criteria before generating conditions. Preserve questions, branching, payment and confirmation settings.',
-                          'Review result options for unclear messages and overlapping conditions. Do not change decision criteria. Preserve questions, branching, payment and confirmation settings.',
-                          'Rewrite result messages in clear plain language without changing their conditions. Preserve all questions and other settings.',
-                        ]
-                      : [
-                          'Make this question clearer and more engaging, without changing its logic.',
-                          'Review the questionnaire for confusing wording and unnecessary repetition.',
-                          'Help me create a complete questionnaire. Ask what you need to know first.',
-                        ]
-                    ).map((prompt, index) => (
-                      <button
-                        type="button"
-                        key={prompt}
-                        disabled={busy}
-                        onClick={() => setInstruction(prompt)}
-                      >
-                        {
-                          (tab === 'outcomes'
-                            ? ['Create result options', 'Review conditions', 'Improve messages']
-                            : ['Refine this question', 'Improve the flow', 'Build from an idea'])[
-                            index
+                  <button
+                    type="button"
+                    className="ai-dock-toggle"
+                    aria-expanded={aiOpen}
+                    aria-controls="ai-dock-content"
+                    onClick={() => setAiOpen(!aiOpen)}
+                  >
+                    <Sparkles size={18} aria-hidden="true" />
+                    <span>{tab === 'outcomes' ? 'Generate results with AI' : 'Edit with AI'}</span>
+                    <span className="small">
+                      {proposal ? 'Proposal ready · ' : ''}
+                      {aiOpen ? 'Minimize' : 'Open'}
+                    </span>
+                  </button>
+                  <div id="ai-dock-content" hidden={!aiOpen} className="ai-dock-content">
+                    <p className="ai-context">
+                      Working with:{' '}
+                      <strong>
+                        {tab === 'outcomes' ? 'Result options and conditions' : current.title}
+                      </strong>
+                      {proposal ? ' · Refining the pending proposal' : ''}
+                    </p>
+                    {aiStage && (
+                      <div className="ai-progress" role="status" aria-live="polite">
+                        <span className="activity-spinner" />
+                        {aiStage}…
+                      </div>
+                    )}
+                    <div className="ai-prompts">
+                      {(tab === 'outcomes'
+                        ? [
+                            'Help me create result options for this questionnaire. Ask me for the decision criteria before generating conditions. Preserve questions, branching, payment and confirmation settings.',
+                            'Review result options for unclear messages and overlapping conditions. Do not change decision criteria. Preserve questions, branching, payment and confirmation settings.',
+                            'Rewrite result messages in clear plain language without changing their conditions. Preserve all questions and other settings.',
                           ]
-                        }
-                      </button>
-                    ))}
-                  </div>
-                  {aiHistory.length > 0 && (
-                    <div className="ai-history" aria-label="AI conversation">
-                      {aiHistory.map((item, index) => (
-                        <article className={`chat-message chat-${item.role}`} key={index}>
-                          <strong>{item.role === 'user' ? 'You' : 'Assistant'}</strong>
-                          <Markdown>{item.content}</Markdown>
-                        </article>
+                        : [
+                            'Make this question clearer and more engaging, without changing its logic.',
+                            'Review the questionnaire for confusing wording and unnecessary repetition.',
+                            'Help me create a complete questionnaire. Ask what you need to know first.',
+                          ]
+                      ).map((prompt, index) => (
+                        <button
+                          type="button"
+                          key={prompt}
+                          disabled={busy}
+                          onClick={() => setInstruction(prompt)}
+                        >
+                          {
+                            (tab === 'outcomes'
+                              ? ['Create result options', 'Review conditions', 'Improve messages']
+                              : ['Refine this question', 'Improve the flow', 'Build from an idea'])[
+                              index
+                            ]
+                          }
+                        </button>
                       ))}
                     </div>
-                  )}
-                  <label className="sr-only" htmlFor="ai-instruction">
-                    Instructions for AI
-                  </label>
-                  <textarea
-                    id="ai-instruction"
-                    value={instruction}
-                    onChange={(e) => setInstruction(e.target.value)}
-                    maxLength={12000}
-                    placeholder={
-                      tab === 'outcomes'
-                        ? 'Describe each result and the answers that should lead to it…'
-                        : '“Ask about qualifications only if they select Australia…”'
-                    }
-                    rows={3}
-                  />
-                  <div className="ai-bottom">
-                    <span>
-                      AI suggests. You decide.{' '}
-                      {proposal ? 'Your next request refines this proposal.' : ''}
-                    </span>
-                    <button
-                      className="button primary compact"
-                      disabled={busy || instruction.trim().length < 3}
-                      onClick={askAI}
-                    >
-                      {busy && operation === 'ai' && <Spinner />}
-                      {busy && operation === 'ai' ? 'Working…' : 'Suggest changes'}
-                      <ArrowRight size={15} />
-                    </button>
-                  </div>
-                  {proposal && (
-                    <div className="proposal">
-                      <h3>Proposed changes</h3>
-                      <details className="proposal-summary">
-                        <summary>AI summary</summary>
-                        <Markdown>{proposal.summary}</Markdown>
-                      </details>
-                      {proposal.clarification && (
-                        <div className="notice">
-                          <Markdown>{proposal.clarification}</Markdown>
-                        </div>
-                      )}
-                      {proposalBase !== JSON.stringify(definition) && (
-                        <p className="error">
-                          Your draft changed after this proposal. Discard it and ask again to avoid
-                          overwriting manual edits.
-                        </p>
-                      )}
-                      <details className="proposal-details">
-                        <summary>
-                          Review {describeChanges(definition, proposal.definition).length} changes
-                        </summary>
-                        <ul className="small">
-                          {describeChanges(definition, proposal.definition).map((change, index) => (
-                            <li key={index}>{change}</li>
-                          ))}
-                        </ul>
-                        {definition.questions.map((q) => {
-                          const next = proposal.definition.questions.find(
-                            (item) => item.id === q.id,
-                          )
-                          if (
-                            !next ||
-                            (q.title === next.title && q.description === next.description)
-                          )
-                            return null
-                          return (
-                            <section className="proposal-comparison" key={q.id}>
-                              <h4>{q.title}</h4>
-                              <div>
-                                <span className="small muted">Before</span>
-                                <p>{q.title}</p>
-                                {q.description && <p className="small">{q.description}</p>}
-                              </div>
-                              <div>
-                                <span className="small muted">After</span>
-                                <p>{next.title}</p>
-                                {next.description && <p className="small">{next.description}</p>}
-                              </div>
-                            </section>
-                          )
-                        })}
-                      </details>
-                      <p className="small muted">
-                        {proposal.definition.questions.length} questions · Applying replaces the
-                        local draft. Undo is available.
-                      </p>
-                      <div className="button-row proposal-actions">
-                        <button
-                          className="button secondary compact"
-                          onClick={() => {
-                            setProposalPreview(true)
-                            setPreview(true)
-                          }}
-                        >
-                          Preview proposal
-                        </button>
-                        <button
-                          className="button primary compact"
-                          disabled={
-                            busy ||
-                            !!proposal.clarification ||
-                            proposalBase !== JSON.stringify(definition)
-                          }
-                          onClick={() => {
-                            edit(proposal.definition)
-                            setSelected(
-                              proposal.definition.questions.some((q) => q.id === selected)
-                                ? selected
-                                : proposal.definition.questions[0].id,
-                            )
-                            setProposal(null)
-                          }}
-                        >
-                          Apply to draft
-                        </button>
-                        <button
-                          className="button secondary compact"
-                          onClick={() => {
-                            setProposal(null)
-                            setAiHistory([])
-                          }}
-                        >
-                          Discard
-                        </button>
+                    {aiHistory.length > 0 && (
+                      <div className="ai-history" aria-label="AI conversation">
+                        {aiHistory.map((item, index) => (
+                          <article className={`chat-message chat-${item.role}`} key={index}>
+                            <strong>{item.role === 'user' ? 'You' : 'Assistant'}</strong>
+                            <Markdown>{item.content}</Markdown>
+                          </article>
+                        ))}
                       </div>
+                    )}
+                    <label className="sr-only" htmlFor="ai-instruction">
+                      Instructions for AI
+                    </label>
+                    <label className="toggle-label">
+                      Search the web
+                      <input
+                        type="checkbox"
+                        checked={webSearch}
+                        onChange={(event) => setWebSearch(event.target.checked)}
+                        disabled={busy}
+                      />
+                    </label>
+                    {webSearch && (
+                      <p className="small muted">
+                        Public search queries may be sent to search engines. Don’t include private
+                        information in research requests.
+                      </p>
+                    )}
+                    <textarea
+                      id="ai-instruction"
+                      value={instruction}
+                      onChange={(e) => setInstruction(e.target.value)}
+                      maxLength={12000}
+                      placeholder={
+                        tab === 'outcomes'
+                          ? 'Describe each result and the answers that should lead to it…'
+                          : '“Ask about qualifications only if they select Australia…”'
+                      }
+                      rows={3}
+                    />
+                    <div className="ai-bottom">
+                      <span>
+                        AI suggests. You decide.{' '}
+                        {proposal ? 'Your next request refines this proposal.' : ''}
+                      </span>
+                      <button
+                        className="button primary compact"
+                        disabled={busy || instruction.trim().length < 3}
+                        onClick={askAI}
+                      >
+                        {busy && operation === 'ai' && <Spinner />}
+                        {busy && operation === 'ai' ? 'Working…' : 'Suggest changes'}
+                        <ArrowRight size={15} />
+                      </button>
                     </div>
-                  )}
-                </div>
-              </section>
+                    {proposal && (
+                      <div className="proposal">
+                        <h3>Proposed changes</h3>
+                        <details className="proposal-summary">
+                          <summary>AI summary</summary>
+                          <Markdown>{proposal.summary}</Markdown>
+                        </details>
+                        {proposal.clarification && (
+                          <div className="notice">
+                            <Markdown>{proposal.clarification}</Markdown>
+                          </div>
+                        )}
+                        {proposalBase !== JSON.stringify(definition) && (
+                          <p className="error">
+                            Your draft changed after this proposal. Discard it and ask again to
+                            avoid overwriting manual edits.
+                          </p>
+                        )}
+                        <details className="proposal-details">
+                          <summary>
+                            Review {describeChanges(definition, proposal.definition).length} changes
+                          </summary>
+                          <ul className="small">
+                            {describeChanges(definition, proposal.definition).map(
+                              (change, index) => (
+                                <li key={index}>{change}</li>
+                              ),
+                            )}
+                          </ul>
+                          {definition.questions.map((q) => {
+                            const next = proposal.definition.questions.find(
+                              (item) => item.id === q.id,
+                            )
+                            if (
+                              !next ||
+                              (q.title === next.title && q.description === next.description)
+                            )
+                              return null
+                            return (
+                              <section className="proposal-comparison" key={q.id}>
+                                <h4>{q.title}</h4>
+                                <div>
+                                  <span className="small muted">Before</span>
+                                  <p>{q.title}</p>
+                                  {q.description && <p className="small">{q.description}</p>}
+                                </div>
+                                <div>
+                                  <span className="small muted">After</span>
+                                  <p>{next.title}</p>
+                                  {next.description && <p className="small">{next.description}</p>}
+                                </div>
+                              </section>
+                            )
+                          })}
+                        </details>
+                        <p className="small muted">
+                          {proposal.definition.questions.length} questions · Applying replaces the
+                          local draft. Undo is available.
+                        </p>
+                        <div className="button-row proposal-actions">
+                          <button
+                            className="button secondary compact"
+                            onClick={() => {
+                              setProposalPreview(true)
+                              setPreview(true)
+                            }}
+                          >
+                            Preview proposal
+                          </button>
+                          <button
+                            className="button primary compact"
+                            disabled={
+                              busy ||
+                              !!proposal.clarification ||
+                              proposalBase !== JSON.stringify(definition)
+                            }
+                            onClick={() => {
+                              edit(proposal.definition)
+                              setSelected(
+                                proposal.definition.questions.some((q) => q.id === selected)
+                                  ? selected
+                                  : proposal.definition.questions[0].id,
+                              )
+                              setProposal(null)
+                            }}
+                          >
+                            Apply to draft
+                          </button>
+                          <button
+                            className="button secondary compact"
+                            onClick={() => {
+                              setProposal(null)
+                              setAiHistory([])
+                            }}
+                          >
+                            Discard
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </section>
+              </OptionalPortal>
             </>
           ) : tab === 'logic' ? (
             <LogicMap definition={definition} onChange={changeQuestion} issue={issue} />
@@ -930,75 +960,90 @@ export function Builder({
         )}
       </div>
       {aiPromptOpen && (
-        <OutcomeDialog title="Create with AI" onClose={() => setAiPromptOpen(false)}>
-          <label className="stack">
-            What would you like to create?
-            <textarea
-              autoFocus
-              rows={5}
-              value={instruction}
-              onChange={(event) => setInstruction(event.target.value)}
-              maxLength={12000}
-              placeholder="Describe your questionnaire, audience and what you need to learn…"
-            />
-          </label>
-          <button
-            className="button primary"
-            disabled={busy || instruction.trim().length < 3}
-            onClick={() => {
-              setAiPromptOpen(false)
-              setTab('create')
-              setAiOpen(true)
-              void askAI()
-            }}
-          >
-            Generate proposal
-          </button>
+        <OutcomeDialog
+          title="Create with AI"
+          className="ai-workspace-dialog"
+          footer={false}
+          onClose={() => setAiPromptOpen(false)}
+        >
+          {message && (
+            <p className="notice" role="status">
+              {message}
+            </p>
+          )}
+          <div ref={setAiModalTarget} />
+          {!aiModalTarget && (
+            <>
+              <label className="stack">
+                What would you like to create?
+                <textarea
+                  autoFocus
+                  rows={5}
+                  value={instruction}
+                  onChange={(event) => setInstruction(event.target.value)}
+                  maxLength={12000}
+                  placeholder="Describe your questionnaire, audience and what you need to learn…"
+                />
+              </label>
+              <button
+                className="button primary"
+                disabled={busy || instruction.trim().length < 3}
+                onClick={() => {
+                  setAiOpen(true)
+                  void askAI()
+                }}
+              >
+                Generate proposal
+              </button>
+            </>
+          )}
         </OutcomeDialog>
       )}
       {preview && (
-        <div
-          className="preview-overlay"
-          ref={previewRef}
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') setPreview(false)
-            if (event.key !== 'Tab') return
-            const elements = Array.from(
-              previewRef.current?.querySelectorAll<HTMLElement>(
-                'button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),a[href]',
-              ) || [],
-            )
-            const first = elements[0]
-            const last = elements[elements.length - 1]
-            if (event.shiftKey && document.activeElement === first) {
-              event.preventDefault()
-              last?.focus()
-            } else if (!event.shiftKey && document.activeElement === last) {
-              event.preventDefault()
-              first?.focus()
-            }
-          }}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Questionnaire preview"
-        >
-          <button
-            className="preview-close button secondary"
-            autoFocus
-            onClick={() => {
-              setPreview(false)
-              setProposalPreview(false)
+        <OptionalPortal target={aiPromptOpen ? aiModalTarget : null}>
+          <div
+            className="preview-overlay"
+            ref={previewRef}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') setPreview(false)
+              if (event.key !== 'Tab') return
+              const elements = Array.from(
+                previewRef.current?.querySelectorAll<HTMLElement>(
+                  'button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),a[href]',
+                ) || [],
+              )
+              const first = elements[0]
+              const last = elements[elements.length - 1]
+              if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault()
+                last?.focus()
+              } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault()
+                first?.focus()
+              }
             }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Questionnaire preview"
           >
-            <X size={18} />
-            Close preview
-          </button>
-          <Runner
-            key={JSON.stringify(proposalPreview && proposal ? proposal.definition : definition)}
-            definition={proposalPreview && proposal ? proposal.definition : definition}
-            preview
-          />
-        </div>
+            <button
+              className="preview-close button secondary"
+              autoFocus
+              onClick={() => {
+                setPreview(false)
+                setProposalPreview(false)
+              }}
+            >
+              <X size={18} />
+              Close preview
+            </button>
+            <Runner
+              key={JSON.stringify(proposalPreview && proposal ? proposal.definition : definition)}
+              definition={proposalPreview && proposal ? proposal.definition : definition}
+              preview
+            />
+          </div>
+        </OptionalPortal>
       )}
     </div>
   )

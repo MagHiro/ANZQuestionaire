@@ -1,4 +1,11 @@
 services:
+  search:
+    image: searxng/searxng:latest
+    restart: unless-stopped
+    mem_limit: 768m
+    cpus: 1
+    volumes:
+      - ./deploy/searxng/settings.yml:/etc/searxng/settings.yml:ro
   db:
     image: postgres:17-alpine
     restart: unless-stopped
@@ -21,6 +28,7 @@ services:
     env_file: .env
     environment:
       NODE_ENV: production
+      WEB_SEARCH_URL: http://search:8080
     ports:
       - 127.0.0.1:3100:3000
     depends_on:

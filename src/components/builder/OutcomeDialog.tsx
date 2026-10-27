@@ -7,10 +7,14 @@ export function OutcomeDialog({
   title,
   onClose,
   children,
+  className = '',
+  footer = true,
 }: {
   title: string
   onClose: () => void
   children: ReactNode
+  className?: string
+  footer?: boolean
 }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const close = useRef(onClose)
@@ -28,7 +32,7 @@ export function OutcomeDialog({
   return (
     <dialog
       ref={dialog}
-      className="outcome-dialog"
+      className={`outcome-dialog ${className}`}
       aria-label={title}
       onKeyDown={(event) => {
         if (event.key !== 'Tab') return
@@ -64,12 +68,14 @@ export function OutcomeDialog({
         </button>
       </header>
       <div className="outcome-dialog-body">{children}</div>
-      <footer className="outcome-dialog-footer">
-        <span className="small muted">Changes stay in your draft. Save draft to keep them.</span>
-        <button type="button" className="button primary" onClick={onClose}>
-          Done
-        </button>
-      </footer>
+      {footer && (
+        <footer className="outcome-dialog-footer">
+          <span className="small muted">Changes stay in your draft. Save draft to keep them.</span>
+          <button type="button" className="button primary" onClick={onClose}>
+            Done
+          </button>
+        </footer>
+      )}
     </dialog>
   )
 }
