@@ -1984,6 +1984,13 @@ button {
   width: 100%;
   gap: 14px;
 }
+.builder .ai-launcher {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  padding: 0;
+  margin: 16px 0 0;
+  box-shadow: none;
+}
 .ai-workspace-dialog .ai-workspace {
   height: 100%;
   padding: 20px 32px;

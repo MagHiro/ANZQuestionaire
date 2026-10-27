@@ -16,6 +16,9 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await page.getByRole('button', { name: 'Create with AI', exact: true }).click()
   await expect(page.getByRole('dialog', { name: 'Create with AI' })).toBeVisible()
   await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: /Edit with AI/ }).click()
+  await expect(page.getByRole('dialog', { name: 'Create with AI' })).toBeVisible()
+  await page.keyboard.press('Escape')
   await page.getByRole('button', { name: 'Add question', exact: true }).click()
   await page.getByRole('textbox', { name: 'Question', exact: true }).fill('Second question')
   const items = page.locator('.question-nav-item')
@@ -150,8 +153,10 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await page.keyboard.press('Tab')
   await expect(page.getByRole('button', { name: 'Close outcome editor' })).toBeFocused()
   await page.getByRole('button', { name: 'Done', exact: true }).click()
+  await page.getByRole('button', { name: /Generate results with AI/ }).click()
   await page.getByRole('button', { name: 'Create result options', exact: true }).click()
   await expect(page.getByLabel('Instructions for AI')).toHaveValue(/decision criteria/)
+  await page.keyboard.press('Escape')
   if (test.info().project.name === 'desktop') {
     await page.evaluate(() => {
       document.querySelector('.editing-content')!.scrollTop = 10000
@@ -162,8 +167,8 @@ test('question navigation preserves order, handles reorder, and panels scroll in
     )
   }
   await page.getByRole('button', { name: /Generate results with AI/ }).click()
-  await expect(page.getByLabel('Instructions for AI')).not.toBeVisible()
-  await page.getByRole('button', { name: /Generate results with AI/ }).click()
+  await expect(page.getByLabel('Instructions for AI')).toBeVisible()
+  await page.keyboard.press('Escape')
   await page.route('**/api/ai/proposal', async (route) => {
     const body = route.request().postDataJSON()
     const definition = structuredClone(body.definition)

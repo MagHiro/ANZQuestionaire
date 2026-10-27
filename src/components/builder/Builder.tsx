@@ -79,7 +79,6 @@ export function Builder({
   const [aiHistory, setAiHistory] = useState<AiContext['history']>([])
   const [proposalBase, setProposalBase] = useState('')
   const [proposalPreview, setProposalPreview] = useState(false)
-  const [aiOpen, setAiOpen] = useState(true)
   const [aiPromptOpen, setAiPromptOpen] = useState(false)
   const [webSearch, setWebSearch] = useState(true)
   const [aiModalTarget, setAiModalTarget] = useState<HTMLDivElement | null>(null)
@@ -260,7 +259,6 @@ export function Builder({
           },
         ]
   async function askAI() {
-    setAiOpen(true)
     setOperation('ai')
     if (proposal && proposalBase !== JSON.stringify(definition)) {
       setMessage('Discard the outdated proposal before requesting changes to your updated draft.')
@@ -368,7 +366,6 @@ export function Builder({
             className="button secondary compact"
             onClick={() => {
               if (tab !== 'outcomes') setTab('create')
-              setAiOpen(true)
               setAiPromptOpen(true)
             }}
           >
@@ -400,7 +397,7 @@ export function Builder({
         </div>
       )}
       <div
-        className={`builder-body ${tab !== 'create' ? 'builder-body-wide' : ''} ${leftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${aiOpen && (tab === 'create' || tab === 'outcomes') ? 'ai-sidebar-open' : ''}`}
+        className={`builder-body ${tab !== 'create' ? 'builder-body-wide' : ''} ${leftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''}`}
         inert={preview}
       >
         <aside className="question-nav">
@@ -585,81 +582,17 @@ export function Builder({
                 )}
               </div>
               {!aiPromptOpen && (
-                <section
-                  className={`ai-composer ai-dock ${aiOpen ? 'ai-dock-open' : ''}`}
-                  aria-label="AI assistant"
-                >
+                <section className="ai-composer ai-launcher" aria-label="AI assistant">
                   <button
                     type="button"
                     className="ai-dock-toggle"
-                    aria-expanded={aiOpen}
-                    aria-controls="ai-dock-content"
-                    onClick={() => setAiOpen(!aiOpen)}
+                    aria-haspopup="dialog"
+                    onClick={() => setAiPromptOpen(true)}
                   >
                     <Sparkles size={18} aria-hidden="true" />
                     <span>{tab === 'outcomes' ? 'Generate results with AI' : 'Edit with AI'}</span>
-                    <span className="small">{aiOpen ? 'Minimize' : 'Open'}</span>
+                    <span className="small">Open</span>
                   </button>
-                  <div id="ai-dock-content" className="ai-dock-content" hidden={!aiOpen}>
-                    <AiWorkspace
-                      id={tab === 'outcomes' ? 'ai-instruction-outcomes' : 'ai-instruction'}
-                      contextTitle={
-                        tab === 'outcomes' ? 'Result options and conditions' : current.title
-                      }
-                      history={aiHistory}
-                      stage={aiStage}
-                      busy={busy}
-                      working={busy && operation === 'ai'}
-                      instruction={instruction}
-                      onInstruction={setInstruction}
-                      webSearch={webSearch}
-                      onWebSearch={setWebSearch}
-                      placeholder={
-                        tab === 'outcomes'
-                          ? 'Describe each result and the answers that should lead to it…'
-                          : '“Ask about qualifications only if they select Australia…”'
-                      }
-                      prompts={aiPrompts}
-                      proposal={proposal}
-                      proposalStale={proposalBase !== JSON.stringify(definition)}
-                      changes={proposal ? describeChanges(definition, proposal.definition) : []}
-                      comparisons={
-                        proposal
-                          ? definition.questions.flatMap((q) => {
-                              const next = proposal.definition.questions.find(
-                                (item) => item.id === q.id,
-                              )
-                              if (
-                                !next ||
-                                (q.title === next.title && q.description === next.description)
-                              )
-                                return []
-                              return [
-                                {
-                                  title: q.title,
-                                  beforeTitle: q.title,
-                                  beforeDesc: q.description,
-                                  afterTitle: next.title,
-                                  afterDesc: next.description,
-                                },
-                              ]
-                            })
-                          : []
-                      }
-                      childrenMeta={
-                        proposal
-                          ? `${proposal.definition.questions.length} questions · Applying replaces the local draft. Undo is available.`
-                          : undefined
-                      }
-                      onAsk={() => void askAI()}
-                      onApply={applyProposal}
-                      onPreview={() => {
-                        setProposalPreview(true)
-                        setPreview(true)
-                      }}
-                      onDiscard={discardProposal}
-                    />
-                  </div>
                 </section>
               )}
             </>

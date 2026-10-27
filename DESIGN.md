@@ -53,7 +53,7 @@ Source of truth: `../anzwebsite/DESIGN.md`. This supersedes the initial Jalanin 
 ## Builder panels and AI
 
 - Question and settings sidebars collapse independently with labelled controls.
-- On desktop the AI conversation is a side panel beside the canvas, rather than a bottom dock. Small screens keep a stacked layout.
+- All AI launchers open the shared chat modal; no conversation sidebar reserves canvas width. Closing and reopening preserves the prompt, conversation and proposal.
 - Create with AI uses a wide chat workspace that stays open during generation and review. Its conversation scrolls independently of pinned proposal actions and the prompt composer; mobile uses the full viewport. Render assistant summaries and conversation as safe Markdown without raw HTML, without duplicate summary panels. Staff still explicitly apply, save and publish proposals.
 - Saving remains available after publication, including when the draft is unchanged; draft saves never update the published release.
 - Payment uses one heading and major-currency price entry, stored as integer minor units. Responses use compact headers and status-labelled rows; PDF management is shown only for paid questionnaires.
