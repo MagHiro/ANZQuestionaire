@@ -2259,3 +2259,67 @@ button {
     scroll-behavior: auto !important;
   }
 }
+.react-email-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.react-email-compose,
+.react-email-preview {
+  min-width: 0;
+}
+.react-email-workspace h2 {
+  font-size: 20px;
+}
+.anz-email-editor {
+  background: white;
+  color: #06234f;
+  border: 1px solid #d9e1ea;
+  border-radius: 8px;
+}
+.anz-email-editor .tiptap {
+  min-height: 520px;
+  padding: 28px;
+  outline: none;
+  overflow-wrap: anywhere;
+}
+.anz-email-editor .tiptap:focus-visible {
+  outline: 2px solid #243085;
+  outline-offset: 2px;
+}
+.anz-email-editor .tiptap p {
+  white-space: pre-wrap;
+}
+.anz-email-editor .node-container {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.react-email-workspace {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+.react-email-preview .email-preview {
+  width: 100%;
+  min-height: 640px;
+  background: #fff;
+}
+.react-email-preview .email-preview-mobile {
+  width: min(375px, 100%);
+  display: block;
+  margin-inline: auto;
+}
+.react-email-preview .panel-heading label {
+  font-size: 12px;
+  max-width: 160px;
+}
+@media (max-width: 900px) {
+  .react-email-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .anz-email-editor .tiptap {
+    padding: 18px;
+    min-height: 380px;
+  }
+}

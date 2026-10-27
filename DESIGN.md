@@ -72,3 +72,10 @@ Source of truth: `../anzwebsite/DESIGN.md`. This supersedes the initial Jalanin 
 - Chat can override the saved model for a request. Thinking controls appear only for known supported model/provider combinations; validate them server-side against the provider model catalog.
 - Logic highlights adjacent routes, or the exact route traversed by its tester. Testing uses the live input validation, branching and outcome evaluators without submissions or payment.
 - Routing issues are listed together with focus links. Search focuses nodes; routing settings collapse independently. Node positions persist in session storage per questionnaire, including across tab changes; they never modify question order or publishing data.
+
+## React Email builder
+
+- `/settings/email` embeds the official `@react-email/editor` visual editor: full-document editing, selection formatting and slash-command insertion replace the custom block builder and rich text editor.
+- Save structured JSON in `email_templates.document`. Legacy blocks are converted on read; originals remain untouched. All queued notifications, previews and tests render server-side through React Email's serializer and produce HTML plus plain text.
+- Personalization is applied to text and validated HTTPS links before serialization. Bound document size/depth, sanitize exported markup, and sandbox previews. Private confirmation links and SMTP/outbox behavior are unchanged.
+- Production builds use Webpack with React Email externalized server-side. The current Turbopack build produces an invalid external module for React Email's Prettier dependency; browser tests exercise the production renderer to catch this class of issue.

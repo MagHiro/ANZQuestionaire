@@ -2,10 +2,11 @@
 import { z } from 'zod'
 import { requireStaff, rateLimit } from '@/server/auth'
 import { db } from '@/server/db'
-import { emailBlocksSchema, renderEmail } from '@/core/email-template'
+import { emailDocumentSchema, emailPreviewVariables } from '@/core/react-email-document'
+import { renderReactEmail } from '@/server/react-email'
 import { emailTransport } from '@/server/email'
 
-export async function saveEmailTemplate(kind: string, subject: string, blocks: unknown) {
+export async function saveEmailTemplate(kind: string, subject: string, document: unknown) {
   await requireStaff(true)
   z.enum(['submission', 'payment', 'report']).parse(kind)
   z.string()
@@ -13,17 +14,23 @@ export async function saveEmailTemplate(kind: string, subject: string, blocks: u
     .max(300)
     .regex(/^[^\r\n]+$/)
     .parse(subject)
-  const parsed = emailBlocksSchema.parse(blocks)
+  const parsed = emailDocumentSchema.parse(document)
+  await renderReactEmail(parsed, emailPreviewVariables)
   await db().query(
-    'INSERT INTO email_templates(kind,subject,blocks) VALUES($1,$2,$3) ON CONFLICT(kind) DO UPDATE SET subject=$2,blocks=$3,updated_at=now()',
+    "INSERT INTO email_templates(kind,subject,blocks,document) VALUES($1,$2,'[]'::jsonb,$3) ON CONFLICT(kind) DO UPDATE SET subject=$2,document=$3,updated_at=now()",
     [kind, subject, JSON.stringify(parsed)],
   )
   return 'Template saved.'
 }
-export async function testEmailTemplate(subject: string, blocks: unknown) {
+export async function previewEmailTemplate(document: unknown) {
+  const staff = await requireStaff(true)
+  await rateLimit(`email-preview:${staff.id}`, 120, 300)
+  return renderReactEmail(document, emailPreviewVariables)
+}
+export async function testEmailTemplate(subject: string, document: unknown) {
   const staff = await requireStaff(true)
   await rateLimit(`email-test:${staff.id}`, 5, 300)
-  const body = renderEmail(emailBlocksSchema.parse(blocks), {
+  const body = await renderReactEmail(document, {
     questionnaire_title: 'Preview questionnaire',
     message: 'This is a test message.',
     status_url: 'https://tf.anzmigrate.com',

@@ -2,12 +2,9 @@ import nodemailer from 'nodemailer'
 import { randomUUID } from 'node:crypto'
 import type { PoolClient } from 'pg'
 import { db } from './db'
-import {
-  defaultEmailBlocks,
-  emailBlocksSchema,
-  renderEmail,
-  templateText,
-} from '@/core/email-template'
+import { renderReactEmail } from './react-email'
+import { defaultEmailBlocks, emailBlocksSchema, templateText } from '@/core/email-template'
+import { migrateEmailBlocks } from '@/core/email-migration'
 
 export async function queueEmail(
   client: PoolClient,
@@ -58,13 +55,17 @@ export async function processEmailJobs() {
     )
     for (const job of jobs.rows) {
       try {
-        const template = await client.query<{ subject: string; blocks: unknown }>(
-          'SELECT subject,blocks FROM email_templates WHERE kind=$1',
-          [job.kind],
-        )
+        const template = await client.query<{
+          subject: string
+          blocks: unknown
+          document: unknown
+        }>('SELECT subject,blocks,document FROM email_templates WHERE kind=$1', [job.kind])
         const row = template.rows[0]
-        const body = renderEmail(
-          row ? emailBlocksSchema.parse(row.blocks) : defaultEmailBlocks(job.kind),
+        const body = await renderReactEmail(
+          row?.document ||
+            migrateEmailBlocks(
+              row ? emailBlocksSchema.parse(row.blocks) : defaultEmailBlocks(job.kind),
+            ),
           job.variables,
         )
         await emailTransport().sendMail({

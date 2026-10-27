@@ -23,6 +23,7 @@ await client.connect()
 await client.query(await readFile('migrations/001_initial.sql', 'utf8'))
 await client.query(await readFile('migrations/002_ai_settings.sql', 'utf8'))
 await client.query(await readFile('migrations/003_outcomes_commerce_email.sql', 'utf8'))
+await client.query(await readFile('migrations/004_react_email.sql', 'utf8'))
 await client.query('INSERT INTO staff(id,email,name,password_hash,role) VALUES($1,$2,$3,$4,$5)', [
   randomUUID(),
   'admin@example.test',

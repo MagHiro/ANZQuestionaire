@@ -2,6 +2,7 @@ import type { NextConfig } from 'next'
 const config: NextConfig = {
   output: 'standalone',
   poweredByHeader: false,
+  serverExternalPackages: ['@react-email/editor', 'react-email', 'prettier'],
   experimental: { serverActions: { bodySizeLimit: '1mb' } },
   async headers() {
     return [
