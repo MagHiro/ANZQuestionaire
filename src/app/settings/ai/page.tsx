@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from '@/components/Icons'
 import { requireStaff } from '@/server/auth'
 import { getAiConfiguration } from '@/server/ai-settings'
 import { AiSettingsForm } from './AiSettingsForm'
@@ -13,7 +13,6 @@ export default async function AiSettingsPage() {
         Back to workspace
       </Link>
       <section className="content-panel stack">
-        <span className="eyebrow">WORKSPACE SETTINGS</span>
         <h1>Your AI, your choice.</h1>
         <p className="muted">
           Connect an OpenAI-compatible provider for questionnaire creation and editing. Changes

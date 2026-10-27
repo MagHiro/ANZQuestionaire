@@ -20,6 +20,9 @@ importers:
       '@fontsource/poppins':
         specifier: ^5.3.0
         version: 5.3.0
+      '@heroicons/react':
+        specifier: ^2.2.0
+        version: 2.2.0(react@19.3.1)
       '@radix-ui/react-select':
         specifier: ^2.4.1
         version: 2.4.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -41,9 +44,6 @@ importers:
       dotenv:
         specifier: ^17.2.3
         version: 17.4.2
-      lucide-react:
-        specifier: ^0.577.0
-        version: 0.577.0(react@19.3.1)
       next:
         specifier: ^16.0.0
         version: 16.4.3(@playwright/test@1.64.1)(@types/node@22.20.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -420,6 +420,11 @@ packages:
 
   '@fontsource/poppins@5.3.0':
     resolution: {integrity: sha512-cms1nM7U6SN8epIV1WMVOV8VsA645aSm3wHfzIQnkk188U341ThbJGSl2Sv54V29gnDbT2arMPfLzvVIIVCceQ==}
+
+  '@heroicons/react@2.2.0':
+    resolution: {integrity: sha512-LMcepvRaS9LYHJGsF0zzmgKCUim/X3N/DQKc4jepAXJ7l8QxJ1PmxJzqplF2Z3FE4PqBAIGyJAQ/w4B5dsqbtQ==}
+    peerDependencies:
+      react: '>= 16 || ^19.0.0-rc'
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -1847,11 +1852,6 @@ packages:
     resolution: {integrity: sha512-U4N8FgzmWxc8k1VH8Kr6lQg18U7Fjvby6wXHVRX/ZZ7IwWbRMgrRbP0Wrb5q5NVinryp4SQampHKdvtecItxUg==}
     engines: {node: 20 || >=22}
 
-  lucide-react@0.577.0:
-    resolution: {integrity: sha512-4LjoFv2eEPwYDPg/CUdBJQSDfPyzXCRrVW1X7jrx/trgxnxkHFjnVZINbzvzxjN70dxychOfg+FTYwBiS3pQ5A==}
-    peerDependencies:
-      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
@@ -2915,6 +2915,10 @@ snapshots:
   '@floating-ui/utils@0.2.12': {}
 
   '@fontsource/poppins@5.3.0': {}
+
+  '@heroicons/react@2.2.0(react@19.3.1)':
+    dependencies:
+      react: 19.3.1
 
   '@img/colour@1.1.0':
     optional: true
@@ -4303,10 +4307,6 @@ snapshots:
   longest-streak@3.1.0: {}
 
   lru-cache@11.5.3: {}
-
-  lucide-react@0.577.0(react@19.3.1):
-    dependencies:
-      react: 19.3.1
 
   magic-string@0.30.21:
     dependencies:

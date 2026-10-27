@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Spinner } from './Spinner'
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check } from '@/components/Icons'
 import { ConfirmationContent } from './ConfirmationContent'
 import { QuestionInput } from './inputs/QuestionInput'
 import { responseResult, selectedValues } from '@/core/questionnaire'

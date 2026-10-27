@@ -4,12 +4,20 @@ test('staff can create, edit, preview, publish and receive a real submission', a
   await page.getByLabel('Email address').fill('admin@example.test')
   await page.getByLabel('Password').fill('Browser-test-password-2026')
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
-  await expect(page.getByRole('heading', { name: /Make room/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Questionnaires', exact: true })).toBeVisible()
+  expect(
+    await page.locator('h1').evaluate((el) => parseFloat(getComputedStyle(el).fontSize)),
+  ).toBeLessThanOrEqual(30)
+  await page.screenshot({
+    path: `test-results/workspace-${test.info().project.name}.png`,
+    fullPage: true,
+  })
   await page
     .getByLabel('Questionnaire title', { exact: true })
     .fill(`Learning feedback ${test.info().project.name}`)
   await page.getByRole('button', { name: 'Create questionnaire' }).click()
   await expect(page.getByText('Question settings', { exact: true })).toBeVisible()
+  await expect(page.locator('.type-chip svg').first()).toBeVisible()
   await page
     .getByRole('textbox', { name: 'Question', exact: true })
     .fill('What would you like to learn next?')

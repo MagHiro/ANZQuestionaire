@@ -4,7 +4,7 @@ test('admin saves provider settings without returning its key to the browser', a
   await page.getByLabel('Email address').fill('admin@example.test')
   await page.getByLabel('Password').fill('Browser-test-password-2026')
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
-  await page.getByRole('heading', { name: /Make room/ }).waitFor()
+  await page.getByRole('heading', { name: 'Questionnaires', exact: true }).waitFor()
   await page.goto('/settings/ai')
   await expect(page.getByRole('heading', { name: 'Your AI, your choice.' })).toBeVisible()
   await page.getByLabel('Provider', { exact: true }).selectOption('Custom')

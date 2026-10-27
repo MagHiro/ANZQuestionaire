@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ArrowLeft } from '@/components/Icons'
 import { requireStaff } from '@/server/auth'
 import { db } from '@/server/db'
 import { emailBlocksSchema } from '@/core/email-template'
@@ -17,7 +18,7 @@ export default async function EmailSettings() {
   return (
     <main className="email-page">
       <Link href="/" className="text-button">
-        ← Workspace
+        <ArrowLeft size={16} /> Workspace
       </Link>
       <h1>Email builder</h1>
       <EmailBuilder

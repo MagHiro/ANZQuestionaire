@@ -1,7 +1,7 @@
 'use client'
 import type { Definition } from '@/core/questionnaire'
 import { useState } from 'react'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight } from '@/components/Icons'
 import { OutcomeDialog } from './OutcomeDialog'
 
 export function OutcomeSettings({

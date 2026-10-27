@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight } from '@/components/Icons'
 import { Spinner } from '@/components/Spinner'
 import { Markdown } from '@/components/Markdown'
 import type { Definition } from '@/core/questionnaire'

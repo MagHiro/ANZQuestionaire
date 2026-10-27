@@ -19,7 +19,9 @@ import {
   Trash2,
   Check,
   X,
-} from 'lucide-react'
+  Text,
+  List,
+} from '@/components/Icons'
 import {
   definitionSchema,
   validateDefinition,
@@ -412,7 +414,7 @@ export function Builder({
             aria-expanded={!leftCollapsed}
             onClick={() => setLeftCollapsed(!leftCollapsed)}
           >
-            {leftCollapsed ? '→' : '←'}
+            {leftCollapsed ? <ArrowRight /> : <ArrowLeft />}
           </button>
           <div className="panel-heading">
             <span>Questions</span>
@@ -437,7 +439,11 @@ export function Builder({
                     }}
                   >
                     <span className={`type-chip type-${q.type}`}>
-                      {q.type === 'radio' || q.type === 'dropdown' ? '☷' : 'T'}
+                      {['radio', 'dropdown', 'checkbox', 'multiselect'].includes(q.type) ? (
+                        <List size={16} />
+                      ) : (
+                        <Text size={16} />
+                      )}
                       <small>{index + 1}</small>
                     </span>
                     <span>{q.title || 'Untitled question'}</span>
@@ -798,7 +804,7 @@ export function Builder({
               aria-expanded={!rightCollapsed}
               onClick={() => setRightCollapsed(!rightCollapsed)}
             >
-              {rightCollapsed ? '←' : '→'}
+              {rightCollapsed ? <ArrowLeft /> : <ArrowRight />}
             </button>
             <QuestionEditor
               question={current}

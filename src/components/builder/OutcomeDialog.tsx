@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, type ReactNode } from 'react'
-import { X } from 'lucide-react'
+import { X } from '@/components/Icons'
 
 export function OutcomeDialog({
   title,

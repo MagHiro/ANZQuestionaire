@@ -1,5 +1,5 @@
 'use client'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2 } from '@/components/Icons'
 import type { Definition, Question } from '@/core/questionnaire'
 
 export function QuestionEditor({

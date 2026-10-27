@@ -1,5 +1,12 @@
 import Link from 'next/link'
-import { ArrowUpRight, Plus, Layers, CircleCheck, MessageSquare, ArrowRight } from 'lucide-react'
+import {
+  ArrowUpRight,
+  Plus,
+  Layers,
+  CircleCheck,
+  MessageSquare,
+  ArrowRight,
+} from '@/components/Icons'
 import { Brand } from '@/components/Brand'
 import { SubmitButton } from '@/components/SubmitButton'
 import { requireStaff } from '@/server/auth'
@@ -26,7 +33,6 @@ export default async function Dashboard() {
     <div className="workspace">
       <aside className="sidebar">
         <Brand />
-        <p className="nav-caption">WORKSPACE</p>
         <Link href="/" className="nav-item active">
           <Layers size={18} />
           Questionnaires<span>{forms.length}</span>
@@ -41,11 +47,6 @@ export default async function Dashboard() {
             Email builder
           </Link>
         )}
-        <div className="sidebar-note">
-          <span className="mini-spark">✳</span>
-          <h3>Start with curiosity.</h3>
-          <p>Build once. Embed anywhere. Let the right questions lead the way.</p>
-        </div>
         <div className="staff">
           <span className="avatar">{staff.name.slice(0, 1)}</span>
           <div>
@@ -72,13 +73,7 @@ export default async function Dashboard() {
         </header>
         <section className="dashboard-heading">
           <div>
-            <span className="eyebrow">YOUR QUESTIONNAIRES</span>
-            <h1>
-              Make room for
-              <br />
-              better answers.
-            </h1>
-            <p className="muted">Create a conversation. Find out what comes next.</p>
+            <h1>Questionnaires</h1>
           </div>
           <a href="#new-questionnaire" className="button primary">
             <Plus size={18} />
@@ -105,7 +100,7 @@ export default async function Dashboard() {
         <section className="forms-section">
           <div className="section-heading">
             <h2>
-              Your collection <span className="count">{forms.length}</span>
+              All questionnaires <span className="count">{forms.length}</span>
             </h2>
             <span className="small muted">Recently updated</span>
           </div>
@@ -156,8 +151,7 @@ export default async function Dashboard() {
               <span className="create-icon">
                 <Plus size={25} />
               </span>
-              <h3>What are you curious about?</h3>
-              <p className="small muted">Start fresh. Make it yours.</p>
+              <h3>New questionnaire</h3>
               <label className="sr-only" htmlFor="new-title">
                 Questionnaire title
               </label>
@@ -178,10 +172,6 @@ export default async function Dashboard() {
             <p className="small muted">Showing the 100 most recently updated questionnaires.</p>
           )}
         </section>
-        <footer className="dashboard-footer">
-          <span>Thoughtful questions. Clearer next steps.</span>
-          <span>ANZ Questionnaire</span>
-        </footer>
       </main>
     </div>
   )

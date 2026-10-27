@@ -116,8 +116,7 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await page.getByRole('button', { name: 'Fit View', exact: true }).click()
   await page.waitForTimeout(350)
   const finish = page
-    .locator('.react-flow__node-route')
-    .filter({ hasText: '✓' })
+    .locator('.react-flow__node-route[data-id="$end"]')
     .locator('.react-flow__handle.target')
   const fromBox = await from.boundingBox()
   const finishBox = await finish.boundingBox()

@@ -18,6 +18,7 @@ import {
 import '@xyflow/react/dist/style.css'
 import type { Definition, Question } from '@/core/questionnaire'
 import { QuestionEditor } from './QuestionEditor'
+import { Check } from '@/components/Icons'
 import { logicDiagnostics } from '@/core/logic-diagnostics'
 import { LogicTester, type TestedPath } from './LogicTester'
 
@@ -35,7 +36,7 @@ function RouteNode({ data }: NodeProps) {
         aria-label="Connect to this question"
       />
       <div className="logic-node-title">
-        <span className="logic-node-number">{(data.number as number) || '✓'}</span>
+        <span className="logic-node-number">{(data.number as number) || <Check size={16} />}</span>
         <span>{data.title as string}</span>
       </div>
       {q && (
@@ -180,7 +181,7 @@ export function LogicMap({
           question: questions.find((item) => item.id === q.id),
           label: (
             <>
-              <span className="logic-node-number">{q.number || '✓'}</span>
+              <span className="logic-node-number">{q.number || <Check size={16} />}</span>
               <span>{q.title}</span>
             </>
           ),

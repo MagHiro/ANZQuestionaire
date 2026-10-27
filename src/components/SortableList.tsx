@@ -17,7 +17,7 @@ import {
   rectSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical } from 'lucide-react'
+import { GripVertical } from '@/components/Icons'
 
 export function SortableList({
   ids,

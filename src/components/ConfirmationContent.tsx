@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react'
+import { Check } from '@/components/Icons'
 import type { ReactNode, Ref } from 'react'
 import { Markdown } from './Markdown'
 

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Command } from 'lucide-react'
+import { Command } from '@/components/Icons'
 export function Brand() {
   return (
     <Link href="/" className="brand">

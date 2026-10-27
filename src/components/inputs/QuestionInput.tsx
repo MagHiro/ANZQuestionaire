@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { DayPicker } from 'react-day-picker'
-import { CalendarDays, Check } from 'lucide-react'
+import { CalendarDays, Check } from '@/components/Icons'
 import { selectedValues, type Question } from '@/core/questionnaire'
 import { StyledSelect } from './StyledSelect'
 

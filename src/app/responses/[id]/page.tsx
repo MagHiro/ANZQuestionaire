@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowLeft, Download } from 'lucide-react'
+import { ArrowLeft, Download } from '@/components/Icons'
 import { requireStaff } from '@/server/auth'
 import { getQuestionnaire } from '@/server/questionnaires'
 import { db } from '@/server/db'

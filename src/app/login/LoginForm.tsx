@@ -1,7 +1,7 @@
 'use client'
 import { Spinner } from '@/components/Spinner'
 import { useActionState } from 'react'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight } from '@/components/Icons'
 import { loginAction } from '@/app/actions'
 export function LoginForm() {
   const [error, action, pending] = useActionState(loginAction, '')
