@@ -1244,6 +1244,16 @@ input[type='radio'] {
   width: 100%;
   min-width: 0;
 }
+.logic-map-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.logic-map-header > p {
+  flex-basis: 100%;
+}
 .logic-map-header h1 {
   font-size: 28px;
   margin-bottom: 10px;
@@ -1309,6 +1319,9 @@ input[type='radio'] {
 }
 .logic-map .react-flow__node-route {
   display: block;
+  background: #fff;
+  border-color: #b9c7d9;
+  box-shadow: 0 2px 6px #06234f0a;
 }
 .logic-node-title {
   display: flex;

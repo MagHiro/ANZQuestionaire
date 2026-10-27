@@ -87,6 +87,11 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await expect
     .poll(() => node.evaluate((el) => (el as HTMLElement).style.transform))
     .toBe(movedStyle)
+  await expect(node).toHaveCSS('background-color', 'rgb(255, 255, 255)')
+  await page.getByRole('button', { name: 'Auto format', exact: true }).click()
+  await expect
+    .poll(() => node.evaluate((el) => (el as HTMLElement).style.transform))
+    .toBe(transform)
   const from = node.locator('.react-flow__handle.source').last()
   await page.locator('.logic-map').scrollIntoViewIfNeeded()
   await page.getByRole('button', { name: 'Fit View', exact: true }).click()

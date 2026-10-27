@@ -11,6 +11,7 @@ import {
   applyNodeChanges,
   type NodeProps,
   type Connection,
+  type ReactFlowInstance,
   type Node,
   type Edge,
 } from '@xyflow/react'
@@ -77,6 +78,9 @@ export function LogicMap({
   const [liveNodes, setLiveNodes] = useState<Node[]>([])
   const [connectionError, setConnectionError] = useState('')
   const [selectedEdge, setSelectedEdge] = useState<string | null>(null)
+  const [flow, setFlow] = useState<ReactFlowInstance | null>(null)
+  const [formatRequested, setFormatRequested] = useState(false)
+  const [hoveredEdge, setHoveredEdge] = useState<string | null>(null)
   const question = definition.questions.find((q) => q.id === selected)
   const { nodes, edges } = useMemo(() => {
     const questions = definition.questions
@@ -176,6 +180,44 @@ export function LogicMap({
     )
   }, [nodes])
 
+  useEffect(() => {
+    if (!formatRequested || !flow) return
+    const frame = requestAnimationFrame(() => {
+      void flow.fitView({
+        padding: 0.2,
+        maxZoom: 1,
+        duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 200,
+      })
+      setFormatRequested(false)
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [formatRequested, flow, liveNodes])
+
+  function autoFormat() {
+    const offsets = new Map<number, number>()
+    setLiveNodes((previous) =>
+      nodes.map((node) => {
+        const old = previous.find((item) => item.id === node.id)
+        const column = node.position.x
+        const y = offsets.get(column) || 0
+        offsets.set(column, y + (old?.measured?.height || 120) + 64)
+        return { ...old, ...node, measured: old?.measured, position: { x: column, y } }
+      }),
+    )
+    setSelectedEdge(null)
+    setFormatRequested(true)
+  }
+
+  const displayEdges = useMemo(
+    () =>
+      edges.map((edge) => ({
+        ...edge,
+        label: edge.id === selectedEdge || edge.id === hoveredEdge ? edge.label : undefined,
+        selected: edge.id === selectedEdge,
+      })),
+    [edges, selectedEdge, hoveredEdge],
+  )
+
   const validConnection = useCallback(
     (connection: Connection | Edge) => {
       const source = definition.questions.findIndex((q) => q.id === connection.source)
@@ -228,6 +270,14 @@ export function LogicMap({
     <section className="logic-workspace">
       <header className="logic-map-header">
         <h1>Question flow</h1>
+        <button
+          type="button"
+          className="button secondary"
+          onClick={autoFormat}
+          disabled={!liveNodes.length}
+        >
+          Auto format
+        </button>
         <p className="muted">
           Drag from an answer or next-step dot to another question. Drag a line’s endpoint to
           reconnect it. Dashed lines show the default route.
@@ -260,7 +310,8 @@ export function LogicMap({
           <ReactFlow
             nodes={liveNodes}
             nodeTypes={nodeTypes}
-            edges={edges}
+            edges={displayEdges}
+            onInit={setFlow}
             fitView
             fitViewOptions={{ maxZoom: 1, padding: 0.25 }}
             minZoom={0.15}
@@ -283,6 +334,8 @@ export function LogicMap({
               if (node.id !== '$end') setSelected(node.id)
             }}
             onEdgeClick={(_, edge) => setSelectedEdge(edge.id)}
+            onEdgeMouseEnter={(_, edge) => setHoveredEdge(edge.id)}
+            onEdgeMouseLeave={() => setHoveredEdge(null)}
             onPaneClick={() => setSelectedEdge(null)}
             onNodesChange={(changes) => {
               setLiveNodes((previous) => applyNodeChanges(changes, previous))
@@ -292,7 +345,7 @@ export function LogicMap({
               }
             }}
           >
-            <Background gap={20} color="#d9e1ea" />
+            <Background gap={28} size={0.7} color="#d5dde8" />
             <Controls showInteractive={false} />
           </ReactFlow>
         </div>
