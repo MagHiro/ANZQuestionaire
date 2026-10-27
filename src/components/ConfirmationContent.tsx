@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react'
 import type { ReactNode, Ref } from 'react'
+import { Markdown } from './Markdown'
 
 export function ConfirmationContent({
   title,
@@ -23,12 +24,12 @@ export function ConfirmationContent({
         <h1 ref={headingRef} tabIndex={-1}>
           {title}
         </h1>
-        <p>{message}</p>
+        <Markdown>{message}</Markdown>
       </header>
       {result && (
         <section className="confirmation-result" aria-label="Your result">
           <h2>{result.title}</h2>
-          <p>{result.message}</p>
+          <Markdown>{result.message}</Markdown>
         </section>
       )}
       {children && <footer className="confirmation-footer">{children}</footer>}

@@ -60,9 +60,10 @@ test('staff can create, edit, preview, publish and receive a real submission', a
   await expect(page.getByRole('heading', { name: 'Thank you. You’re all done.' })).toBeVisible()
   const confirmationContent = page.locator('.confirmation-content')
   await expect(confirmationContent).toBeVisible()
-  expect(
-    await confirmationContent.evaluate((el) => el.getBoundingClientRect().width),
-  ).toBeLessThanOrEqual(640)
+  const confirmationWidth = await confirmationContent.evaluate(
+    (el) => el.getBoundingClientRect().width,
+  )
+  expect(confirmationWidth).toBeGreaterThan((page.viewportSize()?.width || 0) * 0.85)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.screenshot({
     path: `test-results/confirmation-${test.info().project.name}.png`,

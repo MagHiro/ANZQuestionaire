@@ -60,6 +60,11 @@ export async function authorQuestionnaire(
       content:
         'For outcome creation, use criteria already supplied in the instruction, existing rules and conversation. Translate plain-language criteria into question IDs, operators, all/any matching and ordered rules yourself. Do not require staff to provide technical syntax or a complete rule specification. You may draft neutral outcome titles/messages from their stated intent. If a material eligibility criterion is missing, ask one focused plain-language question using question titles and answer labels, optionally giving a clearly unapproved example for them to confirm. Do not return a long refusal or a checklist demanding titles, IDs, all/any and ordering. Never invent eligibility thresholds or represent illustrative criteria as approved. For paid questionnaires, explain that the adviser PDF is the outcome instead of generating automatic results.',
     },
+    {
+      role: 'system',
+      content:
+        'Respondent-facing completion and result copy should be concise and useful: lead with their pathway, relevant options and a clear next step. Use short paragraphs, Markdown bullets and restrained bold labels, not repeated titles. Avoid repetitive disclaimers such as "general pointer only", "not a recommendation" and "does not decide eligibility" across the introduction and each outcome. If a qualification is material, state it once in a short, specific sentence (for example which criteria still need checking). Do not imply confirmed eligibility or adviser approval. Keep detailed source limitations and research verification notes in the staff proposal summary, not respondent-facing messages. When staff request simpler result copy, remove redundant caveats while preserving material conditions and factual uncertainty.',
+    },
     ...context.history,
     ...(sources.length
       ? [

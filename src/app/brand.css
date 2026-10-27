@@ -1568,13 +1568,15 @@ input[type='radio'] {
 }
 .confirmation-content {
   width: 100%;
-  max-width: 640px;
+  max-width: none;
   min-width: 0;
   text-align: left;
   overflow-wrap: anywhere;
 }
 .confirmation-header {
   margin-bottom: 32px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid #d9e1ea;
 }
 .confirmation-check {
   display: grid;
@@ -1603,11 +1605,11 @@ input[type='radio'] {
   white-space: pre-line;
 }
 .confirmation-result {
-  padding: 28px;
+  padding: clamp(24px, 3vw, 48px);
   background: #fff;
   border: 1px solid #d9e1ea;
-  border-left: 3px solid #243085;
-  border-radius: 8px;
+  border-top: 3px solid #243085;
+  border-radius: 12px;
 }
 .confirmation-screen .confirmation-result h2,
 .confirmation-footer h2 {
@@ -1636,6 +1638,47 @@ input[type='radio'] {
 }
 .confirmation-footer > section {
   width: 100%;
+}
+.confirmation-screen .chat-markdown {
+  font-size: 15px;
+  line-height: 1.8;
+}
+.confirmation-screen .chat-markdown p {
+  margin: 0 0 16px;
+  white-space: normal;
+}
+.confirmation-screen .chat-markdown > :last-child {
+  margin-bottom: 0;
+}
+.confirmation-screen .chat-markdown :is(h1, h2, h3, h4) {
+  max-width: none;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  margin: 24px 0 12px;
+}
+.confirmation-screen .chat-markdown ul,
+.confirmation-screen .chat-markdown ol {
+  padding-left: 24px;
+  margin: 16px 0 24px;
+  color: #455e7d;
+}
+.confirmation-screen .chat-markdown li {
+  padding-left: 4px;
+  margin-block: 10px;
+}
+.confirmation-screen .chat-markdown strong {
+  color: #06234f;
+  font-weight: 500;
+}
+.confirmation-screen .chat-markdown a {
+  color: #243085;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.confirmation-screen .chat-markdown blockquote {
+  margin: 24px 0;
+  padding-left: 20px;
+  border-left: 2px solid #cbd5e2;
 }
 @media (max-width: 600px) {
   .confirmation-screen,
