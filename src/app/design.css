@@ -1,30 +1,63 @@
 /* Application-wide contract from DESIGN.md. Layouts remain feature-specific. */
 :root {
-  --heading-1: clamp(1.5rem, 1.35rem + 0.5vw, 1.875rem);
-  --heading-2: clamp(1.125rem, 1.05rem + 0.3vw, 1.375rem);
+  --heading-1: 24px;
+  --heading-2: 20px;
 }
 body {
   background: var(--canvas);
+}
+/* Neutralize legacy component type scales; semantic roles below own the hierarchy.
+   Exclude SVGs and icons so font sizing never changes their geometry. */
+body
+  :where(
+    p,
+    span,
+    small,
+    strong,
+    em,
+    b,
+    a,
+    label,
+    button,
+    input,
+    textarea,
+    select,
+    option,
+    summary,
+    li,
+    dt,
+    dd,
+    th,
+    td,
+    pre,
+    code,
+    blockquote,
+    figcaption
+  ) {
+  font-size: clamp(13px, 1em, 24px) !important;
 }
 body h1 {
   font-size: var(--heading-1) !important;
   line-height: 1.3 !important;
   letter-spacing: -0.025em !important;
-  font-weight: 400;
+  font-weight: 400 !important;
   max-width: none;
 }
 body h2 {
   font-size: var(--heading-2) !important;
   line-height: 1.4 !important;
   letter-spacing: -0.015em !important;
-  font-weight: 400;
+  font-weight: 400 !important;
   max-width: none;
 }
-body h3 {
-  font-size: 16px;
-  line-height: 1.5;
-  font-weight: 400;
-  letter-spacing: 0;
+body h3,
+body h4,
+body h5,
+body h6 {
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
 }
 body .small,
 body small,
@@ -41,7 +74,7 @@ body .staff small,
 body .card-footer,
 body .nav-item span,
 body .response-state {
-  font-size: 13px;
+  font-size: 13px !important;
 }
 body label,
 body input,
@@ -50,7 +83,54 @@ body select,
 body .nav-item,
 body .question-nav-item,
 body .chat-markdown {
-  font-size: 15px;
+  font-size: 15px !important;
+}
+body .chat-markdown p,
+body .confirmation-markdown p,
+body .question-editor label,
+body .content-panel label,
+body .stage-option,
+body .answer-choice,
+body .runner-content input,
+body .runner-content textarea,
+body .runner-content select {
+  font-size: 15px !important;
+}
+body .chat-markdown h1 {
+  font-size: var(--heading-1) !important;
+}
+body .chat-markdown h2 {
+  font-size: var(--heading-2) !important;
+}
+body .outcome-dialog h2,
+body .settings-panel h2,
+body .logic-inspector h2 {
+  font-size: 18px !important;
+}
+body .question-nav h3,
+body .settings-panel h3 {
+  font-size: 16px !important;
+}
+body .brand,
+body .runner-wordmark {
+  font-size: 16px;
+  font-weight: 400;
+}
+body .question-number,
+body .stage-number,
+body .nav-caption,
+body .question-progress,
+body .canvas-toolbar,
+body .builder-breadcrumb,
+body .builder-header nav button,
+body .nav-bottom button,
+body .ai-bottom,
+body .ai-model-control,
+body .email-variables,
+body .logic-search,
+body .logic-issues,
+body .count {
+  font-size: 13px !important;
 }
 body label {
   color: var(--ink);
@@ -70,7 +150,7 @@ body .header-actions .button,
 body .create-card button,
 body .stage-button {
   min-height: 42px;
-  font-size: 13px;
+  font-size: 15px !important;
   font-weight: 600;
   text-transform: none;
   letter-spacing: 0;
@@ -142,7 +222,7 @@ body .stats > div:first-child {
   text-align: left;
 }
 body .stats strong {
-  font-size: 24px;
+  font-size: 24px !important;
   line-height: 1.3;
   letter-spacing: -0.025em;
 }
@@ -223,7 +303,19 @@ body .anz-email-editor h1 {
 body .anz-email-editor h2 {
   font-size: 20px !important;
 }
+body .anz-email-editor .node-paragraph {
+  font-size: 15px !important;
+  line-height: 1.7;
+}
+body .anz-email-editor .node-button {
+  font-size: 14px !important;
+  font-weight: 600;
+}
 @media (max-width: 600px) {
+  :root {
+    --heading-1: 22px;
+    --heading-2: 18px;
+  }
   body .dashboard-heading {
     padding-block: 24px;
     gap: 16px;

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { expectCompactTypography } from './typography'
 test('sign-in page is responsive and exposes accessible form controls', async ({ page }) => {
   await page.goto('/login')
   await expect(page.getByRole('heading', { name: 'Sign in', exact: true })).toBeVisible()
@@ -8,11 +9,11 @@ test('sign-in page is responsive and exposes accessible form controls', async ({
   const headingSize = await page
     .locator('h1')
     .evaluate((el) => parseFloat(getComputedStyle(el).fontSize))
-  expect(headingSize).toBeGreaterThanOrEqual(24)
-  expect(headingSize).toBeLessThanOrEqual(30)
+  expect(headingSize).toBe(test.info().project.name === 'mobile' ? 22 : 24)
+  await expectCompactTypography(page)
   expect(
     await page.locator('h2').evaluate((el) => parseFloat(getComputedStyle(el).fontSize)),
-  ).toBeLessThanOrEqual(22)
+  ).toBeLessThanOrEqual(20)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   expect(await page.locator('body').evaluate((el) => getComputedStyle(el).fontFamily)).toContain(
     'Poppins',

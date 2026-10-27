@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { expectCompactTypography } from './typography'
 test('admin saves provider settings without returning its key to the browser', async ({ page }) => {
   await page.goto('/login')
   await page.getByLabel('Email address').fill('admin@example.test')
@@ -6,6 +7,7 @@ test('admin saves provider settings without returning its key to the browser', a
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
   await page.getByRole('heading', { name: 'Questionnaires', exact: true }).waitFor()
   await page.goto('/settings/ai')
+  await expectCompactTypography(page)
   await expect(page.getByRole('heading', { name: 'Your AI, your choice.' })).toBeVisible()
   await page.getByLabel('Provider', { exact: true }).selectOption('Custom')
   await page.getByLabel('API base URL').fill('https://api.openai.com/v1')

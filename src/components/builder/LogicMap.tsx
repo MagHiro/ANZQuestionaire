@@ -209,7 +209,7 @@ export function LogicMap({
           strokeWidth: 1.6,
           ...(r.conditional ? {} : { strokeDasharray: '5 4' }),
         },
-        labelStyle: { fill: '#243085', fontSize: 12, fontFamily: 'Poppins, sans-serif' },
+        labelStyle: { fill: '#243085', fontSize: 13, fontFamily: 'Poppins, sans-serif' },
         labelBgPadding: [8, 5],
         labelBgBorderRadius: 4,
         ariaLabel: `${questions.find((q) => q.id === r.source)?.title}: ${r.label} → ${r.target === '$end' ? 'Finish' : questions.find((q) => q.id === r.target)?.title}`,

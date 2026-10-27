@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { expectCompactTypography } from './typography'
 test('staff can create, edit, preview, publish and receive a real submission', async ({ page }) => {
   await page.goto('/login')
   await page.getByLabel('Email address').fill('admin@example.test')
@@ -7,7 +8,8 @@ test('staff can create, edit, preview, publish and receive a real submission', a
   await expect(page.getByRole('heading', { name: 'Questionnaires', exact: true })).toBeVisible()
   expect(
     await page.locator('h1').evaluate((el) => parseFloat(getComputedStyle(el).fontSize)),
-  ).toBeLessThanOrEqual(30)
+  ).toBeLessThanOrEqual(24)
+  await expectCompactTypography(page)
   await page.screenshot({
     path: `test-results/workspace-${test.info().project.name}.png`,
     fullPage: true,
@@ -18,6 +20,7 @@ test('staff can create, edit, preview, publish and receive a real submission', a
   await page.getByRole('button', { name: 'Create questionnaire' }).click()
   await expect(page.getByText('Question settings', { exact: true })).toBeVisible()
   await expect(page.locator('.type-chip svg').first()).toBeVisible()
+  await expectCompactTypography(page)
   await page
     .getByRole('textbox', { name: 'Question', exact: true })
     .fill('What would you like to learn next?')
@@ -59,6 +62,7 @@ test('staff can create, edit, preview, publish and receive a real submission', a
   )
   const builder = page.url()
   await page.goto(url)
+  await expectCompactTypography(page)
   await page
     .getByRole('textbox', { name: 'What would you like to learn next?' })
     .fill('Communication')
@@ -100,6 +104,7 @@ test('staff can create, edit, preview, publish and receive a real submission', a
   ).toBe(404)
   await respondent.close()
   await page.goto(builder.replace('/builder/', '/responses/'))
+  await expectCompactTypography(page)
   await page.locator('summary').first().click()
   await expect(page.getByText('Communication', { exact: true })).toBeVisible()
 })
