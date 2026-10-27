@@ -1,6 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
 import { z } from 'zod'
 import { db } from './db'
+import { thinkingLevels, type AiModel } from '@/core/ai-providers'
 
 function encryptionKey(): Buffer {
   const key = process.env.SETTINGS_ENCRYPTION_KEY || ''
@@ -60,3 +61,35 @@ export const aiSettingsInput = z
     apiKey: z.string().trim().max(8000),
   })
   .strict()
+
+export async function providerModels(baseUrl: string, apiKey: string): Promise<AiModel[]> {
+  if (!apiKey) throw new Error('Enter an API key first.')
+  const response = await fetch(`${validateBaseUrl(baseUrl)}/models`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
+    redirect: 'error',
+    signal: AbortSignal.timeout(20000),
+    cache: 'no-store',
+  })
+  if (!response.ok)
+    throw new Error(`Unable to load models (HTTP ${response.status}). Check your key and provider.`)
+  const envelope = z
+    .object({
+      data: z
+        .array(
+          z.object({
+            id: z.string().min(1).max(200),
+            name: z.string().optional(),
+            supported_parameters: z.array(z.string()).optional(),
+          }),
+        )
+        .max(10000),
+    })
+    .parse(await response.json())
+  return envelope.data
+    .map((model) => ({
+      id: model.id,
+      name: model.name || model.id,
+      thinkingLevels: thinkingLevels(baseUrl, model.id, model.supported_parameters),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+}

@@ -81,6 +81,8 @@ export function Builder({
   const [proposalPreview, setProposalPreview] = useState(false)
   const [aiPromptOpen, setAiPromptOpen] = useState(false)
   const [webSearch, setWebSearch] = useState(true)
+  const [chatModel, setChatModel] = useState('')
+  const [thinking, setThinking] = useState('')
   const [aiModalTarget, setAiModalTarget] = useState<HTMLDivElement | null>(null)
   const [leftCollapsed, setLeftCollapsed] = useState(false)
   const [rightCollapsed, setRightCollapsed] = useState(false)
@@ -277,6 +279,8 @@ export function Builder({
           definition: candidate,
           instruction,
           webSearch,
+          model: chatModel || undefined,
+          thinking: thinking || undefined,
           context: { selectedQuestionId: current.id, history: aiHistory.slice(-8) },
         }),
       })
@@ -597,7 +601,12 @@ export function Builder({
               )}
             </>
           ) : tab === 'logic' ? (
-            <LogicMap definition={definition} onChange={changeQuestion} issue={issue} />
+            <LogicMap
+              definition={definition}
+              onChange={changeQuestion}
+              issue={issue}
+              storageKey={id}
+            />
           ) : tab === 'payment' ? (
             <section className="content-panel stack">
               <h1>Payment</h1>
@@ -807,6 +816,10 @@ export function Builder({
           onClose={() => setAiPromptOpen(false)}
         >
           <AiWorkspace
+            model={chatModel}
+            onModel={setChatModel}
+            thinking={thinking}
+            onThinking={setThinking}
             id="ai-instruction-modal"
             contextTitle={tab === 'outcomes' ? 'Result options and conditions' : definition.title}
             notice={message}

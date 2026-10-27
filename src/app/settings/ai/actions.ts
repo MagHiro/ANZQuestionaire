@@ -7,6 +7,7 @@ import {
   encryptApiKey,
   getAiConfiguration,
   validateBaseUrl,
+  providerModels,
 } from '@/server/ai-settings'
 
 export async function saveAiSettings(input: unknown) {
@@ -15,6 +16,8 @@ export async function saveAiSettings(input: unknown) {
     const values = aiSettingsInput.parse(input)
     const baseUrl = validateBaseUrl(values.baseUrl)
     const existing = await getAiConfiguration()
+    if (!values.apiKey && baseUrl !== validateBaseUrl(existing.baseUrl))
+      throw new Error('Enter a new API key when changing providers.')
     const apiKey = values.apiKey || existing.apiKey
     if (!apiKey) throw new Error('Enter an API key to configure the provider.')
     await db().query(
@@ -24,6 +27,20 @@ export async function saveAiSettings(input: unknown) {
     return { ok: true }
   } catch (error) {
     return { error: error instanceof Error ? error.message : 'Unable to save AI settings.' }
+  }
+}
+export async function loadAiModels(input?: { baseUrl: string; apiKey: string }) {
+  const actor = await requireStaff(Boolean(input))
+  try {
+    await rateLimit(`ai-models:${actor.id}`, 60, 3600)
+    const config = await getAiConfiguration()
+    const baseUrl = validateBaseUrl(input?.baseUrl || config.baseUrl)
+    if (input && !input.apiKey && baseUrl !== validateBaseUrl(config.baseUrl))
+      throw new Error('Enter a key for the selected provider.')
+    const models = await providerModels(baseUrl, input?.apiKey || config.apiKey)
+    return { models, defaultModel: config.model }
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'Unable to load models.' }
   }
 }
 export async function testAiConnection() {

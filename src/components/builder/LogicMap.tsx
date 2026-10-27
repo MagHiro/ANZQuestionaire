@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import {
   Background,
   Controls,
@@ -18,6 +18,8 @@ import {
 import '@xyflow/react/dist/style.css'
 import type { Definition, Question } from '@/core/questionnaire'
 import { QuestionEditor } from './QuestionEditor'
+import { logicDiagnostics } from '@/core/logic-diagnostics'
+import { LogicTester, type TestedPath } from './LogicTester'
 
 function RouteNode({ data }: NodeProps) {
   const q = data.question as Question | undefined
@@ -69,10 +71,12 @@ export function LogicMap({
   definition,
   onChange,
   issue,
+  storageKey,
 }: {
   definition: Definition
   onChange: (question: Question) => void
   issue: string | null | undefined
+  storageKey: string
 }) {
   const [selected, setSelected] = useState(definition.questions[0]?.id || '')
   const [liveNodes, setLiveNodes] = useState<Node[]>([])
@@ -81,6 +85,49 @@ export function LogicMap({
   const [flow, setFlow] = useState<ReactFlowInstance | null>(null)
   const [formatRequested, setFormatRequested] = useState(false)
   const [hoveredEdge, setHoveredEdge] = useState<string | null>(null)
+  const [inspectorOpen, setInspectorOpen] = useState(true)
+  const [search, setSearch] = useState('')
+  const [testing, setTesting] = useState(false)
+  const [testedPath, setTestedPath] = useState<TestedPath | null>(null)
+  const positions = useRef<Record<string, { x: number; y: number }>>({})
+  const diagnostics = useMemo(() => logicDiagnostics(definition), [definition])
+  useEffect(() => {
+    setTestedPath(null)
+    setTesting(false)
+  }, [definition])
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(`logic-layout:${storageKey}`) || '{}')
+      positions.current = Object.fromEntries(
+        Object.entries(saved).filter(([, value]) => {
+          const point = value as { x: number; y: number }
+          return point && Number.isFinite(point.x) && Number.isFinite(point.y)
+        }),
+      ) as Record<string, { x: number; y: number }>
+      setLiveNodes((previous) =>
+        previous.map((node) => ({
+          ...node,
+          position: positions.current[node.id] || node.position,
+        })),
+      )
+    } catch {
+      /* Layout storage is optional. */
+    }
+  }, [storageKey])
+  function rememberLayout(updated: Node[]) {
+    positions.current = Object.fromEntries(updated.map((node) => [node.id, node.position]))
+    try {
+      sessionStorage.setItem(`logic-layout:${storageKey}`, JSON.stringify(positions.current))
+    } catch {
+      /* Keep editing when storage is unavailable. */
+    }
+  }
+  function focusQuestion(id: string) {
+    setSelected(id)
+    setSelectedEdge(null)
+    const node = liveNodes.find((node) => node.id === id)
+    if (node && flow) void flow.fitView({ nodes: [node], padding: 0.7, maxZoom: 1 })
+  }
   const question = definition.questions.find((q) => q.id === selected)
   const { nodes, edges } = useMemo(() => {
     const questions = definition.questions
@@ -153,7 +200,7 @@ export function LogicMap({
         sourceHandle: r.handle,
         targetHandle: 'in',
         reconnectable: 'target',
-        label: r.label,
+        label: `${r.label} → ${r.target === '$end' ? 'Finish' : questions.find((q) => q.id === r.target)?.title}`,
         type: 'smoothstep',
         markerEnd: { type: MarkerType.ArrowClosed, color: r.conditional ? '#243085' : '#8293ab' },
         style: {
@@ -175,7 +222,9 @@ export function LogicMap({
     setLiveNodes((previous) =>
       nodes.map((node) => {
         const old = previous.find((item) => item.id === node.id)
-        return old ? { ...old, data: node.data, ariaLabel: node.ariaLabel } : node
+        return old
+          ? { ...old, data: node.data, ariaLabel: node.ariaLabel }
+          : { ...node, position: positions.current[node.id] || node.position }
       }),
     )
   }, [nodes])
@@ -195,27 +244,52 @@ export function LogicMap({
 
   function autoFormat() {
     const offsets = new Map<number, number>()
-    setLiveNodes((previous) =>
-      nodes.map((node) => {
+    setLiveNodes((previous) => {
+      const updated = nodes.map((node) => {
         const old = previous.find((item) => item.id === node.id)
         const column = node.position.x
         const y = offsets.get(column) || 0
         offsets.set(column, y + (old?.measured?.height || 120) + 64)
         return { ...old, ...node, measured: old?.measured, position: { x: column, y } }
-      }),
-    )
+      })
+      rememberLayout(updated)
+      return updated
+    })
     setSelectedEdge(null)
     setFormatRequested(true)
   }
 
+  const relevantEdges = edges.filter((edge) =>
+    testedPath
+      ? testedPath.routes.some(
+          (route) =>
+            route.source === edge.source &&
+            route.target === edge.target &&
+            route.handle === edge.sourceHandle,
+        )
+      : edge.source === selected || edge.target === selected,
+  )
+  const relevantNodes = new Set(
+    testedPath?.nodes || [selected, ...relevantEdges.flatMap((edge) => [edge.source, edge.target])],
+  )
+  const displayNodes = liveNodes.map((node) => ({
+    ...node,
+    style: { ...node.style, opacity: relevantNodes.has(node.id) ? 1 : 0.42 },
+    className: testedPath?.nodes.includes(node.id) ? 'logic-node-tested' : undefined,
+  }))
   const displayEdges = useMemo(
     () =>
       edges.map((edge) => ({
         ...edge,
         label: edge.id === selectedEdge || edge.id === hoveredEdge ? edge.label : undefined,
         selected: edge.id === selectedEdge,
+        style: {
+          ...edge.style,
+          opacity: relevantEdges.some((item) => item.id === edge.id) ? 1 : 0.18,
+          strokeWidth: relevantEdges.some((item) => item.id === edge.id) ? 2.5 : 1.6,
+        },
       })),
-    [edges, selectedEdge, hoveredEdge],
+    [edges, selectedEdge, hoveredEdge, testedPath, selected],
   )
 
   const validConnection = useCallback(
@@ -270,20 +344,98 @@ export function LogicMap({
     <section className="logic-workspace">
       <header className="logic-map-header">
         <h1>Question flow</h1>
-        <button
-          type="button"
-          className="button secondary"
-          onClick={autoFormat}
-          disabled={!liveNodes.length}
-        >
-          Auto format
-        </button>
+        <div className="button-row">
+          <button
+            type="button"
+            className="button secondary"
+            aria-pressed={testing}
+            onClick={() => {
+              setTesting(!testing)
+              setTestedPath(!testing ? { nodes: [definition.questions[0].id], routes: [] } : null)
+            }}
+          >
+            Test this path
+          </button>
+          <button
+            type="button"
+            className="button secondary"
+            aria-expanded={inspectorOpen}
+            aria-controls="routing-inspector"
+            onClick={() => setInspectorOpen(!inspectorOpen)}
+          >
+            {inspectorOpen ? 'Hide routing settings' : 'Show routing settings'}
+          </button>
+          <button
+            type="button"
+            className="button secondary"
+            onClick={autoFormat}
+            disabled={!liveNodes.length}
+          >
+            Auto format
+          </button>
+        </div>
         <p className="muted">
           Drag from an answer or next-step dot to another question. Drag a line’s endpoint to
           reconnect it. Dashed lines show the default route.
         </p>
       </header>
-      {issue && (
+      <div className="logic-search">
+        <label>
+          Find a question
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search questions…"
+          />
+        </label>
+        {search.trim() && (
+          <ul>
+            {definition.questions
+              .filter((q) => q.title.toLowerCase().includes(search.toLowerCase()))
+              .map((q) => (
+                <li key={q.id}>
+                  <button
+                    className="text-button"
+                    onClick={() => {
+                      focusQuestion(q.id)
+                      setSearch('')
+                    }}
+                  >
+                    {q.title}
+                  </button>
+                </li>
+              ))}
+            {!definition.questions.some((q) =>
+              q.title.toLowerCase().includes(search.toLowerCase()),
+            ) && <li>No questions found.</li>}
+          </ul>
+        )}
+      </div>
+      {diagnostics.length > 0 && (
+        <details className="logic-issues" open>
+          <summary>{diagnostics.length} routing issues</summary>
+          <ul>
+            {diagnostics.map((item, index) => (
+              <li key={index}>
+                <button
+                  className="text-button"
+                  onClick={() => {
+                    focusQuestion(item.questionId)
+                    setInspectorOpen(true)
+                  }}
+                >
+                  <strong>
+                    {definition.questions.find((q) => q.id === item.questionId)?.title}
+                  </strong>
+                  : {item.message}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+      {issue && !diagnostics.length && (
         <p role="alert" className="error">
           {issue}
         </p>
@@ -295,6 +447,9 @@ export function LogicMap({
       )}
       {selectedEdge && (
         <div className="button-row">
+          <p className="logic-route-summary">
+            {edges.find((edge) => edge.id === selectedEdge)?.ariaLabel}
+          </p>
           <button type="button" className="button secondary" onClick={removeConnection}>
             {edges.find((e) => e.id === selectedEdge)?.sourceHandle === 'default'
               ? 'Reset to next question in order'
@@ -305,10 +460,10 @@ export function LogicMap({
           </button>
         </div>
       )}
-      <div className="logic-map-layout">
+      <div className={`logic-map-layout ${inspectorOpen ? '' : 'logic-inspector-hidden'}`}>
         <div className="logic-map" aria-label="Question branching map">
           <ReactFlow
-            nodes={liveNodes}
+            nodes={displayNodes}
             nodeTypes={nodeTypes}
             edges={displayEdges}
             onInit={setFlow}
@@ -338,7 +493,11 @@ export function LogicMap({
             onEdgeMouseLeave={() => setHoveredEdge(null)}
             onPaneClick={() => setSelectedEdge(null)}
             onNodesChange={(changes) => {
-              setLiveNodes((previous) => applyNodeChanges(changes, previous))
+              setLiveNodes((previous) => {
+                const updated = applyNodeChanges(changes, previous)
+                if (changes.some((change) => change.type === 'position')) rememberLayout(updated)
+                return updated
+              })
               for (const change of changes) {
                 if (change.type === 'select' && change.selected && change.id !== '$end')
                   setSelected(change.id)
@@ -349,7 +508,12 @@ export function LogicMap({
             <Controls showInteractive={false} />
           </ReactFlow>
         </div>
-        <aside className="logic-inspector" aria-label="Routing settings">
+        <aside
+          id="routing-inspector"
+          className="logic-inspector"
+          aria-label="Routing settings"
+          hidden={!inspectorOpen}
+        >
           <label>
             Question
             <select value={question?.id || ''} onChange={(e) => setSelected(e.target.value)}>
@@ -371,6 +535,7 @@ export function LogicMap({
           )}
         </aside>
       </div>
+      {testing && <LogicTester definition={definition} onPath={setTestedPath} />}
     </section>
   )
 }

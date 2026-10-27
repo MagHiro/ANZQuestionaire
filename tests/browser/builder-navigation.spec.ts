@@ -99,6 +99,13 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await expect
     .poll(() => node.evaluate((el) => (el as HTMLElement).style.transform))
     .toBe(movedStyle)
+  const movedId = await node.getAttribute('data-id')
+  await page.getByRole('button', { name: 'Create', exact: true }).click()
+  await page.getByRole('button', { name: 'Logic', exact: true }).click()
+  await expect(page.locator(`.react-flow__node[data-id="${movedId}"]`)).toHaveAttribute(
+    'style',
+    new RegExp(movedStyle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+  )
   await expect(node).toHaveCSS('background-color', 'rgb(255, 255, 255)')
   await page.getByRole('button', { name: 'Auto format', exact: true }).click()
   await expect
@@ -123,6 +130,29 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await node.click()
   await expect(page.locator('.logic-inspector').getByLabel('Default next step')).toHaveValue('$end')
   await page.locator('.logic-inspector').getByLabel('Default next step').selectOption('')
+  await page.getByRole('button', { name: 'Hide routing settings' }).click()
+  await expect(page.getByRole('complementary', { name: 'Routing settings' })).not.toBeVisible()
+  await page.getByRole('button', { name: 'Show routing settings' }).click()
+  await page.getByLabel('Find a question').fill('Second question')
+  await page.locator('.logic-search').getByRole('button', { name: 'Second question' }).click()
+  await expect(
+    page.locator('.logic-inspector').getByRole('combobox', { name: 'Question', exact: true }),
+  ).toHaveValue(
+    (await flowNodes.filter({ hasText: 'Second question' }).getAttribute('data-id')) as string,
+  )
+  await page.getByRole('button', { name: 'Test this path', exact: true }).click()
+  const tester = page.getByRole('region', { name: 'Test this path' })
+  const testInput = tester.locator('input').first()
+  if ((await testInput.getAttribute('type')) === 'radio') await testInput.check()
+  else await testInput.fill('Test answer')
+  await tester.getByRole('button', { name: 'Continue test' }).click()
+  const nextInput = tester.locator('input').first()
+  if ((await nextInput.getAttribute('type')) === 'radio') await nextInput.check()
+  else await nextInput.fill('Test answer')
+  await tester.getByRole('button', { name: 'Continue test' }).click()
+  await expect(tester.getByRole('status')).toBeVisible()
+  await expect(page.locator('.logic-node-tested')).toHaveCount(3)
+  await page.getByRole('button', { name: 'Test this path', exact: true }).click()
   await page.getByRole('button', { name: 'Outcomes', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Result options', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: /Generate results with AI/ })).toBeVisible()

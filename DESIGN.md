@@ -65,3 +65,10 @@ Source of truth: `../anzwebsite/DESIGN.md`. This supersedes the initial Jalanin 
 - Search is bounded to three queries and six results per query. It supplies search excerpts, not browser-verified page contents. Cite sources and preserve uncertainty; search engines can block requests or return incomplete/outdated snippets.
 - Web pages and snippets are untrusted evidence, not instructions. Missing criteria should prompt a focused plain-language question rather than demand a technical rule specification. Source-supported outcome criteria may be drafted for staff review; never claim adviser approval.
 - The app uses `WEB_SEARCH_URL` (set to `http://search:8080` by Compose). Start the service with `docker compose up -d search`. Search failures are explicit; staff can disable search and continue with supplied information.
+
+## AI provider selection and logic testing
+
+- AI settings offer OpenAI-compatible provider presets, server-side model discovery, a saved default and a manual model-ID fallback. Switching endpoints requires a new key; stored keys are never returned to clients or reused at a different endpoint.
+- Chat can override the saved model for a request. Thinking controls appear only for known supported model/provider combinations; validate them server-side against the provider model catalog.
+- Logic highlights adjacent routes, or the exact route traversed by its tester. Testing uses the live input validation, branching and outcome evaluators without submissions or payment.
+- Routing issues are listed together with focus links. Search focuses nodes; routing settings collapse independently. Node positions persist in session storage per questionnaire, including across tab changes; they never modify question order or publishing data.

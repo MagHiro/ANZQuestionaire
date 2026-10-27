@@ -1,7 +1,8 @@
 import { z } from 'zod'
 import { definitionSchema, type Definition } from '@/core/questionnaire'
 import { parseAiProposal, type AiContext } from '@/core/ai-proposal'
-import { getAiConfiguration, validateBaseUrl } from './ai-settings'
+import { getAiConfiguration, validateBaseUrl, providerModels } from './ai-settings'
+import { reasoningParameters } from '@/core/ai-providers'
 import { searchPlanSchema, searchWeb, type SearchSource } from './web-search'
 
 export async function authorQuestionnaire(
@@ -10,11 +11,24 @@ export async function authorQuestionnaire(
   context: AiContext,
   progress: (stage: string) => void = () => {},
   webSearch = false,
+  selection: { model?: string; thinking?: string } = {},
 ) {
   progress('Loading provider configuration')
   const config = await getAiConfiguration()
   if (!config.apiKey || !config.model)
     throw new Error('AI is not configured. Ask an administrator to open AI settings.')
+  const model = selection.model || config.model
+  let reasoning = {}
+  if (selection.model || selection.thinking) {
+    const models = await providerModels(config.baseUrl, config.apiKey)
+    const chosen = models.find((item) => item.id === model)
+    if (!chosen) throw new Error('This model is not available from the configured provider.')
+    if (selection.thinking) {
+      if (!chosen.thinkingLevels.includes(selection.thinking))
+        throw new Error('This model does not support the selected thinking level.')
+      reasoning = reasoningParameters(config.baseUrl, selection.thinking)
+    }
+  }
   let sources: SearchSource[] = []
   if (webSearch) {
     progress('Planning public web research')
@@ -24,7 +38,8 @@ export async function authorQuestionnaire(
       signal: AbortSignal.timeout(30000),
       headers: { Authorization: `Bearer ${config.apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: config.model,
+        model,
+        ...reasoning,
         response_format: { type: 'json_object' },
         messages: [
           {
@@ -96,7 +111,8 @@ export async function authorQuestionnaire(
       signal: AbortSignal.timeout(60000),
       headers: { Authorization: `Bearer ${config.apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: config.model,
+        model,
+        ...reasoning,
         response_format: { type: 'json_object' },
         messages,
       }),

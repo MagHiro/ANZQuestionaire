@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { Spinner } from '@/components/Spinner'
 import { Markdown } from '@/components/Markdown'
 import type { Definition } from '@/core/questionnaire'
+import { loadAiModels } from '@/app/settings/ai/actions'
+import type { AiModel } from '@/core/ai-providers'
 
 export type AiPrompt = { label: string; prompt: string }
 export type AiTurn = { role: string; content: string }
@@ -37,6 +39,10 @@ export function AiWorkspace({
   onApply,
   onPreview,
   onDiscard,
+  model,
+  onModel,
+  thinking,
+  onThinking,
 }: {
   id: string
   contextTitle: string
@@ -66,7 +72,35 @@ export function AiWorkspace({
   onApply: () => void
   onPreview: () => void
   onDiscard: () => void
+  model: string
+  onModel: (value: string) => void
+  thinking: string
+  onThinking: (value: string) => void
 }) {
+  const [models, setModels] = useState<AiModel[]>([])
+  const [modelError, setModelError] = useState('')
+  const [loadingModels, setLoadingModels] = useState(true)
+  const [defaultModel, setDefaultModel] = useState('')
+  useEffect(() => {
+    let active = true
+    loadAiModels()
+      .then((result) => {
+        if (!active) return
+        setModels(result.models || [])
+        setDefaultModel(result.defaultModel || '')
+        setModelError(result.error || '')
+      })
+      .catch(() => {
+        if (active) setModelError('Models unavailable. The saved default will be used.')
+      })
+      .finally(() => {
+        if (active) setLoadingModels(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [])
+  const levels = models.find((item) => item.id === (model || defaultModel))?.thinkingLevels || []
   const historyRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const element = historyRef.current
@@ -187,6 +221,43 @@ export function AiWorkspace({
           rows={3}
         />
         <div className="ai-workspace-controls">
+          <label className="ai-model-control">
+            Model
+            <select
+              aria-label="Chat model"
+              value={model}
+              disabled={busy || loadingModels}
+              onChange={(event) => {
+                onModel(event.target.value)
+                onThinking('')
+              }}
+            >
+              <option value="">Default{defaultModel ? ` · ${defaultModel}` : ''}</option>
+              {models.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          {levels.length > 0 && (
+            <label className="ai-model-control">
+              Thinking
+              <select
+                aria-label="Thinking level"
+                value={thinking}
+                disabled={busy}
+                onChange={(event) => onThinking(event.target.value)}
+              >
+                <option value="">Provider default</option>
+                {levels.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <label className="toggle-label">
             Search the web
             <input
@@ -206,6 +277,16 @@ export function AiWorkspace({
             <ArrowRight size={15} />
           </button>
         </div>
+        {loadingModels && (
+          <p className="small muted" role="status">
+            Loading models…
+          </p>
+        )}
+        {modelError && (
+          <p className="small muted" role="status">
+            {modelError}
+          </p>
+        )}
         {webSearch && (
           <p className="small muted">
             Search queries are public. Don’t include private information.
