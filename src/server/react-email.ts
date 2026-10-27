@@ -63,7 +63,15 @@ export async function renderReactEmail(input: unknown, variables: Record<string,
       // React Email generates the stylesheet, not the author. Remove CSS URL imports.
       exclusiveFilter: (frame) => frame.tag === 'style' && /url\s*\(|@import/i.test(frame.text),
     })
-    return { html, text: result.text }
+    // Add only our trusted font stylesheet after sanitizing author content.
+    const origin = new URL(process.env.APP_URL || 'https://tf.anzmigrate.com').origin
+    const fonts = [400, 500, 600, 700]
+      .map(
+        (weight) =>
+          `@font-face{font-family:Poppins;font-style:normal;font-weight:${weight};font-display:swap;src:url('${origin}/fonts/poppins-latin-${weight}-normal.woff2') format('woff2')}`,
+      )
+      .join('')
+    return { html: html.replace('</head>', `<style>${fonts}</style></head>`), text: result.text }
   } finally {
     editor.destroy()
   }

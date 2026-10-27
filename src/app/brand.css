@@ -2328,6 +2328,15 @@ button {
   text-transform: none;
   letter-spacing: 0;
 }
+.anz-email-editor .node-container,
+.anz-email-editor .node-container p,
+.anz-email-editor .node-container h1,
+.anz-email-editor .node-container h2,
+.anz-email-editor .node-container h3,
+.anz-email-editor .node-container a,
+.anz-email-editor .node-container li {
+  font-family: Poppins, Arial, sans-serif !important;
+}
 .anz-email-editor .tiptap {
   min-height: 520px;
   padding: 28px;
