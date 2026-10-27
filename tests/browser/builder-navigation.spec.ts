@@ -172,7 +172,15 @@ test('question navigation preserves order, handles reorder, and panels scroll in
       contentType: 'application/x-ndjson',
       body:
         JSON.stringify({
-          proposal: { summary: '**Improved wording.**\n\n- Clearer question', definition },
+          proposal: {
+            summary:
+              '**Improved wording.**\n\n- Clearer question\n\n' +
+              Array.from(
+                { length: 24 },
+                (_, i) => `### Research note ${i + 1}\n\nSupporting details for staff review.`,
+              ).join('\n\n'),
+            definition,
+          },
         }) + '\n',
     })
   })
@@ -184,6 +192,29 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await page.getByText('Review 1 changes', { exact: true }).click()
   await expect(page.locator('.proposal-comparison')).toContainText('Clearer question wording')
   await expect(page.getByRole('button', { name: 'Apply to draft' })).toBeVisible()
+  const aiDialog = page.getByRole('dialog', { name: 'Create with AI' })
+  await expect(aiDialog.getByLabel('Instructions for AI')).toBeInViewport()
+  await expect(aiDialog.getByRole('button', { name: 'Apply to draft' })).toBeInViewport()
+  const layout = await aiDialog.evaluate((dialog) => {
+    const conversation = dialog.querySelector('.ai-workspace-history')!
+    conversation.scrollTop = 0
+    return {
+      scrollable: conversation.scrollHeight > conversation.clientHeight,
+      width: dialog.getBoundingClientRect().width,
+      viewport: innerWidth,
+      overflow: dialog.scrollWidth > dialog.clientWidth,
+    }
+  })
+  expect(layout.scrollable).toBe(true)
+  expect(layout.overflow).toBe(false)
+  if (test.info().project.name === 'desktop') expect(layout.width).toBeGreaterThan(1000)
+  await expect(aiDialog.getByLabel('Instructions for AI')).toBeInViewport()
+  await expect(aiDialog.getByRole('button', { name: 'Apply to draft' })).toBeInViewport()
+  await page.screenshot({ path: `test-results/ai-workspace-${test.info().project.name}.png` })
+  await aiDialog.getByRole('button', { name: 'Preview proposal' }).click()
+  await expect(page.getByRole('dialog', { name: 'Questionnaire preview' })).toBeVisible()
+  await page.getByRole('button', { name: 'Close preview' }).click()
+  await expect(aiDialog.getByLabel('Instructions for AI')).toBeVisible()
   await page.getByRole('button', { name: 'Discard', exact: true }).click()
   await page.keyboard.press('Escape')
   await page.getByRole('button', { name: 'Settings', exact: true }).click()

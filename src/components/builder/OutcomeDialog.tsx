@@ -61,7 +61,11 @@ export function OutcomeDialog({
         <button
           type="button"
           className="icon-button"
-          aria-label="Close outcome editor"
+          aria-label={
+            className.includes('ai-workspace-dialog')
+              ? 'Close AI workspace'
+              : 'Close outcome editor'
+          }
           onClick={onClose}
         >
           <X size={20} />
