@@ -1240,6 +1240,100 @@ input[type='radio'] {
   }
 }
 
+/* Shared respondent confirmation, including embedded preview and private status. */
+.confirmation-screen,
+.runner.confirmation-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: clamp(32px, 6vw, 72px) 24px;
+  background: #fbfcfe;
+}
+.confirmation-content {
+  width: 100%;
+  max-width: 640px;
+  min-width: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.confirmation-header {
+  margin-bottom: 32px;
+}
+.confirmation-check {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 24px;
+  border-radius: 50%;
+  background: #eef4ff;
+  color: #243085;
+}
+.confirmation-screen .confirmation-header h1 {
+  max-width: none;
+  font-size: clamp(28px, 2.2vw + 16px, 40px);
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  font-weight: 400;
+  margin: 0 0 16px;
+  outline: none;
+}
+.confirmation-screen p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #455e7d;
+  white-space: pre-line;
+}
+.confirmation-result {
+  padding: 28px;
+  background: #fff;
+  border: 1px solid #d9e1ea;
+  border-left: 3px solid #243085;
+  border-radius: 8px;
+}
+.confirmation-screen .confirmation-result h2,
+.confirmation-footer h2 {
+  max-width: none;
+  margin: 0 0 12px;
+  font-size: clamp(22px, 1.5vw + 12px, 28px);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+.confirmation-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  margin-top: 24px;
+}
+.confirmation-screen .confirmation-footer .small,
+.confirmation-screen .preview-note {
+  font-size: 13px !important;
+  color: #607793;
+}
+.confirmation-footer .button {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.confirmation-footer > section {
+  width: 100%;
+}
+@media (max-width: 600px) {
+  .confirmation-screen,
+  .runner.confirmation-screen {
+    padding: 32px 20px;
+  }
+  .confirmation-result {
+    padding: 22px 20px;
+  }
+  .confirmation-header {
+    margin-bottom: 24px;
+  }
+}
+
 /* Typeform-inspired editing studio, with ANZ typography and colour. */
 .builder {
   background: #fbfcfe;

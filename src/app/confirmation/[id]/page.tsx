@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { db } from '@/server/db'
 import { validResponseToken } from '@/server/respondent-access'
 import { validateDefinition } from '@/core/questionnaire'
+import { ConfirmationContent } from '@/components/ConfirmationContent'
 
 export const dynamic = 'force-dynamic'
 export const metadata = {
@@ -36,53 +37,50 @@ export default async function Confirmation({
   if (!row) notFound()
   const definition = validateDefinition(row.definition)
   return (
-    <main className="content-panel stack">
-      <span className="eyebrow">Confirmation</span>
-      <h1>{definition.completionTitle}</h1>
-      <p>{definition.completionMessage}</p>
-      {row.result && (
-        <section className="result-card">
-          <h2>{row.result.title}</h2>
-          <p>{row.result.message}</p>
-        </section>
-      )}
-      {row.payment_status === 'unpaid' && (
-        <section className="stack">
-          <h2>Complete your payment</h2>
-          <p>
-            {new Intl.NumberFormat('en', { style: 'currency', currency: row.currency }).format(
-              row.amount_minor / 100,
-            )}{' '}
-            · Payment is processed securely by Stripe.
-          </p>
-          <form action="/api/checkout" method="post">
-            <input type="hidden" name="id" value={id} />
-            <input type="hidden" name="token" value={token} />
-            <button className="button primary">Pay securely with Stripe</button>
-          </form>
-        </section>
-      )}
-      {row.payment_status === 'paid' && (
-        <p className="notice">
-          Payment verified.{' '}
-          {row.published_at
-            ? 'Your report is ready.'
-            : 'Your report is awaiting preparation. Refresh this page to check for updates.'}
-        </p>
-      )}
-      {row.published_at &&
-        (row.payment_status === 'paid' || row.payment_status === 'not_required') && (
-          <a
-            className="button primary"
-            href={`/api/reports/${id}?token=${encodeURIComponent(token)}`}
-          >
-            Download your report
-          </a>
+    <main className="confirmation-screen">
+      <ConfirmationContent
+        title={definition.completionTitle}
+        message={definition.completionMessage}
+        result={row.result}
+      >
+        {row.payment_status === 'unpaid' && (
+          <section className="stack">
+            <h2>Complete your payment</h2>
+            <p>
+              {new Intl.NumberFormat('en', { style: 'currency', currency: row.currency }).format(
+                row.amount_minor / 100,
+              )}{' '}
+              · Payment is processed securely by Stripe.
+            </p>
+            <form action="/api/checkout" method="post">
+              <input type="hidden" name="id" value={id} />
+              <input type="hidden" name="token" value={token} />
+              <button className="button primary">Pay securely with Stripe</button>
+            </form>
+          </section>
         )}
-      <p className="small muted">
-        Keep this private confirmation link secure. It provides access to your payment and report
-        status.
-      </p>
+        {row.payment_status === 'paid' && (
+          <p className="notice">
+            Payment verified.{' '}
+            {row.published_at
+              ? 'Your report is ready.'
+              : 'Your report is awaiting preparation. Refresh this page to check for updates.'}
+          </p>
+        )}
+        {row.published_at &&
+          (row.payment_status === 'paid' || row.payment_status === 'not_required') && (
+            <a
+              className="button primary"
+              href={`/api/reports/${id}?token=${encodeURIComponent(token)}`}
+            >
+              Download your report
+            </a>
+          )}
+        <p className="small muted">
+          Keep this private confirmation link secure. It provides access to your payment and report
+          status.
+        </p>
+      </ConfirmationContent>
     </main>
   )
 }

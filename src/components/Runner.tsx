@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Spinner } from './Spinner'
-import { ArrowLeft, ArrowRight, Check, CheckCheck } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
+import { ConfirmationContent } from './ConfirmationContent'
 import { QuestionInput } from './inputs/QuestionInput'
 import { responseResult, selectedValues } from '@/core/questionnaire'
 import {
@@ -132,28 +133,27 @@ export function Runner({
       : Math.round(((trail.length - 1) / (trail.length - 1 + remaining)) * 100)
   if (complete)
     return (
-      <div className="runner completion">
-        <span className="completion-icon">
-          <CheckCheck size={30} />
-        </span>
-        <h1 ref={heading} tabIndex={-1}>
-          {definition.completionTitle}
-        </h1>
-        <p>{definition.completionMessage}</p>
-        {result && (
-          <section className="result-card">
-            <h2>{result.title}</h2>
-            <p>{result.message}</p>
-          </section>
-        )}
-        {statusUrl && (
-          <a className="button primary" href={statusUrl} target="_blank" rel="noopener noreferrer">
-            {definition.payment?.enabled
-              ? 'Continue to payment / report status'
-              : 'View confirmation'}
-          </a>
-        )}
-        {preview && <p className="preview-note">Preview only. No response was saved.</p>}
+      <div className="runner confirmation-screen">
+        <ConfirmationContent
+          title={definition.completionTitle}
+          message={definition.completionMessage}
+          result={result}
+          headingRef={heading}
+        >
+          {statusUrl && (
+            <a
+              className="button primary"
+              href={statusUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {definition.payment?.enabled
+                ? 'Continue to payment / report status'
+                : 'View confirmation'}
+            </a>
+          )}
+          {preview && <p className="preview-note">Preview only. No response was saved.</p>}
+        </ConfirmationContent>
       </div>
     )
   return (
