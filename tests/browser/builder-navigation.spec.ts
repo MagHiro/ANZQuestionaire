@@ -62,7 +62,7 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await page.getByRole('button', { name: 'Logic', exact: true }).click()
   await expect(page.locator('.react-flow')).toBeVisible()
   await expect(page.locator('.logic-inspector').getByLabel('Default next step')).toBeVisible()
-  const flowNodes = page.locator('.react-flow__node-default')
+  const flowNodes = page.locator('.react-flow__node-route').filter({ hasNotText: '✓' })
   await flowNodes.nth(1).click()
   await expect(
     page.locator('.logic-inspector').getByRole('combobox', { name: 'Question', exact: true }),
@@ -77,6 +77,7 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await page.mouse.move(before!.x + before!.width / 2 + 50, before!.y + before!.height / 2 + 60, {
     steps: 12,
   })
+  await expect(node).toBeVisible()
   await page.mouse.up()
   await expect
     .poll(() => node.evaluate((el) => (el as HTMLElement).style.transform))
@@ -86,6 +87,25 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await expect
     .poll(() => node.evaluate((el) => (el as HTMLElement).style.transform))
     .toBe(movedStyle)
+  const from = node.locator('.react-flow__handle.source').last()
+  await page.locator('.logic-map').scrollIntoViewIfNeeded()
+  await page.getByRole('button', { name: 'Fit View', exact: true }).click()
+  await page.waitForTimeout(350)
+  const finish = page
+    .locator('.react-flow__node-route')
+    .filter({ hasText: '✓' })
+    .locator('.react-flow__handle.target')
+  const fromBox = await from.boundingBox()
+  const finishBox = await finish.boundingBox()
+  await page.mouse.move(fromBox!.x + fromBox!.width / 2, fromBox!.y + fromBox!.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(finishBox!.x + finishBox!.width / 2, finishBox!.y + finishBox!.height / 2, {
+    steps: 16,
+  })
+  await page.mouse.up()
+  await node.click()
+  await expect(page.locator('.logic-inspector').getByLabel('Default next step')).toHaveValue('$end')
+  await page.locator('.logic-inspector').getByLabel('Default next step').selectOption('')
   await page.getByRole('button', { name: 'Outcomes', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Result options', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: /Generate results with AI/ })).toBeVisible()
