@@ -684,6 +684,124 @@ input[type='radio'] {
 }
 
 /* Editing workspaces: fixed desktop shell, independently scrolling panels. */
+.editing-content {
+  min-width: 0;
+}
+.ai-dock-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 16px 20px;
+  text-align: left;
+  color: #243085;
+  font-size: 15px;
+}
+.ai-dock-toggle > .small {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.ai-dock-content {
+  padding: 0 20px 20px;
+}
+.ai-dock.ai-composer {
+  padding: 0;
+  margin-top: 20px;
+}
+.proposal-details,
+.proposal-summary {
+  margin-block: 14px;
+  font-size: 13px;
+}
+.proposal-details summary,
+.proposal-summary summary {
+  cursor: pointer;
+  color: #243085;
+}
+.proposal-summary p {
+  margin-top: 12px;
+  max-width: 70ch;
+}
+.proposal-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-block: 18px;
+}
+.proposal-comparison h4 {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  font-weight: 400;
+  margin: 0;
+}
+.proposal-comparison > div {
+  padding: 14px;
+  border-radius: 10px;
+  background: #eef4ff;
+  overflow-wrap: anywhere;
+}
+.proposal-comparison p {
+  margin: 4px 0 0;
+  font-size: 15px;
+}
+.proposal-actions {
+  position: sticky;
+  bottom: -20px;
+  padding-block: 14px;
+  background: #fbfcfe;
+  z-index: 1;
+}
+@media (max-width: 600px) {
+  .proposal-comparison {
+    grid-template-columns: 1fr;
+  }
+  .ai-dock-toggle {
+    flex-wrap: wrap;
+  }
+}
+@media (min-width: 1100px) {
+  html:has(.builder),
+  body:has(.builder) {
+    height: 100%;
+    overflow: hidden;
+  }
+  .builder-body > .editing-canvas {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 16px;
+  }
+  .editing-content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 2px 16px;
+  }
+  .editing-canvas > .ai-dock {
+    flex: 0 0 auto;
+    max-height: 48%;
+    min-height: 58px;
+    display: flex;
+    flex-direction: column;
+  }
+  .ai-dock-toggle {
+    flex-shrink: 0;
+  }
+  .ai-dock-content {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    min-height: 0;
+  }
+  .ai-dock-content[hidden] {
+    display: none;
+  }
+  .editing-canvas > .ai-dock:not(.ai-dock-open) {
+    max-height: 58px;
+  }
+}
 .sortable-row {
   display: flex;
   align-items: center;

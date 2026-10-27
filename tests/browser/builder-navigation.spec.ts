@@ -64,7 +64,7 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await expect(page.locator('.flow-node[open]').getByLabel('Default next step')).toBeVisible()
   await page.getByRole('button', { name: 'Outcomes', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Result options', exact: true })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Generate results with AI' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Generate results with AI/ })).toBeVisible()
   await expect(page.getByLabel('Paid questionnaire')).toHaveCount(0)
   await page.getByRole('button', { name: 'Add result option', exact: true }).click()
   await page.getByLabel('Result title', { exact: true }).fill('First outcome')
@@ -94,6 +94,33 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await page.getByRole('button', { name: 'Done', exact: true }).click()
   await page.getByRole('button', { name: 'Create result options', exact: true }).click()
   await expect(page.getByLabel('Instructions for AI')).toHaveValue(/decision criteria/)
+  if (test.info().project.name === 'desktop') {
+    await page.evaluate(() => {
+      document.querySelector('.editing-content')!.scrollTop = 10000
+    })
+    await expect(page.getByRole('button', { name: /Generate results with AI/ })).toBeInViewport()
+    expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(
+      true,
+    )
+  }
+  await page.getByRole('button', { name: /Generate results with AI/ }).click()
+  await expect(page.getByLabel('Instructions for AI')).not.toBeVisible()
+  await page.getByRole('button', { name: /Generate results with AI/ }).click()
+  await page.route('**/api/ai/proposal', async (route) => {
+    const body = route.request().postDataJSON()
+    const definition = structuredClone(body.definition)
+    definition.questions[0].title = 'Clearer question wording'
+    await route.fulfill({
+      contentType: 'application/x-ndjson',
+      body: JSON.stringify({ proposal: { summary: 'Improved wording.', definition } }) + '\n',
+    })
+  })
+  await page.getByRole('button', { name: 'Suggest changes', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Proposed changes' })).toBeVisible()
+  await page.getByText('Review 1 changes', { exact: true }).click()
+  await expect(page.locator('.proposal-comparison')).toContainText('Clearer question wording')
+  await expect(page.getByRole('button', { name: 'Apply to draft' })).toBeVisible()
+  await page.getByRole('button', { name: 'Discard', exact: true }).click()
   await page.getByRole('button', { name: 'Settings', exact: true }).click()
   await expect(page.getByLabel('Paid questionnaire')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Add result option', exact: true })).toHaveCount(0)
