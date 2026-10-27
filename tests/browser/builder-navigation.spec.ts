@@ -13,12 +13,11 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await page.getByRole('button', { name: 'Collapse settings sidebar' }).click()
   await expect(page.getByRole('textbox', { name: 'Question', exact: true })).not.toBeVisible()
   await page.getByRole('button', { name: 'Expand settings sidebar' }).click()
-  await page.getByRole('button', { name: 'Create with AI', exact: true }).click()
+  await page.getByRole('button', { name: 'Ask AI', exact: true }).click()
   await expect(page.getByRole('dialog', { name: 'Create with AI' })).toBeVisible()
   await page.keyboard.press('Escape')
-  await page.getByRole('button', { name: /Edit with AI/ }).click()
-  await expect(page.getByRole('dialog', { name: 'Create with AI' })).toBeVisible()
-  await page.keyboard.press('Escape')
+  await expect(page.getByRole('button', { name: /Edit with AI/ })).toHaveCount(0)
+  await expect(page.locator('.nav-ending')).toHaveCount(0)
   await page.getByRole('button', { name: 'Add question', exact: true }).click()
   await page.getByRole('textbox', { name: 'Question', exact: true }).fill('Second question')
   const items = page.locator('.question-nav-item')
@@ -162,7 +161,6 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await page.getByRole('button', { name: 'Test this path', exact: true }).click()
   await page.getByRole('button', { name: 'Outcomes', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Result options', exact: true })).toBeVisible()
-  await expect(page.getByRole('button', { name: /Generate results with AI/ })).toBeVisible()
   await expect(page.getByLabel('Paid questionnaire')).toHaveCount(0)
   await page.getByRole('button', { name: 'Add result option', exact: true }).click()
   await page.getByLabel('Result title', { exact: true }).fill('First outcome')
@@ -190,7 +188,7 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await page.keyboard.press('Tab')
   await expect(page.getByRole('button', { name: 'Close outcome editor' })).toBeFocused()
   await page.getByRole('button', { name: 'Done', exact: true }).click()
-  await page.getByRole('button', { name: /Generate results with AI/ }).click()
+  await page.getByRole('button', { name: 'Ask AI', exact: true }).click()
   await page.getByRole('button', { name: 'Create result options', exact: true }).click()
   await expect(page.getByLabel('Instructions for AI')).toHaveValue(/decision criteria/)
   await page.keyboard.press('Escape')
@@ -198,12 +196,12 @@ test('question navigation preserves order, handles reorder, and panels scroll in
     await page.evaluate(() => {
       document.querySelector('.editing-content')!.scrollTop = 10000
     })
-    await expect(page.getByRole('button', { name: /Generate results with AI/ })).toBeInViewport()
+    await expect(page.getByRole('button', { name: 'Ask AI', exact: true })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(
       true,
     )
   }
-  await page.getByRole('button', { name: /Generate results with AI/ }).click()
+  await page.getByRole('button', { name: 'Ask AI', exact: true }).click()
   await expect(page.getByLabel('Instructions for AI')).toBeVisible()
   await page.keyboard.press('Escape')
   await page.route('**/api/ai/proposal', async (route) => {
@@ -226,7 +224,7 @@ test('question navigation preserves order, handles reorder, and panels scroll in
         }) + '\n',
     })
   })
-  await page.getByRole('button', { name: 'Create with AI', exact: true }).click()
+  await page.getByRole('button', { name: 'Ask AI', exact: true }).click()
   await page.getByRole('button', { name: 'Suggest changes', exact: true }).click()
   await expect(page.getByRole('dialog', { name: 'Create with AI' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Proposed changes' })).toBeVisible()

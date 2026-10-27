@@ -159,6 +159,37 @@ body .builder-breadcrumb .status i {
   height: 6px;
   flex: 0 0 6px;
 }
+body .builder-header {
+  position: relative;
+}
+body .builder-header > nav {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: max-content;
+  max-width: 48%;
+  justify-content: center;
+  gap: 24px;
+}
+body .builder-header > nav a,
+body .builder-header > nav button {
+  white-space: nowrap;
+}
+body .question-nav-list {
+  scrollbar-width: thin;
+  scrollbar-color: #aeb6c2 transparent;
+}
+body .question-nav-list::-webkit-scrollbar {
+  width: 6px;
+}
+body .question-nav-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+body .question-nav-list::-webkit-scrollbar-thumb {
+  background: #aeb6c2;
+  border-radius: 999px;
+}
 body .question-number,
 body .stage-number,
 body .nav-caption,
@@ -394,6 +425,15 @@ body .anz-email-editor .node-button {
   }
   body .builder-header {
     gap: 8px;
+  }
+  body .builder-header > nav {
+    position: static;
+    transform: none;
+    order: 3;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start;
   }
   body .builder-breadcrumb {
     gap: 8px;

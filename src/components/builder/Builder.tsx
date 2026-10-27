@@ -17,7 +17,6 @@ import {
   Undo2,
   Sparkles,
   Trash2,
-  Check,
   X,
   Text,
   List,
@@ -376,7 +375,7 @@ export function Builder({
             }}
           >
             <Sparkles size={16} />
-            Create with AI
+            Ask AI
           </button>
           {canPublish && (
             <button
@@ -460,10 +459,6 @@ export function Builder({
             <Plus size={16} />
             Add question
           </button>
-          <div className="nav-ending">
-            <Check size={16} />
-            <span>{definition.completionTitle}</span>
-          </div>
           <div className="nav-bottom">
             <button
               className="text-button"
@@ -591,20 +586,6 @@ export function Builder({
                   </>
                 )}
               </div>
-              {!aiPromptOpen && (
-                <section className="ai-composer ai-launcher" aria-label="AI assistant">
-                  <button
-                    type="button"
-                    className="ai-dock-toggle"
-                    aria-haspopup="dialog"
-                    onClick={() => setAiPromptOpen(true)}
-                  >
-                    <Sparkles size={18} aria-hidden="true" />
-                    <span>{tab === 'outcomes' ? 'Generate results with AI' : 'Edit with AI'}</span>
-                    <span className="small">Open</span>
-                  </button>
-                </section>
-              )}
             </>
           ) : tab === 'logic' ? (
             <LogicMap
