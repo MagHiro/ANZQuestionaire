@@ -143,14 +143,15 @@ body .builder-breadcrumb > span:nth-child(3) {
 }
 body .builder-breadcrumb .status {
   flex: 0 0 auto;
-  min-height: 36px;
-  padding: 6px 10px;
+  min-height: 32px;
+  padding: 4px 10px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   white-space: nowrap;
   font-size: 13px !important;
-  line-height: 1.4;
+  line-height: 1.35;
+  align-self: center;
   border-radius: 8px;
 }
 body .builder-breadcrumb .status i {
