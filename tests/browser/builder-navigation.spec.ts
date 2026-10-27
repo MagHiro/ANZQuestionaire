@@ -60,8 +60,8 @@ test('question navigation preserves order, handles reorder, and panels scroll in
     'Second question',
   )
   await page.getByRole('button', { name: 'Logic', exact: true }).click()
-  await page.locator('.flow-node summary').first().click()
-  await expect(page.locator('.flow-node[open]').getByLabel('Default next step')).toBeVisible()
+  await expect(page.locator('.react-flow')).toBeVisible()
+  await expect(page.locator('.logic-inspector').getByLabel('Default next step')).toBeVisible()
   await page.getByRole('button', { name: 'Outcomes', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Result options', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: /Generate results with AI/ })).toBeVisible()
@@ -122,7 +122,13 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await expect(page.getByRole('button', { name: 'Apply to draft' })).toBeVisible()
   await page.getByRole('button', { name: 'Discard', exact: true }).click()
   await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await expect(page.getByLabel('Paid questionnaire')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Payment', exact: true }).click()
   await expect(page.getByLabel('Paid questionnaire')).toBeVisible()
+  await page.getByLabel('Paid questionnaire').check()
+  await expect(page.getByRole('button', { name: 'Outcomes', exact: true })).toHaveCount(0)
+  await page.getByLabel('Paid questionnaire').uncheck()
+  await expect(page.getByRole('button', { name: 'Outcomes', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Add result option', exact: true })).toHaveCount(0)
 
   if (test.info().project.name === 'desktop') {

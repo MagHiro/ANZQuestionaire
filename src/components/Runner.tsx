@@ -83,7 +83,7 @@ export function Runner({
     else setTrail([...trail, nextId])
   }
   async function submit() {
-    if (!consent) {
+    if (definition.payment?.enabled && !consent) {
       setError('Please confirm you are ready to submit your answers.')
       return
     }
@@ -204,14 +204,16 @@ export function Runner({
                 )
               })}
             </dl>
-            <label className="consent">
-              <input
-                type="checkbox"
-                checked={consent}
-                onChange={(e) => setConsent(e.target.checked)}
-              />
-              I’m ready to submit these answers to the questionnaire owner.
-            </label>
+            {definition.payment?.enabled && (
+              <label className="consent">
+                <input
+                  type="checkbox"
+                  checked={consent}
+                  onChange={(e) => setConsent(e.target.checked)}
+                />
+                I’m ready to submit these answers to the questionnaire owner.
+              </label>
+            )}
           </>
         ) : (
           <>

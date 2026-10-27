@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Spinner } from '@/components/Spinner'
+import { LogicMap } from './LogicMap'
 import { useEffect, useRef, useState } from 'react'
 import {
   ArrowLeft,
@@ -46,7 +47,7 @@ type Props = {
   initialOrigins: string[]
   initialWebhook: string
 }
-type Tab = 'create' | 'logic' | 'outcomes' | 'share' | 'settings'
+type Tab = 'create' | 'logic' | 'outcomes' | 'payment' | 'share' | 'settings'
 export function Builder({
   id,
   initial,
@@ -291,11 +292,13 @@ export function Builder({
           </span>
         </div>
         <nav aria-label="Builder views">
-          {(['create', 'logic', 'outcomes', 'share', 'settings'] as Tab[]).map((t) => (
-            <button key={t} className={tab === t ? 'selected-tab' : ''} onClick={() => setTab(t)}>
-              {t === 'settings' ? 'Settings' : t[0].toUpperCase() + t.slice(1)}
-            </button>
-          ))}
+          {(['create', 'logic', 'outcomes', 'payment', 'share', 'settings'] as Tab[])
+            .filter((t) => t !== 'outcomes' || !definition.payment?.enabled)
+            .map((t) => (
+              <button key={t} className={tab === t ? 'selected-tab' : ''} onClick={() => setTab(t)}>
+                {t === 'settings' ? 'Settings' : t[0].toUpperCase() + t.slice(1)}
+              </button>
+            ))}
           <Link href={`/responses/${id}`}>Responses</Link>
         </nav>
         <div className="header-actions">
@@ -705,62 +708,11 @@ export function Builder({
               </section>
             </>
           ) : tab === 'logic' ? (
-            <section className="content-panel logic-panel">
-              <h1>Question flow</h1>
-              <p className="muted">
-                Visitors start at question 1. Each answer follows the first matching rule below; if
-                none match, they follow the usual next step. Open a question to change its rules.
-              </p>
-              {issue ? (
-                <p className="error">{issue}</p>
-              ) : (
-                <p className="success">
-                  <Check size={16} />
-                  All questions lead to a valid next step.
-                </p>
-              )}
-              <div className="flow-list">
-                {definition.questions.map((q, i) => (
-                  <details key={q.id} className="flow-node">
-                    <summary>
-                      <span>{i + 1}</span>
-                      <div>
-                        <strong>{q.title}</strong>
-                        {q.branches.map((b, n) => (
-                          <p key={n}>
-                            {['checkbox', 'multiselect'].includes(q.type)
-                              ? 'When the selection includes'
-                              : 'When the answer is'}{' '}
-                            “{q.options.find((o) => o.value === b.equals)?.label || b.equals}”, go
-                            to{' '}
-                            {b.target === '$end'
-                              ? 'Finish'
-                              : definition.questions.find((item) => item.id === b.target)?.title ||
-                                'Missing question'}
-                          </p>
-                        ))}
-                        <p>
-                          {q.branches.length
-                            ? 'For any other answer, go to '
-                            : 'After answering, go to '}
-                          {q.next === '$end'
-                            ? 'Finish'
-                            : definition.questions.find((item) => item.id === q.next)?.title ||
-                              definition.questions[i + 1]?.title ||
-                              'Finish'}
-                        </p>
-                      </div>
-                      <ArrowRight size={17} />
-                    </summary>
-                    <QuestionEditor
-                      question={q}
-                      questions={definition.questions}
-                      onChange={changeQuestion}
-                      rulesOnly
-                    />
-                  </details>
-                ))}
-              </div>
+            <LogicMap definition={definition} onChange={changeQuestion} issue={issue} />
+          ) : tab === 'payment' ? (
+            <section className="content-panel stack">
+              <h1>Payment</h1>
+              <OutcomeSettings definition={definition} onChange={edit} section="payment" />
             </section>
           ) : tab === 'share' ? (
             <section className="content-panel stack">
@@ -839,7 +791,6 @@ export function Builder({
           ) : (
             <section className="content-panel stack">
               <h1>Questionnaire settings</h1>
-              <OutcomeSettings definition={definition} onChange={edit} section="payment" />
               <label>
                 Questionnaire title
                 <input

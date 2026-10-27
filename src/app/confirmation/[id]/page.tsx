@@ -41,7 +41,7 @@ export default async function Confirmation({
       <ConfirmationContent
         title={definition.completionTitle}
         message={definition.completionMessage}
-        result={row.result}
+        result={definition.payment?.enabled ? null : row.result}
       >
         {row.payment_status === 'unpaid' && (
           <section className="stack">

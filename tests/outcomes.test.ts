@@ -24,6 +24,16 @@ it('supports optional results and first matching compound rules', () => {
   ]
   expect(responseResult(validateDefinition(d), { q1: '20' })?.id).toBe('adult')
   expect(responseResult(d, { q1: '17' })).toBeNull()
+  d.payment = {
+    enabled: true,
+    amountMinor: 100,
+    currency: 'sgd',
+    emailQuestionId: 'q1',
+    reportExpected: true,
+  }
+  expect(responseResult(d, { q1: '20' })).toBeNull()
+  d.payment.enabled = false
+  expect(responseResult(d, { q1: '20' })?.id).toBe('adult')
   delete d.results
   expect(responseResult(d, { q1: '20' })).toBeNull()
 })

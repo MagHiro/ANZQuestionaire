@@ -177,6 +177,7 @@ export function selectedValues(value: string): string[] {
 
 /** Results are ordered; first matching result wins. Unvisited/blank answers never match. */
 export function responseResult(definition: Definition, input: Answers) {
+  if (definition.payment?.enabled) return null
   const evaluation = evaluateResponse(definition, input)
   if (!evaluation.complete) return null
   return (

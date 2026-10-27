@@ -37,7 +37,8 @@ Source of truth: `../anzwebsite/DESIGN.md`. This supersedes the initial Jalanin 
 
 - Desktop editors use independently scrolling question/block lists, canvas and settings panels. Smaller screens stack panels without shrinking controls.
 - Question toolbar arrows select the previous/next question; only drag handles change question order. Handles support pointer, touch and keyboard (Space to pick up/drop, arrows to move, Escape to cancel).
-- The Logic view uses a constrained readable width, plain-language routes and expandable inline rule editing. Preserve first-match ordering and default-route semantics.
+- The Logic view uses a zoomable branching node map, labelled conditional connections and dashed default routes. Selecting a question opens its routing inspector. Preserve first-match ordering and default-route semantics; connections change through validated routing controls.
+- Payment has its own tab. Free questionnaires do not require the submission-readiness checkbox; paid questionnaires do. Paid questionnaires hide automated Outcomes and return no automatic result, using the adviser-published PDF report instead. Preserve stored outcome rules when switching payment modes.
 - Email composition uses a full-width workspace: current/available blocks on the left, sandboxed preview in the middle and selected-block customization on the right.
 - Composition references: [Typeform](https://mobbin.com/screens/18924c96-2eb9-4aa6-8946-c24c22ae33fc), [Flodesk](https://mobbin.com/screens/d3f4ad0e-6710-492f-a4fd-a2f4ec228367). No third-party artwork is included.
 
