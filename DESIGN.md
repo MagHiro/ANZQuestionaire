@@ -8,6 +8,7 @@
 - **H3 / panel headings:** 16px, line-height 1.5.
 - **Body and controls:** 15px, body line-height 1.75.
 - **Supporting text:** at least 13px. Do not shrink essential instructions or labels.
+- **Buttons:** main actions 15px; compact and text actions 13px; weight 600, line-height 1.4, sentence case and no extra letter-spacing. Keep the clickable area at least 42px high; do not enlarge text to fill it. Email buttons use 14px.
 - **Size ceiling:** no application text above 24px, including respondent questions, results, Markdown headings, empty states and statistic values. Do not enlarge type with viewport-based scaling or transforms.
 - Use spacing and placement—not larger or heavier text—to establish hierarchy. Let long titles wrap; avoid marketing-sized headings. These limits override older page-specific styles.
 - Use sentence case. Avoid decorative uppercase labels, eyebrow text and repeated helper copy.

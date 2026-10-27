@@ -155,6 +155,25 @@ body .stage-button {
   text-transform: none;
   letter-spacing: 0;
   border-radius: 8px;
+  line-height: 1.4;
+}
+body button {
+  text-transform: none;
+  letter-spacing: 0;
+}
+body .compact,
+body .button.compact,
+body .text-button,
+body .builder .text-button,
+body .nav-bottom .text-button {
+  font-size: 13px !important;
+  font-weight: 600;
+  line-height: 1.4;
+  text-transform: none;
+  letter-spacing: 0;
+}
+body .text-button {
+  min-height: 42px;
 }
 body .text-button {
   font-size: 13px;
