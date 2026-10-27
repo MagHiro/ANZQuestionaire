@@ -1,4 +1,5 @@
 'use client'
+import { Spinner } from '@/components/Spinner'
 import { useActionState } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { loginAction } from '@/app/actions'
@@ -33,6 +34,7 @@ export function LoginForm() {
         </p>
       )}
       <button className="button primary" disabled={pending}>
+        {pending && <Spinner />}
         {pending ? 'Signing in…' : 'Sign in'}
         <ArrowRight size={17} />
       </button>

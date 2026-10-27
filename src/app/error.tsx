@@ -1,21 +1,15 @@
 'use client'
-export default function ErrorPage({
-  reset,
-}: {
-  error: Error & { digest?: string }
-  reset: () => void
-}) {
+
+export default function ErrorPage({ reset }: { reset: () => void }) {
   return (
-    <main className="error-boundary">
-      <span className="eyebrow">LET’S TRY THAT AGAIN</span>
-      <h1>Something got in the way.</h1>
-      <p className="muted">
-        We couldn’t load this page. Please try again, or contact your administrator if the problem
-        continues.
-      </p>
-      <button className="button primary" onClick={reset}>
-        Try again
-      </button>
+    <main className="route-feedback">
+      <div className="stack">
+        <h1>Something went wrong</h1>
+        <p role="alert">We couldn’t load this view. Please try again.</p>
+        <button className="button primary" onClick={reset}>
+          Try again
+        </button>
+      </div>
     </main>
   )
 }

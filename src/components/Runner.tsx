@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { Spinner } from './Spinner'
 import { ArrowLeft, ArrowRight, Check, CheckCheck } from 'lucide-react'
 import { QuestionInput } from './inputs/QuestionInput'
 import { responseResult, selectedValues } from '@/core/questionnaire'
@@ -260,6 +261,7 @@ export function Runner({
             </button>
           )}
           <button className="button primary" disabled={busy} onClick={review ? submit : next}>
+            {busy && <Spinner />}
             {busy ? 'Sending…' : review ? 'Submit answers' : 'Continue'}
             <ArrowRight size={17} />
           </button>

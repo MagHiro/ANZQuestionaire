@@ -1,4 +1,5 @@
 'use client'
+import { Spinner } from '@/components/Spinner'
 import { useState } from 'react'
 import { saveAiSettings, testAiConnection } from './actions'
 export function AiSettingsForm({
@@ -17,6 +18,8 @@ export function AiSettingsForm({
   const [key, setKey] = useState('')
   const [configured, setConfigured] = useState(hasKey)
   const [busy, setBusy] = useState(false)
+  const [operation, setOperation] = useState<'save' | 'test'>('save')
+  const [failed, setFailed] = useState(false)
   const [message, setMessage] = useState('')
   const [dirty, setDirty] = useState(false)
   return (
@@ -25,17 +28,22 @@ export function AiSettingsForm({
       onSubmit={async (event) => {
         event.preventDefault()
         setBusy(true)
+        setOperation('save')
+        setFailed(false)
         setMessage('')
         try {
           const result = await saveAiSettings({ baseUrl: url, model: modelId, apiKey: key })
-          if (result.error) setMessage(result.error)
-          else {
+          if (result.error) {
+            setFailed(true)
+            setMessage(result.error)
+          } else {
             setKey('')
             setConfigured(true)
             setDirty(false)
             setMessage('AI settings saved. New requests will use this configuration immediately.')
           }
         } catch {
+          setFailed(true)
           setMessage('Unable to save. Please try again.')
         } finally {
           setBusy(false)
@@ -94,7 +102,7 @@ export function AiSettingsForm({
       </p>
       <div className="button-row">
         <button className="button primary" disabled={busy}>
-          Save AI settings
+          {busy && operation === 'save' && <Spinner />}Save AI settings
         </button>
         <button
           type="button"
@@ -102,25 +110,30 @@ export function AiSettingsForm({
           disabled={busy || dirty || !configured}
           onClick={async () => {
             setBusy(true)
+            setOperation('test')
+            setFailed(false)
             setMessage('')
             try {
               const result = await testAiConnection()
+              setFailed(Boolean(result.error))
               setMessage(
                 result.error ||
                   'Connection successful. The provider accepted the configured model and JSON-mode request.',
               )
             } catch {
+              setFailed(true)
               setMessage('Connection test failed. Please try again.')
             } finally {
               setBusy(false)
             }
           }}
         >
-          {busy ? 'Please wait…' : 'Test saved connection'}
+          {busy && operation === 'test' && <Spinner />}
+          {busy && operation === 'test' ? 'Testing…' : 'Test saved connection'}
         </button>
       </div>
       {message && (
-        <p role="status" className="notice">
+        <p role={failed ? 'alert' : 'status'} className={`notice ${failed ? 'error' : 'success'}`}>
           {message}
         </p>
       )}

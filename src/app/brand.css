@@ -1239,3 +1239,296 @@ input[type='radio'] {
     transform: none;
   }
 }
+
+/* Typeform-inspired editing studio, with ANZ typography and colour. */
+.builder {
+  background: #fbfcfe;
+}
+.builder-header {
+  border: 0;
+  background: white;
+  padding: 12px 24px;
+}
+.builder-header nav {
+  gap: 24px;
+}
+.builder-header nav button {
+  color: #455e7d;
+  min-height: 42px;
+}
+.builder-header nav button.selected-tab {
+  color: #243085;
+}
+.builder-breadcrumb .muted {
+  display: none;
+}
+.builder .button {
+  border-radius: 8px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.builder .question-nav {
+  background: #f5f7fa;
+  border: 0;
+  margin: 8px;
+  border-radius: 12px;
+  padding: 20px 12px 12px;
+}
+.question-nav-item {
+  border-radius: 8px;
+  padding: 10px 8px;
+}
+.question-nav-item.selected {
+  background: #e5ebfa;
+}
+.builder .settings-panel {
+  background: #f5f7fa;
+  border: 0;
+  margin: 8px 8px 8px 0;
+  border-radius: 12px;
+  padding: 22px;
+}
+.builder-canvas {
+  background: #fbfcfe;
+  padding: 16px 24px 24px;
+}
+.canvas-toolbar {
+  background: #f0f3f8;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 24px;
+}
+.question-stage {
+  background: white;
+  border: 1px solid #d9e1ea;
+  border-radius: 8px;
+  box-shadow: none;
+  padding: 60px 36px;
+}
+.stage-question h1 {
+  font-size: clamp(2rem, 1.5rem + 1.5vw, 3rem);
+}
+.builder .content-panel {
+  background: white;
+  border-radius: 10px;
+  box-shadow: none;
+  padding: 28px;
+}
+.builder .content-panel h1 {
+  font-size: clamp(2rem, 1.5rem + 1.5vw, 3rem);
+}
+.builder .ai-composer {
+  background: white;
+  box-shadow: 0 -4px 20px #06234f08;
+  border: 1px solid #d9e1ea;
+  border-radius: 10px;
+}
+.ai-dock-toggle {
+  border-radius: 10px;
+}
+.ai-prompts button {
+  border-radius: 6px;
+  background: #eef4ff;
+}
+.builder .result-card,
+.builder .flow-node {
+  box-shadow: none;
+  background: #f5f7fa;
+  border-radius: 8px;
+}
+.builder .outcome-summary {
+  padding: 14px 18px;
+}
+.builder .branch-editor {
+  border-radius: 8px;
+  background: #eef4ff;
+}
+.question-editor .panel-heading {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #d9e1ea;
+}
+.ui-spinner {
+  display: inline-block;
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ui-spin 650ms linear infinite;
+  vertical-align: middle;
+}
+.route-feedback {
+  display: flex;
+  min-height: 65dvh;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px;
+}
+.route-feedback h1 {
+  font-size: 32px;
+}
+.loading-feedback {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #455e7d;
+}
+.notice,
+.error,
+.success {
+  border-radius: 8px;
+  padding: 12px 16px;
+  animation: feedback-in 160ms ease-out;
+}
+.notice {
+  background: #eef4ff;
+  color: #243085;
+  border-left: 3px solid #243085;
+}
+.error {
+  background: #fff1f0;
+  color: #9b2626;
+  border-left: 3px solid #b83737;
+}
+.success {
+  background: #edf7f2;
+  color: #216349;
+  border-left: 3px solid #398765;
+}
+input:not([type='checkbox']):not([type='radio']):not([type='color']),
+textarea,
+select {
+  border: 1px solid #cbd5e2;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #06234f;
+  font-size: 15px;
+  min-height: 46px;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+input::placeholder,
+textarea::placeholder {
+  color: #607793;
+}
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 0;
+  border-color: #243085;
+  box-shadow: 0 0 0 3px #24308520;
+}
+input[type='checkbox'],
+input[type='radio'] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  flex-shrink: 0;
+  border: 1px solid #96a8be;
+  background: white;
+  border-radius: 5px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+input[type='radio'] {
+  border-radius: 50%;
+}
+input[type='checkbox']:checked {
+  border-color: #243085;
+  background: #243085
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='m5 10 3 3 7-7' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E")
+    center / 18px;
+}
+input[type='radio']:checked {
+  border: 6px solid #243085;
+}
+.toggle-label input[type='checkbox'] {
+  width: 38px;
+  height: 22px;
+  border: 0;
+  border-radius: 20px;
+  background: #c3cedc;
+  position: relative;
+}
+.toggle-label input[type='checkbox']::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 140ms ease;
+}
+.toggle-label input[type='checkbox']:checked {
+  background: #243085;
+}
+.toggle-label input[type='checkbox']:checked::after {
+  transform: translateX(16px);
+}
+input[type='file'] {
+  padding: 8px;
+}
+input[type='file']::file-selector-button {
+  border: 0;
+  border-radius: 6px;
+  background: #eef4ff;
+  color: #243085;
+  padding: 8px 12px;
+  margin-right: 12px;
+  font: inherit;
+  cursor: pointer;
+}
+button {
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    box-shadow 120ms ease;
+}
+.outcome-dialog[open] {
+  animation: feedback-in 160ms ease-out;
+}
+@keyframes ui-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 600px) {
+  .builder-canvas {
+    padding: 14px;
+  }
+  .builder .content-panel {
+    padding: 20px;
+  }
+  .question-stage {
+    padding: 32px 20px;
+  }
+  .builder .settings-panel {
+    margin: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

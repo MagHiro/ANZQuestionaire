@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { Spinner } from '@/components/Spinner'
 import { useEffect, useRef, useState } from 'react'
 import {
   ArrowLeft,
@@ -62,6 +63,7 @@ export function Builder({
   const [tab, setTab] = useState<Tab>('create')
   const [preview, setPreview] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [operation, setOperation] = useState('')
   const [message, setMessage] = useState('')
   const [instruction, setInstruction] = useState('')
   const [aiStage, setAiStage] = useState('')
@@ -122,6 +124,7 @@ export function Builder({
     })
   }
   async function save() {
+    setOperation('save')
     setBusy(true)
     try {
       const result = await saveQuestionnaire(id, revision, definition)
@@ -138,6 +141,7 @@ export function Builder({
     }
   }
   async function publish() {
+    setOperation('publish')
     if (dirty) {
       setMessage('Save the draft before publishing.')
       return
@@ -198,6 +202,7 @@ export function Builder({
     if (next) setSelected(next.id)
   }
   async function askAI() {
+    setOperation('ai')
     setAiOpen(true)
     if (proposal && proposalBase !== JSON.stringify(definition)) {
       setMessage('Discard the outdated proposal before requesting changes to your updated draft.')
@@ -295,6 +300,7 @@ export function Builder({
         </nav>
         <div className="header-actions">
           <button className="button secondary compact" disabled={busy || !dirty} onClick={save}>
+            {busy && operation === 'save' && <Spinner />}
             Save draft
           </button>
           {canPublish && (
@@ -303,7 +309,7 @@ export function Builder({
               disabled={busy || !!issue || dirty}
               onClick={publish}
             >
-              <Upload size={14} />
+              {busy && operation === 'publish' ? <Spinner /> : <Upload size={14} />}
               Publish
             </button>
           )}
@@ -594,7 +600,8 @@ export function Builder({
                       disabled={busy || instruction.trim().length < 3}
                       onClick={askAI}
                     >
-                      {busy ? 'Working…' : 'Suggest changes'}
+                      {busy && operation === 'ai' && <Spinner />}
+                      {busy && operation === 'ai' ? 'Working…' : 'Suggest changes'}
                       <ArrowRight size={15} />
                     </button>
                   </div>
@@ -807,6 +814,7 @@ export function Builder({
                   disabled={busy}
                   onClick={async () => {
                     setBusy(true)
+                    setOperation('integration')
                     try {
                       const result = await updateIntegration(
                         id,
@@ -824,7 +832,7 @@ export function Builder({
                     }
                   }}
                 >
-                  Save integration settings
+                  {busy && operation === 'integration' && <Spinner />}Save integration settings
                 </button>
               )}
             </section>

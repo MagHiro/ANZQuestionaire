@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { Spinner } from './Spinner'
 import { ArrowUp, ArrowDown, Trash2, Plus } from 'lucide-react'
 import { defaultEmailBlocks, renderEmail, type EmailBlock } from '@/core/email-template'
 import { saveEmailTemplate, testEmailTemplate } from '@/app/settings/email/actions'
@@ -18,6 +19,8 @@ export function EmailBuilder({
   const [selected, setSelected] = useState(0)
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
+  const [operation, setOperation] = useState<'save' | 'test' | null>(null)
+  const [failed, setFailed] = useState(false)
   const current = templates.find((t) => t.kind === kind) || {
     kind,
     subject: '{{questionnaire_title}}',
@@ -71,37 +74,45 @@ export function EmailBuilder({
             disabled={busy}
             onClick={async () => {
               setBusy(true)
+              setOperation('test')
+              setMessage('')
+              setFailed(false)
               try {
                 setMessage(await testEmailTemplate(current.subject, current.blocks))
               } catch {
+                setFailed(true)
                 setMessage('Test failed. Check server SMTP configuration.')
               } finally {
                 setBusy(false)
               }
             }}
           >
-            Send test to me
+            {busy && operation === 'test' && <Spinner />}Send test to me
           </button>
           <button
             className="button primary"
             disabled={busy}
             onClick={async () => {
               setBusy(true)
+              setOperation('save')
+              setMessage('')
+              setFailed(false)
               try {
                 setMessage(await saveEmailTemplate(kind, current.subject, current.blocks))
               } catch {
+                setFailed(true)
                 setMessage('Unable to save. Check fields and administrator access.')
               } finally {
                 setBusy(false)
               }
             }}
           >
-            Save template
+            {busy && operation === 'save' && <Spinner />}Save template
           </button>
         </div>
       </header>
       {message && (
-        <p className="notice" role="status">
+        <p className={`notice ${failed ? 'error' : 'success'}`} role={failed ? 'alert' : 'status'}>
           {message}
         </p>
       )}

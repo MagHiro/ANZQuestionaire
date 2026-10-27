@@ -29,7 +29,7 @@ Source of truth: `../anzwebsite/DESIGN.md`. This supersedes the initial Jalanin 
 - Functional UI overrides the marketing scale: navigation, question lists, editor labels/fields, AI input and supporting copy use 15px; metadata/helper text uses 13px minimum. Tiny IDs and decorative chips are secondary only.
 - Builder and respondent question headings use `clamp(2rem, 1.5rem + 1.5vw, 3rem)`, line-height 1.15, tracking -0.03em. Avoid hero-sized headings competing with small editing controls.
 - Workspace buttons use 13px and a 42px minimum height; form controls use a 46px minimum height.
-- Question canvas, AI composer, content cards and flow nodes are borderless, with 18px corners, white-to-pale-blue gradients and subtle blue-tinted shadows. Keep input outlines and focus indicators for usability.
+- Typeform-inspired studio composition supersedes the earlier gradient treatment: flat white canvas, neutral side panels, compact toolbar, restrained dividers and 8–12px corners. Retain Poppins and ANZ blue colours. Workspace buttons use sentence case. Keep input outlines and focus indicators for usability.
 - Expand editor side panels to accommodate readable controls; stack panels responsively rather than reducing type size.
 - AI provides selected-question context, short conversation history, clarification requests, a validated repair attempt, actual change summaries and proposal preview. Approval and publishing remain separate. Prevent outdated proposals overwriting newer manual edits.
 
@@ -40,3 +40,11 @@ Source of truth: `../anzwebsite/DESIGN.md`. This supersedes the initial Jalanin 
 - The Logic view uses a constrained readable width, plain-language routes and expandable inline rule editing. Preserve first-match ordering and default-route semantics.
 - Email composition uses a full-width workspace: current/available blocks on the left, sandboxed preview in the middle and selected-block customization on the right.
 - Composition references: [Typeform](https://mobbin.com/screens/18924c96-2eb9-4aa6-8946-c24c22ae33fc), [Flodesk](https://mobbin.com/screens/d3f4ad0e-6710-492f-a4fd-a2f4ec228367). No third-party artwork is included.
+
+## Loading and feedback
+
+- Show an animated spinner on the active asynchronous action, not on unrelated disabled actions. Preserve descriptive loading text for reduced-motion users.
+- Editor/settings route transitions have loading feedback; do not add a root streaming boundary that changes private confirmation 404 responses.
+- Email and AI settings distinguish errors (alerts) from successful completion (status). Preserve entered values on failure.
+- Inputs, native editor select triggers, checkboxes, radios, switches and file selectors share styled focus and selection states. Native editor select menus retain platform keyboard/accessibility behaviour; respondent dropdown popups are custom styled.
+- Animate only state changes, with reduced-motion overrides.

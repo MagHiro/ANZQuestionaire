@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowUpRight, Plus, Layers, CircleCheck, MessageSquare, ArrowRight } from 'lucide-react'
 import { Brand } from '@/components/Brand'
+import { SubmitButton } from '@/components/SubmitButton'
 import { requireStaff } from '@/server/auth'
 import { db } from '@/server/db'
 import { createQuestionnaire, logoutAction } from './actions'
@@ -52,9 +53,7 @@ export default async function Dashboard() {
             <small>{staff.role}</small>
           </div>
           <form action={logoutAction}>
-            <button className="text-button" title="Sign out">
-              Exit
-            </button>
+            <SubmitButton className="text-button">Exit</SubmitButton>
           </form>
         </div>
       </aside>
@@ -169,10 +168,10 @@ export default async function Dashboard() {
                 required
                 maxLength={160}
               />
-              <button className="button secondary">
+              <SubmitButton className="button secondary">
                 Create questionnaire
                 <ArrowRight size={16} />
-              </button>
+              </SubmitButton>
             </form>
           </div>
           {forms.length === 100 && (
