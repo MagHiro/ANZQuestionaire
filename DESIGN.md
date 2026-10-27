@@ -3,12 +3,13 @@
 ## Typography
 
 - Use self-hosted **Poppins**. Body and headings: weight 400; buttons: 600. Use 500 sparingly for emphasis.
-- **H1:** `clamp(1.5rem, 1.35rem + 0.5vw, 1.875rem)` (24–30px), line-height 1.3, letter-spacing -0.025em.
-- **H2:** `clamp(1.125rem, 1.05rem + 0.3vw, 1.375rem)` (18–22px), line-height 1.4, letter-spacing -0.015em.
-- **H3 / panel headings:** 16–18px, line-height 1.5.
+- **H1:** 24px maximum; use 22px on small screens. Line-height 1.3, letter-spacing -0.025em.
+- **H2:** 20px maximum; use 18px in compact layouts. Line-height 1.4, letter-spacing -0.015em.
+- **H3 / panel headings:** 16px, line-height 1.5.
 - **Body and controls:** 15px, body line-height 1.75.
 - **Supporting text:** at least 13px. Do not shrink essential instructions or labels.
-- Keep headings compact across workspaces, settings, modals and results. Let long titles wrap; avoid marketing-sized headings.
+- **Size ceiling:** no application text above 24px, including respondent questions, results, Markdown headings, empty states and statistic values. Do not enlarge type with viewport-based scaling or transforms.
+- Use spacing and placement—not larger or heavier text—to establish hierarchy. Let long titles wrap; avoid marketing-sized headings. These limits override older page-specific styles.
 - Use sentence case. Avoid decorative uppercase labels, eyebrow text and repeated helper copy.
 
 ## Email typography
