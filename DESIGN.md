@@ -1,83 +1,27 @@
-# ANZ Questionnaire Design Direction
+# ANZ Questionnaire Design
 
-## Interactive controls and workflow feedback
+## Typography
 
-- Respondent dropdowns use a branded Radix popup with keyboard navigation; multi-select uses searchable styled selection cards.
-- Dates use a branded calendar with month/year selectors, not an unstyled browser date popup.
-- Text, email, phone, URL, number, textarea, checkbox, file controls and editor selects share Poppins, blue focus rings, rounded pale-blue surfaces and readable 15px+ text.
-- AI progress announces real server stages in an accessible live region; never simulate percentages or expose hidden reasoning.
-- Results are optional, ordered conditional cards. Confirmation remains available with or without a matching result.
-- Paid workflows explicitly separate answer submission, Stripe payment verification and private report publication.
-- Visual email composition uses reorderable header, text, button and footer blocks with a sandboxed preview.
+- Use self-hosted **Poppins**. Body and headings: weight 400; buttons: 600. Use 500 sparingly for emphasis.
+- **H1:** `clamp(1.5rem, 1.35rem + 0.5vw, 1.875rem)` (24–30px), line-height 1.3, letter-spacing -0.025em.
+- **H2:** `clamp(1.125rem, 1.05rem + 0.3vw, 1.375rem)` (18–22px), line-height 1.4, letter-spacing -0.015em.
+- **H3 / panel headings:** 16–18px, line-height 1.5.
+- **Body and controls:** 15px, body line-height 1.75.
+- **Supporting text:** at least 13px. Do not shrink essential instructions or labels.
+- Keep headings compact across workspaces, settings, modals and results. Let long titles wrap; avoid marketing-sized headings.
+- Use sentence case. Avoid decorative uppercase labels, eyebrow text and repeated helper copy.
 
-Source of truth: `../anzwebsite/DESIGN.md`. This supersedes the initial Jalanin baseline.
+## Email typography
 
-- Self-host Poppins at weights 400, 500 and 600; headings/body 400, tiny uppercase labels 500, buttons 600.
-- H1: `clamp(1.5rem, 1.35rem + 0.5vw, 1.875rem)` (24–30px), line-height 1.3, tracking -0.025em.
-- H2: `clamp(1.125rem, 1.05rem + 0.3vw, 1.375rem)` (18–22px), line-height 1.4, tracking -0.015em.
-- These compact heading sizes override the website's marketing scale throughout this application. Do not use hero-sized headings in workspaces, settings, modals, results or email templates. Panel headings may use 16–18px when the surrounding controls are 15px.
-- H3: `clamp(1rem, 0.95rem + 0.4vw, 1.0625rem)`, line-height 1.5, tracking -0.01em.
-- Body: 0.9375rem, line-height 1.75, regular weight, readable text measure.
-- Eyebrows: 0.6875rem, uppercase, weight 500, tracking 0.18em, short accent rule.
-- Buttons: 0.75rem, uppercase, weight 600, tracking 0.06em.
-- Navy #06234f; primary #243085; hover #30419a; soft blue #eef4ff; pale background #fbfcfe; divider #d9e1ea.
-- Source body color is #607793. Use darker tonal #455e7d for small labels and supporting copy to preserve readable contrast.
-- Keep the functional three-panel editor, responsive layouts, keyboard/focus behaviour and reduced-motion support.
-- Graphics use original local geometry/icons. No invented endorsements or immigration outcomes.
+- Use the same Poppins font in the React Email editor and preview; provide Arial, sans-serif as the email-client fallback.
+- H1: 24px / 1.3. H2: 20px / 1.4. Body: 15px / 1.7. Buttons: 14px, weight 600.
+- Keep notification headings proportional to their short content.
 
-## Workspace readability and surfaces (updated)
+## Colours and components
 
-- Functional UI overrides the marketing scale: navigation, question lists, editor labels/fields, AI input and supporting copy use 15px; metadata/helper text uses 13px minimum. Tiny IDs and decorative chips are secondary only.
-- Builder and respondent question headings follow the compact H1 scale above (24–30px maximum), line-height 1.3, tracking -0.025em. Avoid hero-sized headings competing with small editing controls; allow long titles to wrap instead of increasing their size.
-- Workspace buttons use 13px and a 42px minimum height; form controls use a 46px minimum height.
-- Typeform-inspired studio composition supersedes the earlier gradient treatment: flat white canvas, neutral side panels, compact toolbar, restrained dividers and 8–12px corners. Retain Poppins and ANZ blue colours. Workspace buttons use sentence case. Keep input outlines and focus indicators for usability.
-- Expand editor side panels to accommodate readable controls; stack panels responsively rather than reducing type size.
-- AI provides selected-question context, short conversation history, clarification requests, a validated repair attempt, actual change summaries and proposal preview. Approval and publishing remain separate. Prevent outdated proposals overwriting newer manual edits.
-
-## Editor navigation
-
-- Desktop editors use independently scrolling question/block lists, canvas and settings panels. Smaller screens stack panels without shrinking controls.
-- Question toolbar arrows select the previous/next question; only drag handles change question order. Handles support pointer, touch and keyboard (Space to pick up/drop, arrows to move, Escape to cancel).
-- The Logic view uses a zoomable branching node map with freely draggable nodes. Draw connections from answer/default handles, reconnect target endpoints, or select an edge to remove a condition/reset the default. Retain the routing inspector as a keyboard-accessible alternative. Preserve first-match ordering and reject backward/self routes; diagram edits update the same draft routing definition.
-- Payment has its own tab. Free questionnaires do not require the submission-readiness checkbox; paid questionnaires do. Paid questionnaires hide automated Outcomes and return no automatic result, using the adviser-published PDF report instead. Preserve stored outcome rules when switching payment modes.
-- Email composition uses a full-width workspace: current/available blocks on the left, sandboxed preview in the middle and selected-block customization on the right.
-- Composition references: [Typeform](https://mobbin.com/screens/18924c96-2eb9-4aa6-8946-c24c22ae33fc), [Flodesk](https://mobbin.com/screens/d3f4ad0e-6710-492f-a4fd-a2f4ec228367). No third-party artwork is included.
-
-## Loading and feedback
-
-- Show an animated spinner on the active asynchronous action, not on unrelated disabled actions. Preserve descriptive loading text for reduced-motion users.
-- Editor/settings route transitions have loading feedback; do not add a root streaming boundary that changes private confirmation 404 responses.
-- Email and AI settings distinguish errors (alerts) from successful completion (status). Preserve entered values on failure.
-- Inputs, native editor select triggers, checkboxes, radios, switches and file selectors share styled focus and selection states. Native editor select menus retain platform keyboard/accessibility behaviour; respondent dropdown popups are custom styled.
-- Animate only state changes, with reduced-motion overrides.
-
-## Builder panels and AI
-
-- Question and settings sidebars collapse independently with labelled controls.
-- All AI launchers open the shared chat modal; no conversation sidebar reserves canvas width. Closing and reopening preserves the prompt, conversation and proposal.
-- Create with AI uses a wide chat workspace that stays open during generation and review. Its conversation scrolls independently of pinned proposal actions and the prompt composer; mobile uses the full viewport. Render assistant summaries and conversation as safe Markdown without raw HTML, without duplicate summary panels. Staff still explicitly apply, save and publish proposals.
-- Saving remains available after publication, including when the draft is unchanged; draft saves never update the published release.
-- Payment uses one heading and major-currency price entry, stored as integer minor units. Responses use compact headers and status-labelled rows; PDF management is shown only for paid questionnaires.
-
-## AI research
-
-- Create with AI stays open in a large modal containing conversation, progress, proposal and actions.
-- Optional web search uses the internal SearXNG service, without exposing a public search port. Research planning receives only the staff instruction, not respondent submissions or questionnaire definitions.
-- Search is bounded to three queries and six results per query. It supplies search excerpts, not browser-verified page contents. Cite sources and preserve uncertainty; search engines can block requests or return incomplete/outdated snippets.
-- Web pages and snippets are untrusted evidence, not instructions. Missing criteria should prompt a focused plain-language question rather than demand a technical rule specification. Source-supported outcome criteria may be drafted for staff review; never claim adviser approval.
-- The app uses `WEB_SEARCH_URL` (set to `http://search:8080` by Compose). Start the service with `docker compose up -d search`. Search failures are explicit; staff can disable search and continue with supplied information.
-
-## AI provider selection and logic testing
-
-- AI settings offer OpenAI-compatible provider presets, server-side model discovery, a saved default and a manual model-ID fallback. Switching endpoints requires a new key; stored keys are never returned to clients or reused at a different endpoint.
-- Chat can override the saved model for a request. Thinking controls appear only for known supported model/provider combinations; validate them server-side against the provider model catalog.
-- Logic highlights adjacent routes, or the exact route traversed by its tester. Testing uses the live input validation, branching and outcome evaluators without submissions or payment.
-- Routing issues are listed together with focus links. Search focuses nodes; routing settings collapse independently. Node positions persist in session storage per questionnaire, including across tab changes; they never modify question order or publishing data.
-
-## React Email builder
-
-- Email H1 uses 24px and H2 uses 20px, with line-heights of 1.3 and 1.4 respectively. Use the same Poppins typography in the visual editor and rendered preview, with Arial as the email-client fallback. Keep body text at 15px; headings should establish hierarchy without overpowering short notifications.
-- `/settings/email` embeds the official `@react-email/editor` visual editor: full-document editing, selection formatting and slash-command insertion replace the custom block builder and rich text editor.
-- Save structured JSON in `email_templates.document`. Legacy blocks are converted on read; originals remain untouched. All queued notifications, previews and tests render server-side through React Email's serializer and produce HTML plus plain text.
-- Personalization is applied to text and validated HTTPS links before serialization. Bound document size/depth, sanitize exported markup, and sandbox previews. Private confirmation links and SMTP/outbox behavior are unchanged.
-- Production builds use Webpack with React Email externalized server-side. The current Turbopack build produces an invalid external module for React Email's Prettier dependency; browser tests exercise the production renderer to catch this class of issue.
+- Navy: `#06234f`. Primary: `#243085`. Hover: `#30419a`.
+- Background: `#fbfcfe`. Soft blue: `#eef4ff`. Dividers: `#d9e1ea`. Supporting text: `#455e7d`.
+- Use flat neutral surfaces, restrained dividers and 8–12px corners. Prefer spacing and alignment over extra cards or decoration.
+- Buttons: at least 42px high. Form controls: at least 46px high, with visible labels and blue focus rings.
+- Stack panels on smaller screens instead of shrinking text or controls. Keep editing and preview typography consistent.
+- Preserve keyboard access, clear validation, loading feedback and reduced-motion support. Animate only useful state changes.
