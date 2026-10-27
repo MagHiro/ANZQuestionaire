@@ -13,8 +13,9 @@
 Source of truth: `../anzwebsite/DESIGN.md`. This supersedes the initial Jalanin baseline.
 
 - Self-host Poppins at weights 400, 500 and 600; headings/body 400, tiny uppercase labels 500, buttons 600.
-- H1: `clamp(2.5rem, 1.9rem + 3.2vw, 4rem)`, line-height 1.04, tracking -0.04em.
-- H2: `clamp(1.875rem, 1.45rem + 1.9vw, 2.75rem)`, line-height 1.08, tracking -0.035em.
+- H1: `clamp(1.5rem, 1.35rem + 0.5vw, 1.875rem)` (24–30px), line-height 1.3, tracking -0.025em.
+- H2: `clamp(1.125rem, 1.05rem + 0.3vw, 1.375rem)` (18–22px), line-height 1.4, tracking -0.015em.
+- These compact heading sizes override the website's marketing scale throughout this application. Do not use hero-sized headings in workspaces, settings, modals, results or email templates. Panel headings may use 16–18px when the surrounding controls are 15px.
 - H3: `clamp(1rem, 0.95rem + 0.4vw, 1.0625rem)`, line-height 1.5, tracking -0.01em.
 - Body: 0.9375rem, line-height 1.75, regular weight, readable text measure.
 - Eyebrows: 0.6875rem, uppercase, weight 500, tracking 0.18em, short accent rule.
@@ -27,7 +28,7 @@ Source of truth: `../anzwebsite/DESIGN.md`. This supersedes the initial Jalanin 
 ## Workspace readability and surfaces (updated)
 
 - Functional UI overrides the marketing scale: navigation, question lists, editor labels/fields, AI input and supporting copy use 15px; metadata/helper text uses 13px minimum. Tiny IDs and decorative chips are secondary only.
-- Builder and respondent question headings use `clamp(2rem, 1.5rem + 1.5vw, 3rem)`, line-height 1.15, tracking -0.03em. Avoid hero-sized headings competing with small editing controls.
+- Builder and respondent question headings follow the compact H1 scale above (24–30px maximum), line-height 1.3, tracking -0.025em. Avoid hero-sized headings competing with small editing controls; allow long titles to wrap instead of increasing their size.
 - Workspace buttons use 13px and a 42px minimum height; form controls use a 46px minimum height.
 - Typeform-inspired studio composition supersedes the earlier gradient treatment: flat white canvas, neutral side panels, compact toolbar, restrained dividers and 8–12px corners. Retain Poppins and ANZ blue colours. Workspace buttons use sentence case. Keep input outlines and focus indicators for usability.
 - Expand editor side panels to accommodate readable controls; stack panels responsively rather than reducing type size.
@@ -75,6 +76,7 @@ Source of truth: `../anzwebsite/DESIGN.md`. This supersedes the initial Jalanin 
 
 ## React Email builder
 
+- Email H1 uses 24px and H2 uses 20px, with line-heights of 1.3 and 1.4 respectively. Use the same Poppins typography in the visual editor and rendered preview, with Arial as the email-client fallback. Keep body text at 15px; headings should establish hierarchy without overpowering short notifications.
 - `/settings/email` embeds the official `@react-email/editor` visual editor: full-document editing, selection formatting and slash-command insertion replace the custom block builder and rich text editor.
 - Save structured JSON in `email_templates.document`. Legacy blocks are converted on read; originals remain untouched. All queued notifications, previews and tests render server-side through React Email's serializer and produce HTML plus plain text.
 - Personalization is applied to text and validated HTTPS links before serialization. Bound document size/depth, sanitize exported markup, and sandbox previews. Private confirmation links and SMTP/outbox behavior are unchanged.
