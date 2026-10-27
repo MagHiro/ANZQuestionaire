@@ -574,6 +574,53 @@ input[type='radio'] {
   background: white;
 }
 
+.result-card.outcome-accordion {
+  padding: 0;
+  overflow: hidden;
+}
+.outcome-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 18px 20px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  color: #06234f;
+  font: inherit;
+  cursor: pointer;
+}
+.outcome-summary:hover {
+  background: #eef4ff;
+}
+.outcome-summary-text {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.outcome-summary-text > span,
+.outcome-summary-text small {
+  display: block;
+}
+.outcome-summary-text small {
+  font-size: 13px;
+  color: #455e7d;
+}
+.outcome-priority {
+  font-size: 13px;
+  color: #455e7d;
+}
+.outcome-summary > svg {
+  flex-shrink: 0;
+}
+.outcome-summary[aria-expanded='true'] > svg {
+  transform: rotate(180deg);
+}
+.outcome-fields {
+  padding: 4px 20px 24px;
+}
+
 /* Editing workspaces: fixed desktop shell, independently scrolling panels. */
 .sortable-row {
   display: flex;
