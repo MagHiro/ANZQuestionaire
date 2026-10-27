@@ -116,6 +116,14 @@ body .runner-wordmark {
   font-size: 16px;
   font-weight: 400;
 }
+body .sidebar .brand {
+  font-size: 16px !important;
+  line-height: 1.5;
+}
+body .sidebar .brand-by {
+  font-size: 13px !important;
+  line-height: 1.5;
+}
 body .builder-breadcrumb {
   flex: 1 1 auto;
   min-width: 0;
@@ -291,6 +299,8 @@ body .sidebar > .nav-item {
   gap: 12px;
   border-radius: 8px;
   font-size: 15px !important;
+  font-weight: 400;
+  line-height: 1.5;
 }
 body .sidebar > .nav-item svg {
   width: 18px;
@@ -303,6 +313,7 @@ body .sidebar > .nav-item span {
   text-align: center;
   border-radius: 6px;
   font-size: 13px !important;
+  line-height: 1.4;
 }
 body .sidebar > .staff {
   margin-top: 12px;
@@ -318,7 +329,8 @@ body .staff .avatar {
 body .staff > div {
   min-width: 0;
   overflow-wrap: anywhere;
-  font-size: 14px;
+  font-size: 15px !important;
+  line-height: 1.5;
 }
 body .staff small {
   margin-top: 2px;
@@ -330,6 +342,11 @@ body .staff form {
 body .staff .text-button {
   min-height: 42px;
   padding-inline: 8px;
+  font-size: 13px !important;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: none;
 }
 body .dashboard,
 body .login-panel,
