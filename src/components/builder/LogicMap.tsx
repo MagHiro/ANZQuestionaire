@@ -24,6 +24,7 @@ export function LogicMap({
   issue: string | null | undefined
 }) {
   const [selected, setSelected] = useState(definition.questions[0]?.id || '')
+  const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>({})
   const question = definition.questions.find((q) => q.id === selected)
   const { nodes, edges } = useMemo(() => {
     const questions = definition.questions
@@ -65,7 +66,7 @@ export function LogicMap({
       return {
         id: q.id,
         type: q.id === '$end' ? 'output' : 'default',
-        position: { x: rank * 360, y: lane * 180 },
+        position: positions[q.id] || { x: rank * 360, y: lane * 180 },
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
         data: {
@@ -103,15 +104,15 @@ export function LogicMap({
         ariaLabel: `${questions.find((q) => q.id === r.source)?.title}: ${r.label} → ${r.target === '$end' ? 'Finish' : questions.find((q) => q.id === r.target)?.title}`,
       }))
     return { nodes, edges }
-  }, [definition, selected])
+  }, [definition, selected, positions])
 
   return (
     <section className="logic-workspace">
       <header className="logic-map-header">
         <h1>Question flow</h1>
         <p className="muted">
-          Select a question to edit its connections. Rules run in order; dashed lines show the
-          default route.
+          Drag nodes to arrange the map. Select a question to edit its connections. Dashed lines
+          show the default route.
         </p>
       </header>
       {issue && (
@@ -128,16 +129,30 @@ export function LogicMap({
             fitViewOptions={{ maxZoom: 1, padding: 0.25 }}
             minZoom={0.15}
             maxZoom={1.5}
-            nodesDraggable={false}
+            nodesDraggable
             nodesConnectable={false}
             edgesReconnectable={false}
             deleteKeyCode={null}
             onNodeClick={(_, node) => {
               if (node.id !== '$end') setSelected(node.id)
             }}
-            onSelectionChange={({ nodes }) => {
-              const node = nodes.find((n) => n.id !== '$end')
-              if (node) setSelected(node.id)
+            onNodesChange={(changes) => {
+              setPositions((previous) => {
+                const moved = changes.filter(
+                  (change) => change.type === 'position' && change.position,
+                )
+                if (!moved.length) return previous
+                const next = { ...previous }
+                for (const change of moved) {
+                  if (change.type === 'position' && change.position)
+                    next[change.id] = change.position
+                }
+                return next
+              })
+              for (const change of changes) {
+                if (change.type === 'select' && change.selected && change.id !== '$end')
+                  setSelected(change.id)
+              }
             }}
           >
             <Background gap={20} color="#d9e1ea" />

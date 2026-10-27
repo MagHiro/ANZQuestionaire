@@ -62,6 +62,30 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await page.getByRole('button', { name: 'Logic', exact: true }).click()
   await expect(page.locator('.react-flow')).toBeVisible()
   await expect(page.locator('.logic-inspector').getByLabel('Default next step')).toBeVisible()
+  const flowNodes = page.locator('.react-flow__node-default')
+  await flowNodes.nth(1).click()
+  await expect(
+    page.locator('.logic-inspector').getByRole('combobox', { name: 'Question', exact: true }),
+  ).toHaveValue((await flowNodes.nth(1).getAttribute('data-id')) as string)
+  await flowNodes.first().click()
+  await expect(page.getByRole('heading', { name: 'Something went wrong' })).toHaveCount(0)
+  const node = flowNodes.first()
+  const before = await node.boundingBox()
+  const transform = await node.evaluate((el) => (el as HTMLElement).style.transform)
+  await page.mouse.move(before!.x + before!.width / 2, before!.y + before!.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(before!.x + before!.width / 2 + 50, before!.y + before!.height / 2 + 60, {
+    steps: 12,
+  })
+  await page.mouse.up()
+  await expect
+    .poll(() => node.evaluate((el) => (el as HTMLElement).style.transform))
+    .not.toBe(transform)
+  const movedStyle = await node.evaluate((el) => (el as HTMLElement).style.transform)
+  await flowNodes.nth(1).click()
+  await expect
+    .poll(() => node.evaluate((el) => (el as HTMLElement).style.transform))
+    .toBe(movedStyle)
   await page.getByRole('button', { name: 'Outcomes', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Result options', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: /Generate results with AI/ })).toBeVisible()
