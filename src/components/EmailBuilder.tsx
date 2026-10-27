@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import type { EmailEditorRef } from '@react-email/editor'
 import type { JSONContent } from '@tiptap/core'
+import { anzEmailTheme } from '@/core/email-theme'
 import '@react-email/editor/themes/default.css'
 import { Spinner } from './Spinner'
 import {
@@ -210,7 +211,7 @@ export function EmailBuilder({ initial }: { initial: Template[] }) {
             key={kind}
             ref={editor}
             content={content.current}
-            theme="basic"
+            theme={anzEmailTheme}
             editable={!operation}
             className="anz-email-editor"
             onReady={(ref) => {

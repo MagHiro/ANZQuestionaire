@@ -6,6 +6,7 @@ import sanitizeHtml from 'sanitize-html'
 import { emailDocumentSchema } from '@/core/react-email-document'
 import { templateText } from '@/core/email-template'
 import { safeEmailUrl } from '@/core/email-rich-text'
+import { anzEmailTheme } from '@/core/email-theme'
 
 export async function renderReactEmail(input: unknown, variables: Record<string, string>) {
   const document = emailDocumentSchema.parse(input)
@@ -32,7 +33,7 @@ export async function renderReactEmail(input: unknown, variables: Record<string,
   }
   const editor = new Editor({
     element: null,
-    extensions: [StarterKit, EmailTheming.configure({ theme: 'basic' })],
+    extensions: [StarterKit, EmailTheming.configure({ theme: anzEmailTheme })],
     content: personalize(document),
   })
   try {

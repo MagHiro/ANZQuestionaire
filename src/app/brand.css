@@ -2262,21 +2262,71 @@ button {
 .react-email-workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 24px;
+  gap: 32px;
   align-items: start;
+  padding: 24px 0 32px;
+  border-top: 1px solid #dfe4ec;
 }
 .react-email-compose,
 .react-email-preview {
   min-width: 0;
 }
 .react-email-workspace h2 {
-  font-size: 20px;
+  font-size: 16px;
+  margin: 0;
+}
+.react-email-compose > h2 {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+}
+.react-email-compose > .small {
+  margin: 0 0 16px;
+}
+.react-email-preview > .panel-heading {
+  height: 64px;
+  margin-bottom: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.react-email-preview > .panel-heading label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: none;
+  white-space: nowrap;
+}
+.react-email-preview > .panel-heading select {
+  width: 130px;
+  min-height: 40px;
+}
+.react-email-compose .email-variables {
+  padding: 16px 0;
 }
 .anz-email-editor {
-  background: white;
+  background: #f3f5f8;
   color: #06234f;
   border: 1px solid #d9e1ea;
   border-radius: 8px;
+  padding: 8px 24px;
+  min-height: 580px;
+}
+.anz-email-editor [contenteditable='true'] {
+  outline: none;
+  min-height: 500px;
+  overflow-wrap: anywhere;
+}
+.anz-email-editor [contenteditable='true']:focus-visible {
+  outline: 2px solid #243085;
+  outline-offset: 6px;
+}
+.anz-email-editor .node-container {
+  margin-inline: auto;
+}
+.anz-email-editor .node-button {
+  text-transform: none;
+  letter-spacing: 0;
 }
 .anz-email-editor .tiptap {
   min-height: 520px;
@@ -2302,8 +2352,10 @@ button {
 }
 .react-email-preview .email-preview {
   width: 100%;
-  min-height: 640px;
-  background: #fff;
+  min-height: 580px;
+  background: #f3f5f8;
+  border: 1px solid #d9e1ea;
+  border-radius: 8px;
 }
 .react-email-preview .email-preview-mobile {
   width: min(375px, 100%);
@@ -2312,7 +2364,7 @@ button {
 }
 .react-email-preview .panel-heading label {
   font-size: 12px;
-  max-width: 160px;
+  max-width: none;
 }
 @media (max-width: 900px) {
   .react-email-workspace {
@@ -2321,5 +2373,15 @@ button {
   .anz-email-editor .tiptap {
     padding: 18px;
     min-height: 380px;
+  }
+  .anz-email-editor {
+    padding: 8px;
+    min-height: 440px;
+  }
+  .anz-email-editor .node-container {
+    padding: 24px !important;
+  }
+  .react-email-preview > .panel-heading {
+    margin-bottom: 16px;
   }
 }

@@ -30,5 +30,9 @@ test('administrator can compose, preview and save a React Email document', async
   await expect(editor).toContainText(message)
   await expect(rendered.getByText(message, { exact: true })).toBeVisible()
   await expect(rendered.locator('strong').filter({ hasText: message })).toBeVisible()
+  await page.screenshot({
+    path: `test-results/react-email-${test.info().project.name}.png`,
+    fullPage: true,
+  })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 })
