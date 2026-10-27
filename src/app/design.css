@@ -116,6 +116,48 @@ body .runner-wordmark {
   font-size: 16px;
   font-weight: 400;
 }
+body .builder-breadcrumb {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+body .builder-breadcrumb > a {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+body .builder-breadcrumb > span:nth-child(3) {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: min(44vw, 520px);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 15px !important;
+  line-height: 1.4;
+}
+body .builder-breadcrumb .status {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: 13px !important;
+  line-height: 1.4;
+  border-radius: 8px;
+}
+body .builder-breadcrumb .status i {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+}
 body .question-number,
 body .stage-number,
 body .nav-caption,
@@ -348,5 +390,18 @@ body .anz-email-editor .node-button {
   }
   body .icon-button {
     min-width: 42px;
+  }
+  body .builder-header {
+    gap: 8px;
+  }
+  body .builder-breadcrumb {
+    gap: 8px;
+  }
+  body .builder-breadcrumb > span:nth-child(3) {
+    max-width: 42vw;
+  }
+  body .builder-breadcrumb .status {
+    min-height: 32px;
+    padding-inline: 8px;
   }
 }

@@ -101,6 +101,14 @@ test('question navigation preserves order, handles reorder, and panels scroll in
     .toBe(movedStyle)
   const movedId = await node.getAttribute('data-id')
   await page.getByRole('button', { name: 'Create', exact: true }).click()
+  const title = page.locator('.builder-breadcrumb > span:nth-child(3)')
+  const savedStatus = page.locator('.builder-breadcrumb .status')
+  const titleBox = await title.boundingBox()
+  const statusBox = await savedStatus.boundingBox()
+  expect(titleBox).not.toBeNull()
+  expect(statusBox).not.toBeNull()
+  expect(statusBox!.x).toBeGreaterThan(titleBox!.x + titleBox!.width)
+  expect(await title.evaluate((el) => getComputedStyle(el).textOverflow)).toBe('ellipsis')
   await page.getByRole('button', { name: 'Logic', exact: true }).click()
   await expect(page.locator(`.react-flow__node[data-id="${movedId}"]`)).toHaveAttribute(
     'style',
