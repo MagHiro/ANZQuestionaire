@@ -390,6 +390,59 @@ body .confirmation-copy {
   font-size: 15px;
   line-height: 1.75;
 }
+/* Respondent question layout: compact, aligned choices with consistent rhythm. */
+body .runner-content {
+  max-width: 840px;
+  padding: 40px 32px;
+}
+body .question-kicker {
+  gap: 8px;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+body .runner-content h1 {
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+body .question-description {
+  margin-bottom: 16px;
+}
+body .answer-area {
+  margin-top: 20px;
+}
+body .answer-area fieldset {
+  gap: 8px;
+}
+body .answer-choice {
+  min-height: 56px;
+  padding: 12px 16px;
+  gap: 12px;
+  border-radius: 8px;
+  line-height: 1.45;
+}
+body .choice-letter {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 6px;
+  font-size: 13px !important;
+}
+body .answer-choice > span:not(.choice-letter) {
+  min-width: 0;
+}
+body .runner-content .button,
+body .runner-content button[type='submit'] {
+  min-height: 46px;
+}
+@media (max-width: 600px) {
+  body .runner-content {
+    padding: 28px 20px;
+  }
+  body .answer-choice {
+    min-height: 52px;
+    padding: 11px 12px;
+  }
+}
 body .anz-email-editor h1 {
   font-size: 24px !important;
 }

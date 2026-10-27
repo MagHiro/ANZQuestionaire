@@ -27,6 +27,20 @@ test('staff can create, edit, preview, publish and receive a real submission', a
   await page.getByRole('button', { name: 'Save draft' }).click()
   await expect(page.locator('.notice[role="status"]')).toContainText('Draft saved.')
   await page.getByRole('button', { name: 'Try it out' }).click()
+  const choiceSizes = await page.locator('.answer-choice').evaluateAll((choices) =>
+    choices.map((choice) => ({
+      height: choice.getBoundingClientRect().height,
+      radius: getComputedStyle(choice).borderRadius,
+      padding: getComputedStyle(choice).padding,
+    })),
+  )
+  if (choiceSizes.length) {
+    expect(choiceSizes[0].height).toBeGreaterThanOrEqual(52)
+    expect(choiceSizes[0].height).toBeLessThanOrEqual(58)
+    expect(choiceSizes[0].radius).toBe('8px')
+    expect(choiceSizes.every((choice) => choice.height === choiceSizes[0].height)).toBe(true)
+  }
+  await expectCompactTypography(page)
   await page.getByRole('textbox', { name: 'What would you like to learn next?' }).fill('Leadership')
   await page.getByRole('button', { name: 'Continue', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Ready when you are.' })).toBeVisible()
