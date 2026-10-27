@@ -10,6 +10,12 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await page.getByLabel('Questionnaire title', { exact: true }).fill('Navigation test')
   await page.getByRole('button', { name: 'Create questionnaire' }).click()
   await page.getByRole('textbox', { name: 'Question', exact: true }).fill('First question')
+  await page.getByRole('button', { name: 'Collapse settings sidebar' }).click()
+  await expect(page.getByRole('textbox', { name: 'Question', exact: true })).not.toBeVisible()
+  await page.getByRole('button', { name: 'Expand settings sidebar' }).click()
+  await page.getByRole('button', { name: 'Create with AI', exact: true }).click()
+  await expect(page.getByRole('dialog', { name: 'Create with AI' })).toBeVisible()
+  await page.keyboard.press('Escape')
   await page.getByRole('button', { name: 'Add question', exact: true }).click()
   await page.getByRole('textbox', { name: 'Question', exact: true }).fill('Second question')
   const items = page.locator('.question-nav-item')
@@ -60,6 +66,9 @@ test('question navigation preserves order, handles reorder, and panels scroll in
     'Second question',
   )
   await page.getByRole('button', { name: 'Logic', exact: true }).click()
+  await page.getByRole('button', { name: 'Collapse questions sidebar' }).click()
+  await expect(page.locator('.question-nav-list')).not.toBeVisible()
+  await page.getByRole('button', { name: 'Expand questions sidebar' }).click()
   await expect(page.locator('.react-flow')).toBeVisible()
   await expect(page.locator('.logic-inspector').getByLabel('Default next step')).toBeVisible()
   const flowNodes = page.locator('.react-flow__node-route').filter({ hasNotText: '✓' })
@@ -161,11 +170,15 @@ test('question navigation preserves order, handles reorder, and panels scroll in
     definition.questions[0].title = 'Clearer question wording'
     await route.fulfill({
       contentType: 'application/x-ndjson',
-      body: JSON.stringify({ proposal: { summary: 'Improved wording.', definition } }) + '\n',
+      body:
+        JSON.stringify({
+          proposal: { summary: '**Improved wording.**\n\n- Clearer question', definition },
+        }) + '\n',
     })
   })
   await page.getByRole('button', { name: 'Suggest changes', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Proposed changes' })).toBeVisible()
+  await expect(page.locator('.chat-markdown strong').first()).toContainText('Improved wording.')
   await page.getByText('Review 1 changes', { exact: true }).click()
   await expect(page.locator('.proposal-comparison')).toContainText('Clearer question wording')
   await expect(page.getByRole('button', { name: 'Apply to draft' })).toBeVisible()

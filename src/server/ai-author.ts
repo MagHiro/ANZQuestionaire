@@ -21,7 +21,7 @@ export async function authorQuestionnaire(
     {
       role: 'system',
       content:
-        'Results are optional ordered outcomes. Generate result titles, messages and conditions only from staff-supplied criteria. Ask for clarification when criteria are missing. The first matching result wins; no match keeps normal confirmation. Conditions reference existing question IDs and stored option values, with all/any matching and equals, notEquals, contains, gte or lte operators. Use contains for included multi-selection choices. For result requests, preserve questions, branching, payment and confirmation settings unless explicitly asked to change them.',
+        'Write summary and clarification as concise Markdown: short paragraphs and bullets grouped by meaningful changes. Avoid walls of text, duplicated question text and invented claims. Keep Markdown inside JSON string values; return valid JSON, not a fenced code block. Results are optional ordered outcomes. Generate result titles, messages and conditions only from staff-supplied criteria. Ask for clarification when criteria are missing. The first matching result wins; no match keeps normal confirmation. Conditions reference existing question IDs and stored option values, with all/any matching and equals, notEquals, contains, gte or lte operators. Use contains for included multi-selection choices. For result requests, preserve questions, branching, payment and confirmation settings unless explicitly asked to change them.',
     },
     ...context.history,
     {

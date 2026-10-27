@@ -201,7 +201,6 @@ export function OutcomeSettings({
         </>
       ) : (
         <>
-          <h2>Payment</h2>
           <label className="toggle-label">
             Paid questionnaire
             <input
@@ -213,18 +212,26 @@ export function OutcomeSettings({
             />
           </label>
           {payment.enabled && (
-            <div className="stack">
-              <p>
-                Answers → Stripe Checkout → verified payment → staff report upload and publication.
+            <div className="stack payment-fields">
+              <p className="small muted">
+                Respondents pay securely with Stripe after submitting. Advisers then upload and
+                publish a private PDF report.
               </p>
               <label>
-                Price (minor units, e.g. 19900 = $199.00)
+                Price
                 <input
                   type="number"
-                  min={100}
-                  value={payment.amountMinor}
+                  min={1}
+                  step="0.01"
+                  value={payment.amountMinor / 100}
                   onChange={(e) =>
-                    onChange({ ...d, payment: { ...payment, amountMinor: Number(e.target.value) } })
+                    onChange({
+                      ...d,
+                      payment: {
+                        ...payment,
+                        amountMinor: Math.round(Number(e.target.value) * 100),
+                      },
+                    })
                   }
                 />
               </label>
@@ -240,7 +247,9 @@ export function OutcomeSettings({
                   }
                 >
                   {['sgd', 'aud', 'nzd', 'usd'].map((c) => (
-                    <option key={c}>{c}</option>
+                    <option key={c} value={c}>
+                      {c.toUpperCase()}
+                    </option>
                   ))}
                 </select>
               </label>

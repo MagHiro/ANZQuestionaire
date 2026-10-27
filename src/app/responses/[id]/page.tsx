@@ -35,13 +35,12 @@ export default async function ResponsesPage({
       </Link>
       <div className="results-top">
         <div>
-          <span className="eyebrow">THE OTHER SIDE OF CURIOSITY</span>
-          <h1>{record.draft.title}</h1>
-          <p className="muted">Responses stay linked to the version each person completed.</p>
+          <h1>Responses</h1>
+          <p className="muted">{record.draft.title}</p>
         </div>
         <a href={`/api/export/${id}`} className="button secondary">
           <Download size={16} />
-          Export responses (JSON)
+          Export JSON
         </a>
       </div>
       {result.rows.slice(0, 25).map((row) => {
@@ -53,7 +52,11 @@ export default async function ResponsesPage({
               <span>
                 {row.created_at.toLocaleString('en-AU')} · Version {row.version}
               </span>
-              <span className="small muted">{row.id}</span>
+              <span className="response-state">
+                {row.payment_status === 'not_required'
+                  ? 'Received'
+                  : row.payment_status.replaceAll('_', ' ')}
+              </span>
             </summary>
             <dl className="review-list">
               {Object.entries(answers).map(([key, value]) => {
@@ -68,13 +71,19 @@ export default async function ResponsesPage({
                 )
               })}
             </dl>
-            <ReportManager id={row.id} paymentStatus={row.payment_status} />
+            {definition.payment?.enabled && (
+              <ReportManager id={row.id} paymentStatus={row.payment_status} />
+            )}
           </details>
         )
       })}
       {!result.rows.length && (
         <div className="empty-state">
-          No responses yet. Publish and share your questionnaire to start listening.
+          <h2>No responses yet</h2>
+          <p>Responses will appear here once someone completes this questionnaire.</p>
+          <Link className="button secondary" href={`/builder/${id}`}>
+            Open builder
+          </Link>
         </div>
       )}
       <div className="button-row" style={{ marginTop: 25 }}>

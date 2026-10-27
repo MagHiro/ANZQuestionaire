@@ -49,3 +49,11 @@ Source of truth: `../anzwebsite/DESIGN.md`. This supersedes the initial Jalanin 
 - Email and AI settings distinguish errors (alerts) from successful completion (status). Preserve entered values on failure.
 - Inputs, native editor select triggers, checkboxes, radios, switches and file selectors share styled focus and selection states. Native editor select menus retain platform keyboard/accessibility behaviour; respondent dropdown popups are custom styled.
 - Animate only state changes, with reduced-motion overrides.
+
+## Builder panels and AI
+
+- Question and settings sidebars collapse independently with labelled controls.
+- On desktop the AI conversation is a side panel beside the canvas, rather than a bottom dock. Small screens keep a stacked layout.
+- Create with AI opens a prompt dialog; generation continues in the side panel. Render assistant summaries and conversation as safe Markdown without raw HTML. Staff still explicitly apply, save and publish proposals.
+- Saving remains available after publication, including when the draft is unchanged; draft saves never update the published release.
+- Payment uses one heading and major-currency price entry, stored as integer minor units. Responses use compact headers and status-labelled rows; PDF management is shown only for paid questionnaires.

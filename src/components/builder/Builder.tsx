@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { Spinner } from '@/components/Spinner'
+import { Markdown } from '@/components/Markdown'
+import { OutcomeDialog } from './OutcomeDialog'
 import { LogicMap } from './LogicMap'
 import { useEffect, useRef, useState } from 'react'
 import {
@@ -77,6 +79,9 @@ export function Builder({
   const [proposalBase, setProposalBase] = useState('')
   const [proposalPreview, setProposalPreview] = useState(false)
   const [aiOpen, setAiOpen] = useState(true)
+  const [aiPromptOpen, setAiPromptOpen] = useState(false)
+  const [leftCollapsed, setLeftCollapsed] = useState(false)
+  const [rightCollapsed, setRightCollapsed] = useState(false)
   const [undo, setUndo] = useState<Definition[]>([])
   const [saved, setSaved] = useState(JSON.stringify(initial))
   const [origins, setOrigins] = useState(initialOrigins.join('\n'))
@@ -302,9 +307,13 @@ export function Builder({
           <Link href={`/responses/${id}`}>Responses</Link>
         </nav>
         <div className="header-actions">
-          <button className="button secondary compact" disabled={busy || !dirty} onClick={save}>
+          <button className="button secondary compact" disabled={busy} onClick={save}>
             {busy && operation === 'save' && <Spinner />}
             Save draft
+          </button>
+          <button className="button secondary compact" onClick={() => setAiPromptOpen(true)}>
+            <Sparkles size={16} />
+            Create with AI
           </button>
           {canPublish && (
             <button
@@ -331,10 +340,19 @@ export function Builder({
         </div>
       )}
       <div
-        className={`builder-body ${tab !== 'create' ? 'builder-body-wide' : ''}`}
+        className={`builder-body ${tab !== 'create' ? 'builder-body-wide' : ''} ${leftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${aiOpen && (tab === 'create' || tab === 'outcomes') ? 'ai-sidebar-open' : ''}`}
         inert={preview}
       >
         <aside className="question-nav">
+          <button
+            type="button"
+            className="panel-collapse"
+            aria-label={leftCollapsed ? 'Expand questions sidebar' : 'Collapse questions sidebar'}
+            aria-expanded={!leftCollapsed}
+            onClick={() => setLeftCollapsed(!leftCollapsed)}
+          >
+            {leftCollapsed ? '→' : '←'}
+          </button>
           <div className="panel-heading">
             <span>Questions</span>
             <span className="count">{definition.questions.length}</span>
@@ -568,15 +586,14 @@ export function Builder({
                     ))}
                   </div>
                   {aiHistory.length > 0 && (
-                    <details className="ai-history">
-                      <summary>Recent conversation · {aiHistory.length / 2} exchanges</summary>
+                    <div className="ai-history" aria-label="AI conversation">
                       {aiHistory.map((item, index) => (
-                        <p key={index}>
-                          <strong>{item.role === 'user' ? 'You' : 'Assistant'}:</strong>{' '}
-                          {item.content}
-                        </p>
+                        <article className={`chat-message chat-${item.role}`} key={index}>
+                          <strong>{item.role === 'user' ? 'You' : 'Assistant'}</strong>
+                          <Markdown>{item.content}</Markdown>
+                        </article>
                       ))}
-                    </details>
+                    </div>
                   )}
                   <label className="sr-only" htmlFor="ai-instruction">
                     Instructions for AI
@@ -613,10 +630,12 @@ export function Builder({
                       <h3>Proposed changes</h3>
                       <details className="proposal-summary">
                         <summary>AI summary</summary>
-                        <p>{proposal.summary}</p>
+                        <Markdown>{proposal.summary}</Markdown>
                       </details>
                       {proposal.clarification && (
-                        <p className="notice">{proposal.clarification} Reply above to clarify.</p>
+                        <div className="notice">
+                          <Markdown>{proposal.clarification}</Markdown>
+                        </div>
                       )}
                       {proposalBase !== JSON.stringify(definition) && (
                         <p className="error">
@@ -893,6 +912,15 @@ export function Builder({
         </main>
         {tab === 'create' && (
           <aside className="settings-panel">
+            <button
+              type="button"
+              className="panel-collapse"
+              aria-label={rightCollapsed ? 'Expand settings sidebar' : 'Collapse settings sidebar'}
+              aria-expanded={!rightCollapsed}
+              onClick={() => setRightCollapsed(!rightCollapsed)}
+            >
+              {rightCollapsed ? '←' : '→'}
+            </button>
             <QuestionEditor
               question={current}
               questions={definition.questions}
@@ -901,6 +929,33 @@ export function Builder({
           </aside>
         )}
       </div>
+      {aiPromptOpen && (
+        <OutcomeDialog title="Create with AI" onClose={() => setAiPromptOpen(false)}>
+          <label className="stack">
+            What would you like to create?
+            <textarea
+              autoFocus
+              rows={5}
+              value={instruction}
+              onChange={(event) => setInstruction(event.target.value)}
+              maxLength={12000}
+              placeholder="Describe your questionnaire, audience and what you need to learn…"
+            />
+          </label>
+          <button
+            className="button primary"
+            disabled={busy || instruction.trim().length < 3}
+            onClick={() => {
+              setAiPromptOpen(false)
+              setTab('create')
+              setAiOpen(true)
+              void askAI()
+            }}
+          >
+            Generate proposal
+          </button>
+        </OutcomeDialog>
+      )}
       {preview && (
         <div
           className="preview-overlay"
