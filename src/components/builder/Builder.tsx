@@ -398,7 +398,7 @@ export function Builder({
             </button>
           </div>
         </aside>
-        <main className="builder-canvas">
+        <main className={`builder-canvas ${tab === 'outcomes' ? 'outcomes-canvas' : ''}`}>
           {tab === 'create' || tab === 'outcomes' ? (
             <>
               {tab === 'outcomes' ? (

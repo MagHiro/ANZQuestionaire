@@ -1,7 +1,8 @@
 'use client'
 import type { Definition } from '@/core/questionnaire'
-import { useId, useState } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowRight } from 'lucide-react'
+import { OutcomeDialog } from './OutcomeDialog'
 
 export function OutcomeSettings({
   definition: d,
@@ -14,7 +15,6 @@ export function OutcomeSettings({
 }) {
   const results = d.results || []
   const [expanded, setExpanded] = useState<string | null>(null)
-  const accordionId = useId()
   const payment = d.payment || {
     enabled: false,
     amountMinor: 19900,
@@ -37,14 +37,12 @@ export function OutcomeSettings({
                 results: results.map((v, i) => (i === index ? { ...v, ...patch } : v)),
               })
             return (
-              <section className="result-card outcome-accordion" key={r.id}>
+              <section className="result-card outcome-row" key={r.id}>
                 <button
                   type="button"
                   className="outcome-summary"
-                  id={`${accordionId}-trigger-${r.id}`}
-                  aria-expanded={expanded === r.id}
-                  aria-controls={`${accordionId}-panel-${r.id}`}
-                  onClick={() => setExpanded(expanded === r.id ? null : r.id)}
+                  aria-haspopup="dialog"
+                  onClick={() => setExpanded(r.id)}
                 >
                   <span className="outcome-priority">{index + 1}</span>
                   <span className="outcome-summary-text">
@@ -54,15 +52,13 @@ export function OutcomeSettings({
                       {r.conditions.length === 1 ? 'condition' : 'conditions'}
                     </small>
                   </span>
-                  <ChevronDown size={18} aria-hidden="true" />
+                  <ArrowRight size={18} aria-hidden="true" />
                 </button>
-                <div
-                  id={`${accordionId}-panel-${r.id}`}
-                  role="region"
-                  aria-labelledby={`${accordionId}-trigger-${r.id}`}
-                  hidden={expanded !== r.id}
-                >
-                  {expanded === r.id && (
+                {expanded === r.id && (
+                  <OutcomeDialog
+                    title={r.title || 'Edit outcome'}
+                    onClose={() => setExpanded(null)}
+                  >
                     <div className="outcome-fields stack">
                       <label>
                         Result title
@@ -173,8 +169,8 @@ export function OutcomeSettings({
                         Remove result
                       </button>
                     </div>
-                  )}
-                </div>
+                  </OutcomeDialog>
+                )}
               </section>
             )
           })}
