@@ -82,6 +82,7 @@ export function AiWorkspace({
   const [modelError, setModelError] = useState('')
   const [loadingModels, setLoadingModels] = useState(true)
   const [defaultModel, setDefaultModel] = useState('')
+  const [promptPreview, setPromptPreview] = useState(false)
   useEffect(() => {
     let active = true
     loadAiModels()
@@ -229,17 +230,35 @@ export function AiWorkspace({
           if (!busy && instruction.trim().length >= 3) onAsk()
         }}
       >
-        <label className="sr-only" htmlFor={id}>
-          Instructions for AI
-        </label>
+        <div className="ai-prompt-heading">
+          <label htmlFor={id}>Instructions for AI</label>
+          <button
+            type="button"
+            className="text-button"
+            aria-pressed={promptPreview}
+            onClick={() => setPromptPreview(!promptPreview)}
+          >
+            {promptPreview ? 'Edit Markdown' : 'Preview Markdown'}
+          </button>
+        </div>
+        {promptPreview && (
+          <div className="ai-prompt-preview" role="region" aria-label="Prompt preview">
+            <Markdown>{instruction || 'Nothing to preview yet.'}</Markdown>
+          </div>
+        )}
         <textarea
+          hidden={promptPreview}
           id={id}
           value={instruction}
           onChange={(event) => onInstruction(event.target.value)}
           maxLength={12000}
           placeholder={placeholder}
-          rows={3}
+          rows={4}
+          aria-describedby={`${id}-format`}
         />
+        <span id={`${id}-format`} className="small muted">
+          Markdown supported
+        </span>
         <div className="ai-workspace-controls">
           <label className="ai-model-control">
             Model

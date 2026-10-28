@@ -14,6 +14,17 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await expect(page.getByRole('textbox', { name: 'Question', exact: true })).not.toBeVisible()
   await page.getByRole('button', { name: 'Expand settings sidebar' }).click()
   await page.getByRole('button', { name: 'Ask AI', exact: true }).click()
+  await page
+    .getByLabel('Instructions for AI', { exact: true })
+    .fill('**Clear instructions**\n\n- Preserve existing rules')
+  await page.getByRole('button', { name: 'Preview Markdown', exact: true }).click()
+  await expect(page.getByRole('region', { name: 'Prompt preview' }).locator('strong')).toHaveText(
+    'Clear instructions',
+  )
+  await page.getByRole('button', { name: 'Edit Markdown', exact: true }).click()
+  await expect(page.getByLabel('Instructions for AI', { exact: true })).toHaveValue(
+    '**Clear instructions**\n\n- Preserve existing rules',
+  )
   await expect(page.getByRole('dialog', { name: 'Create with AI' })).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(page.getByRole('button', { name: /Edit with AI/ })).toHaveCount(0)

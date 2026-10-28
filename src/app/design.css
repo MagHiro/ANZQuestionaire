@@ -351,6 +351,78 @@ body .staff .text-button {
 body .proposal-action-area {
   flex-shrink: 0;
 }
+body .ai-workspace-composer {
+  padding: 12px 16px;
+}
+body .ai-prompt-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+body .ai-prompt-heading label {
+  margin: 0;
+}
+body .ai-prompt-heading .text-button {
+  padding: 0 4px;
+}
+body .ai-workspace-composer textarea {
+  min-height: 112px;
+  max-height: 200px;
+  padding: 12px;
+  line-height: 1.6;
+  scrollbar-width: thin;
+}
+body .ai-workspace-composer textarea[hidden] {
+  display: none;
+}
+body .ai-prompt-preview {
+  min-height: 112px;
+  max-height: 200px;
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  scrollbar-width: thin;
+  overflow-wrap: anywhere;
+}
+body .ai-prompt-preview .chat-markdown > :first-child {
+  margin-top: 0;
+}
+body .ai-prompt-preview .chat-markdown > :last-child {
+  margin-bottom: 0;
+}
+body .ai-workspace-controls {
+  justify-content: flex-start;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+body .ai-workspace-controls .ai-model-control {
+  flex: 0 1 260px;
+  max-width: 260px;
+  margin: 0;
+}
+body .ai-workspace-controls .toggle-label {
+  min-height: 46px;
+  margin: 0 0 0 auto;
+}
+body .ai-workspace-controls > button {
+  min-height: 46px;
+}
+@media (max-width: 600px) {
+  body .ai-workspace-composer {
+    padding: 10px 12px;
+  }
+  body .ai-workspace-controls .ai-model-control {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+  body .ai-workspace-controls .toggle-label {
+    margin-left: 0;
+    flex: 1;
+  }
+}
 body .proposal-action-area > p {
   margin: 8px 0;
 }
