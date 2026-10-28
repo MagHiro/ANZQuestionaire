@@ -7,11 +7,11 @@ import {
   MessageSquare,
   ArrowRight,
 } from '@/components/Icons'
-import { Brand } from '@/components/Brand'
+import { WorkspaceSidebar } from '@/components/WorkspaceSidebar'
 import { SubmitButton } from '@/components/SubmitButton'
 import { requireStaff } from '@/server/auth'
 import { db } from '@/server/db'
-import { createQuestionnaire, logoutAction } from './actions'
+import { createQuestionnaire } from './actions'
 
 export const dynamic = 'force-dynamic'
 type Summary = {
@@ -31,33 +31,7 @@ export default async function Dashboard() {
   const forms = result.rows
   return (
     <div className="workspace">
-      <aside className="sidebar">
-        <Brand />
-        <Link href="/" className="nav-item active">
-          <Layers size={18} />
-          Questionnaires<span>{forms.length}</span>
-        </Link>
-        {staff.role === 'admin' && (
-          <Link href="/settings/ai" className="nav-item">
-            AI settings
-          </Link>
-        )}
-        {staff.role === 'admin' && (
-          <Link href="/settings/email" className="nav-item">
-            Email builder
-          </Link>
-        )}
-        <div className="staff">
-          <span className="avatar">{staff.name.slice(0, 1)}</span>
-          <div>
-            {staff.name}
-            <small>{staff.role}</small>
-          </div>
-          <form action={logoutAction}>
-            <SubmitButton className="text-button">Exit</SubmitButton>
-          </form>
-        </div>
-      </aside>
+      <WorkspaceSidebar staff={staff} active="questionnaires" />
       <main className="dashboard">
         <header className="workspace-top">
           <span>

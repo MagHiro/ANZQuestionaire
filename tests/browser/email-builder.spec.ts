@@ -8,6 +8,10 @@ test('administrator can compose, preview and save a React Email document', async
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Questionnaires', exact: true })).toBeVisible()
   await page.goto('/settings/email')
+  await expect(page.locator('.sidebar')).toBeVisible()
+  await expect(
+    page.locator('.sidebar').getByRole('link', { name: 'Email builder' }),
+  ).toHaveAttribute('aria-current', 'page')
   await expectCompactTypography(page)
   const kind = test.info().project.name === 'desktop' ? 'submission' : 'report'
   await page.getByRole('combobox', { name: 'Event template' }).selectOption(kind)

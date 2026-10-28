@@ -7,6 +7,11 @@ test('admin saves provider settings without returning its key to the browser', a
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
   await page.getByRole('heading', { name: 'Questionnaires', exact: true }).waitFor()
   await page.goto('/settings/ai')
+  await expect(page.locator('.sidebar')).toBeVisible()
+  await expect(page.locator('.sidebar').getByRole('link', { name: 'AI settings' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  )
   await expectCompactTypography(page)
   await expect(page.getByRole('heading', { name: 'Your AI, your choice.' })).toBeVisible()
   await page.getByLabel('Provider', { exact: true }).selectOption('Custom')
