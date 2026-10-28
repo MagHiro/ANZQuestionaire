@@ -6,6 +6,8 @@ import { aiContextSchema } from '@/core/ai-proposal'
 import { authorQuestionnaire } from '@/server/ai-author'
 import { applicationOrigin } from '@/server/respondent-access'
 
+export const maxDuration = 900
+
 export async function POST(request: Request) {
   const staff = await currentStaff()
   if (!staff) return new Response('Unauthorized', { status: 401 })
@@ -44,6 +46,8 @@ export async function POST(request: Request) {
             }
           }
         }
+        // Keep proxies from treating a slow provider response as an idle connection.
+        const heartbeat = setInterval(() => send({ heartbeat: true }), 10000)
         try {
           const proposal = await authorQuestionnaire(
             input.definition,
@@ -55,8 +59,17 @@ export async function POST(request: Request) {
           )
           send({ proposal })
         } catch (error) {
-          send({ error: error instanceof Error ? error.message : 'Unable to generate proposal.' })
+          const timedOut =
+            error instanceof Error && ['TimeoutError', 'AbortError'].includes(error.name)
+          send({
+            error: timedOut
+              ? 'The AI provider did not finish within the allowed time. Your draft and instructions are unchanged. Try a faster model or a smaller request.'
+              : error instanceof Error
+                ? error.message
+                : 'Unable to generate proposal.',
+          })
         } finally {
+          clearInterval(heartbeat)
           if (connected) controller.close()
         }
       },

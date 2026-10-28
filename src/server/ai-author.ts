@@ -35,7 +35,7 @@ export async function authorQuestionnaire(
     const planning = await fetch(`${validateBaseUrl(config.baseUrl)}/chat/completions`, {
       method: 'POST',
       redirect: 'error',
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(90000),
       headers: { Authorization: `Bearer ${config.apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model,
@@ -108,7 +108,7 @@ export async function authorQuestionnaire(
     const response = await fetch(`${validateBaseUrl(config.baseUrl)}/chat/completions`, {
       method: 'POST',
       redirect: 'error',
-      signal: AbortSignal.timeout(60000),
+      signal: AbortSignal.timeout(300000),
       headers: { Authorization: `Bearer ${config.apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model,
