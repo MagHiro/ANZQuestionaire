@@ -277,8 +277,11 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   )
   await page.getByRole('button', { name: 'Close preview' }).click()
   await expect(aiDialog.getByLabel('Instructions for AI')).toBeVisible()
-  page.once('dialog', (dialog) => dialog.accept())
   await page.getByRole('button', { name: 'Apply to draft', exact: true }).click()
+  await expect(
+    page.getByRole('dialog', { name: 'Apply without answering?', exact: true }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Apply as-is', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Proposed changes' })).toHaveCount(0)
   await page.keyboard.press('Escape')
   await page.getByRole('button', { name: 'Settings', exact: true }).click()

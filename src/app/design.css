@@ -351,6 +351,19 @@ body .staff .text-button {
 body .proposal-action-area {
   flex-shrink: 0;
 }
+body .ai-clarification {
+  margin-block: 20px;
+  padding: 16px;
+  border-left: 3px solid var(--navy);
+  background: #f5f7fa;
+  border-radius: 8px;
+}
+body .ai-clarification h3 {
+  margin-bottom: 8px;
+}
+body .ai-clarification .chat-markdown {
+  margin-bottom: 12px;
+}
 body .ai-workspace-composer {
   padding: 12px 16px;
 }

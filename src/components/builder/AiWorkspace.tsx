@@ -8,6 +8,7 @@ import type { Definition } from '@/core/questionnaire'
 import { loadAiModels } from '@/app/settings/ai/actions'
 import type { AiModel } from '@/core/ai-providers'
 import { needsClarification } from '@/core/proposal-state'
+import { OutcomeDialog } from './OutcomeDialog'
 
 export type AiPrompt = { label: string; prompt: string }
 export type AiTurn = { role: string; content: string }
@@ -83,6 +84,7 @@ export function AiWorkspace({
   const [loadingModels, setLoadingModels] = useState(true)
   const [defaultModel, setDefaultModel] = useState('')
   const [promptPreview, setPromptPreview] = useState(false)
+  const [confirmApply, setConfirmApply] = useState(false)
   useEffect(() => {
     let active = true
     loadAiModels()
@@ -137,6 +139,22 @@ export function AiWorkspace({
             <Markdown>{item.content}</Markdown>
           </article>
         ))}
+        {proposal && needsClarification(proposal.clarification) && (
+          <section className="ai-clarification" aria-labelledby={`${id}-question`}>
+            <h3 id={`${id}-question`}>A question before you apply</h3>
+            <Markdown>{proposal.clarification!.trim()}</Markdown>
+            <button
+              type="button"
+              className="button secondary compact"
+              onClick={() => {
+                setPromptPreview(false)
+                requestAnimationFrame(() => document.getElementById(id)?.focus())
+              }}
+            >
+              Reply to AI
+            </button>
+          </section>
+        )}
         {proposal && (
           <div className="proposal">
             <h3>Proposed changes</h3>
@@ -175,12 +193,6 @@ export function AiWorkspace({
       </div>
       {proposal && (
         <div className="proposal-action-area">
-          {needsClarification(proposal.clarification) && (
-            <p className="small" role="status" id="proposal-apply-reason">
-              The AI has a question: {proposal.clarification?.trim()} You can reply below or apply
-              the proposal as-is after confirmation.
-            </p>
-          )}
           {proposalStale && (
             <p className="small error" role="status" id="proposal-stale-reason">
               Your draft changed. Discard this proposal and ask again to preserve your edits.
@@ -193,14 +205,10 @@ export function AiWorkspace({
             <button
               className="button primary compact"
               disabled={busy || proposalStale}
-              aria-describedby={
-                proposalStale
-                  ? 'proposal-stale-reason'
-                  : needsClarification(proposal.clarification)
-                    ? 'proposal-apply-reason'
-                    : undefined
+              aria-describedby={proposalStale ? 'proposal-stale-reason' : undefined}
+              onClick={() =>
+                needsClarification(proposal.clarification) ? setConfirmApply(true) : onApply()
               }
-              onClick={onApply}
             >
               Apply to draft
             </button>
@@ -223,6 +231,40 @@ export function AiWorkspace({
             </button>
           ))}
         </div>
+      )}
+      {confirmApply && proposal && (
+        <OutcomeDialog
+          title="Apply without answering?"
+          footer={false}
+          onClose={() => setConfirmApply(false)}
+        >
+          <div className="stack">
+            <p>
+              The AI’s question is still unanswered. Applying will replace your local draft with
+              this proposal.
+            </p>
+            <Markdown>{proposal.clarification || ''}</Markdown>
+            <div className="button-row">
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => setConfirmApply(false)}
+              >
+                Keep reviewing
+              </button>
+              <button
+                type="button"
+                className="button primary"
+                onClick={() => {
+                  setConfirmApply(false)
+                  onApply()
+                }}
+              >
+                Apply as-is
+              </button>
+            </div>
+          </div>
+        </OutcomeDialog>
       )}
       <form
         className="ai-workspace-composer"
