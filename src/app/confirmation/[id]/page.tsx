@@ -4,6 +4,7 @@ import { db } from '@/server/db'
 import { validResponseToken } from '@/server/respondent-access'
 import { validateDefinition } from '@/core/questionnaire'
 import { ConfirmationContent } from '@/components/ConfirmationContent'
+import { Download, CircleCheck } from '@/components/Icons'
 
 export const dynamic = 'force-dynamic'
 export const metadata = {
@@ -29,6 +30,7 @@ export default async function Confirmation({
     currency: string
     result: { title: string; message: string } | null
     published_at: Date | null
+    paid_at: Date | null
   }>(
     'SELECT r.*,l.definition,p.published_at FROM responses r JOIN releases l ON l.id=r.release_id LEFT JOIN response_reports p ON p.response_id=r.id WHERE r.id=$1',
     [id],
@@ -44,7 +46,7 @@ export default async function Confirmation({
         result={definition.payment?.enabled ? null : row.result}
       >
         {row.payment_status === 'unpaid' && (
-          <section className="stack">
+          <section className="confirmation-payment">
             <h2>Complete your payment</h2>
             <p>
               {new Intl.NumberFormat('en', { style: 'currency', currency: row.currency }).format(
@@ -60,12 +62,55 @@ export default async function Confirmation({
           </section>
         )}
         {row.payment_status === 'paid' && (
-          <p className="notice">
-            Payment verified.{' '}
-            {row.published_at
-              ? 'Your report is ready.'
-              : 'Your report is awaiting preparation. Refresh this page to check for updates.'}
-          </p>
+          <section className="confirmation-payment" aria-label="Payment and report status">
+            <div className="confirmation-status-heading">
+              <CircleCheck size={22} />
+              <h2>Payment verified</h2>
+            </div>
+            <dl className="confirmation-payment-details">
+              <div>
+                <dt>Amount paid</dt>
+                <dd>
+                  {new Intl.NumberFormat('en', {
+                    style: 'currency',
+                    currency: row.currency,
+                  }).format(row.amount_minor / 100)}{' '}
+                  <span className="small muted">{row.currency.toUpperCase()}</span>
+                </dd>
+              </div>
+              {row.paid_at && (
+                <div>
+                  <dt>Payment date</dt>
+                  <dd>
+                    {row.paid_at.toLocaleDateString('en-AU', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </dd>
+                </div>
+              )}
+              <div>
+                <dt>Report status</dt>
+                <dd>{row.published_at ? 'Ready to download' : 'Awaiting preparation'}</dd>
+              </div>
+            </dl>
+            {!row.published_at && (
+              <p className="small muted">
+                Your report will appear here once it is published. Refresh this page to check for
+                updates.
+              </p>
+            )}
+            {row.paid_at && (
+              <a
+                className="button secondary"
+                href={`/api/receipts/${id}?token=${encodeURIComponent(token)}`}
+              >
+                <Download size={18} />
+                Download receipt
+              </a>
+            )}
+          </section>
         )}
         {row.published_at &&
           (row.payment_status === 'paid' || row.payment_status === 'not_required') && (
@@ -73,6 +118,7 @@ export default async function Confirmation({
               className="button primary"
               href={`/api/reports/${id}?token=${encodeURIComponent(token)}`}
             >
+              <Download size={18} />
               Download your report
             </a>
           )}

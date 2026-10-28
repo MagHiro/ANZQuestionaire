@@ -770,3 +770,254 @@ body .anz-email-editor .node-button {
     padding-inline: 8px;
   }
 }
+/* Responses: readable answers and a separate, fully styled report workflow. */
+body .responses-page .response-detail {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 12px;
+}
+body .responses-page .response-detail > summary {
+  padding: 18px 24px;
+  align-items: center;
+  list-style: none;
+}
+body .responses-page .response-detail > summary::-webkit-details-marker {
+  display: none;
+}
+body .responses-page .response-detail > summary:focus-visible {
+  outline: 2px solid var(--primary, #243085);
+  outline-offset: -3px;
+  border-radius: 10px;
+}
+body .response-submitted {
+  display: grid;
+  gap: 2px;
+  margin-right: auto;
+}
+body .response-chevron {
+  flex-shrink: 0;
+  color: var(--navy);
+}
+body .response-detail[open] > summary .response-chevron {
+  transform: rotate(180deg);
+}
+body .response-content {
+  padding: 24px;
+  border-top: 1px solid var(--line);
+}
+body .response-content-with-report {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  align-items: start;
+  gap: 32px;
+}
+body .response-content h2 {
+  font-size: 18px;
+  margin: 0 0 16px;
+}
+body .response-answer-list {
+  margin: 0;
+}
+body .response-answer-list > div {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+body .response-answer-list > div:first-child {
+  padding-top: 0;
+}
+body .response-answer-list > div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+body .response-answer-list dt {
+  color: var(--muted, #455e7d);
+  font-size: 13px;
+  line-height: 1.7;
+}
+body .response-answer-list dd {
+  margin: 5px 0 0;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+body .response-answer-value {
+  display: block;
+  white-space: pre-wrap;
+}
+body .report-manager {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fbfcfe;
+}
+body .report-payment-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+body .report-upload {
+  padding: 20px 0;
+}
+body .report-upload-label {
+  display: block;
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+body .report-upload p {
+  margin: 0 0 12px;
+}
+body .report-file-picker {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+}
+body .report-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+body .report-file-picker:focus-within {
+  outline: 2px solid #243085;
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+body .report-file-picker:has(input:disabled) {
+  opacity: 0.6;
+}
+body .report-file-input:disabled {
+  cursor: not-allowed;
+}
+body .report-file-button {
+  pointer-events: none;
+}
+body .report-upload .report-file-name {
+  margin: 10px 0 0;
+  overflow-wrap: anywhere;
+  color: #455e7d;
+}
+body .report-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+body .report-actions .button {
+  width: 100%;
+  white-space: normal;
+  text-align: center;
+}
+body .report-feedback {
+  margin: 16px 0 0;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 900px) {
+  body .response-content-with-report {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+}
+@media (max-width: 600px) {
+  body .responses-page .response-detail > summary {
+    padding: 16px;
+    gap: 10px;
+  }
+  body .response-content {
+    padding: 20px 16px;
+  }
+  body .report-manager {
+    padding: 16px;
+  }
+}
+body .confirmation-screen,
+body .runner.confirmation-screen {
+  align-items: flex-start;
+  min-height: 100dvh;
+  padding: 48px 24px;
+}
+body .confirmation-header {
+  max-width: 900px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+}
+body .confirmation-check {
+  width: 42px;
+  height: 42px;
+  margin-bottom: 16px;
+}
+body .confirmation-screen .confirmation-header h1 {
+  font-size: 24px;
+  line-height: 1.3;
+}
+body .confirmation-footer {
+  gap: 20px;
+  margin-top: 0;
+}
+body .confirmation-footer .confirmation-payment {
+  max-width: 680px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+body .confirmation-footer :is(.confirmation-payment, .confirmation-next-step) h2 {
+  font-size: 18px;
+  line-height: 1.4;
+  margin: 0 0 12px;
+}
+body .confirmation-status-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #243085;
+}
+body .confirmation-footer .confirmation-status-heading h2 {
+  margin: 0;
+  color: var(--navy);
+}
+body .confirmation-payment-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin: 24px 0;
+}
+body .confirmation-payment-details dt {
+  font-size: 13px;
+  color: #455e7d;
+}
+body .confirmation-payment-details dd {
+  margin: 4px 0 0;
+}
+body .confirmation-payment > :is(p, form, a) {
+  margin-top: 16px;
+}
+body .confirmation-next-step {
+  max-width: 680px;
+}
+body .confirmation-next-step .button {
+  margin-top: 16px;
+}
+@media (max-width: 600px) {
+  body .confirmation-screen,
+  body .runner.confirmation-screen {
+    padding: 28px 20px;
+  }
+  body .confirmation-screen .confirmation-header h1 {
+    font-size: 22px;
+  }
+  body .confirmation-footer .confirmation-payment {
+    padding: 20px;
+  }
+  body .confirmation-payment-details {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

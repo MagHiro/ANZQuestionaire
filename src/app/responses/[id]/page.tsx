@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { ArrowLeft, Download } from '@/components/Icons'
+import { ArrowLeft, ChevronDown, Download } from '@/components/Icons'
+import { answerLabels } from '@/core/answer-display'
 import { requireStaff } from '@/server/auth'
 import { getQuestionnaire } from '@/server/questionnaires'
 import { db } from '@/server/db'
@@ -28,7 +29,7 @@ export default async function ResponsesPage({
     [id, (Math.floor(page) - 1) * 25],
   )
   return (
-    <main className="results-main">
+    <main className="results-main responses-page">
       <Link href={`/builder/${id}`} className="text-button">
         <ArrowLeft size={15} />
         Back to builder
@@ -49,31 +50,49 @@ export default async function ResponsesPage({
         return (
           <details className="response-detail" key={row.id}>
             <summary>
-              <span>
-                {row.created_at.toLocaleString('en-AU')} · Version {row.version}
+              <span className="response-submitted">
+                <time dateTime={row.created_at.toISOString()}>
+                  {row.created_at.toLocaleString('en-AU')}
+                </time>
+                <span className="small muted">
+                  Version {row.version} · {Object.keys(answers).length}{' '}
+                  {Object.keys(answers).length === 1 ? 'answer' : 'answers'}
+                </span>
               </span>
               <span className="response-state">
                 {row.payment_status === 'not_required'
                   ? 'Received'
                   : row.payment_status.replaceAll('_', ' ')}
               </span>
+              <ChevronDown className="response-chevron" size={18} />
             </summary>
-            <dl className="review-list">
-              {Object.entries(answers).map(([key, value]) => {
-                const q = definition.questions.find((q) => q.id === key)
-                return (
-                  <div key={key}>
-                    <dt>{q?.title || key}</dt>
-                    <dd>
-                      {q?.options.find((o) => o.value === value)?.label || value || 'Not answered'}
-                    </dd>
-                  </div>
-                )
-              })}
-            </dl>
-            {definition.payment?.enabled && (
-              <ReportManager id={row.id} paymentStatus={row.payment_status} />
-            )}
+            <div
+              className={`response-content ${definition.payment?.enabled ? 'response-content-with-report' : ''}`}
+            >
+              <section className="response-answers" aria-label="Submitted answers">
+                <h2>Submitted answers</h2>
+                <dl className="response-answer-list">
+                  {Object.entries(answers).map(([key, value]) => {
+                    const q = definition.questions.find((q) => q.id === key)
+                    return (
+                      <div key={key}>
+                        <dt>{q?.title || key}</dt>
+                        <dd>
+                          {answerLabels(q, value).map((label, index) => (
+                            <span className="response-answer-value" key={index}>
+                              {label}
+                            </span>
+                          ))}
+                        </dd>
+                      </div>
+                    )
+                  })}
+                </dl>
+              </section>
+              {definition.payment?.enabled && (
+                <ReportManager id={row.id} paymentStatus={row.payment_status} />
+              )}
+            </div>
           </details>
         )
       })}

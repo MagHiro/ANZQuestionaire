@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Spinner } from './Spinner'
-import { ArrowLeft, ArrowRight, Check } from '@/components/Icons'
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check } from '@/components/Icons'
 import { ConfirmationContent } from './ConfirmationContent'
 import { QuestionInput } from './inputs/QuestionInput'
 import { responseResult, selectedValues } from '@/core/questionnaire'
@@ -35,6 +35,8 @@ export function Runner({
   const [consent, setConsent] = useState(false)
   const [review, setReview] = useState(false)
   const [statusUrl, setStatusUrl] = useState('')
+  const [embedded, setEmbedded] = useState(false)
+  useEffect(() => setEmbedded(window.parent !== window), [])
   const [result, setResult] = useState<ReturnType<typeof responseResult>>(null)
   const [direction, setDirection] = useState<'forward' | 'back'>('forward')
   const current = definition.questions.find((q) => q.id === trail[trail.length - 1])!
@@ -141,16 +143,24 @@ export function Runner({
           headingRef={heading}
         >
           {statusUrl && (
-            <a
-              className="button primary"
-              href={statusUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {definition.payment?.enabled
-                ? 'Continue to payment / report status'
-                : 'View confirmation'}
-            </a>
+            <div className="confirmation-next-step">
+              {definition.payment?.enabled && <h2>Payment & report</h2>}
+              <p className="small muted" id="confirmation-navigation-note">
+                {embedded
+                  ? 'Continue in a secure new tab to view your payment and report status. This page will stay open.'
+                  : 'Your private confirmation opens in a new tab. Keep the link secure to return to your status.'}
+              </p>
+              <a
+                className="button primary"
+                href={statusUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-describedby="confirmation-navigation-note"
+              >
+                {definition.payment?.enabled ? 'Continue to payment & report' : 'View confirmation'}
+                <ArrowUpRight size={18} />
+              </a>
+            </div>
           )}
           {preview && <p className="preview-note">Preview only. No response was saved.</p>}
         </ConfirmationContent>

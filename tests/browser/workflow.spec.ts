@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { Client } from 'pg'
 import { expectCompactTypography } from './typography'
 test('staff can create, edit, preview, publish and receive a real submission', async ({ page }) => {
   await page.goto('/login')
@@ -120,8 +121,123 @@ test('staff can create, edit, preview, publish and receive a real submission', a
     ).status(),
   ).toBe(404)
   await respondent.close()
+  // Add report settings only in this isolated test release to exercise the staff UI.
+  const database = new Client({
+    connectionString: 'postgresql://test:test-local-only@127.0.0.1:55439/postgres',
+  })
+  await database.connect()
+  try {
+    await database.query(
+      `UPDATE releases SET definition = jsonb_set(jsonb_set(definition, '{payment}', $1::jsonb), '{questions}', (definition->'questions') || '[{"id":"email","title":"Email address","type":"email","required":true}]'::jsonb) WHERE id = (SELECT release_id FROM responses WHERE id = $2)`,
+      [
+        JSON.stringify({
+          enabled: true,
+          amountMinor: 100,
+          currency: 'aud',
+          emailQuestionId: 'email',
+          reportExpected: true,
+        }),
+        responseId,
+      ],
+    )
+  } finally {
+    await database.end()
+  }
   await page.goto(builder.replace('/builder/', '/responses/'))
   await expectCompactTypography(page)
   await page.locator('summary').first().click()
   await expect(page.getByText('Communication', { exact: true })).toBeVisible()
+  const upload = page.getByLabel('Private PDF report', { exact: true })
+  await expect(upload).toHaveCSS('opacity', '0')
+  await expect(page.locator('.report-file-button')).toBeVisible()
+  await upload.setInputFiles({
+    name: 'invalid.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.alloc(10 * 1024 * 1024 + 1),
+  })
+  await expect(page.locator('.report-manager').getByRole('alert')).toContainText(
+    'Choose a PDF file no larger than 10 MB.',
+  )
+  await page.route('**/api/reports/*', (route) => route.fulfill({ status: 200, body: 'OK' }))
+  await upload.setInputFiles({
+    name: 'assessment.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4 test'),
+  })
+  await expect(page.locator('.report-file-name')).toHaveText('assessment.pdf')
+  await expect(page.getByRole('status')).toContainText('Report uploaded.')
+  await expect(page.getByRole('button', { name: 'Publish report & queue email' })).toBeEnabled()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await page.screenshot({
+    path: `test-results/responses-${test.info().project.name}.png`,
+    fullPage: true,
+  })
+  const paidDatabase = new Client({
+    connectionString: 'postgresql://test:test-local-only@127.0.0.1:55439/postgres',
+  })
+  await paidDatabase.connect()
+  try {
+    await paidDatabase.query(
+      "UPDATE responses SET payment_status='paid',amount_minor=12900,currency='aud',paid_at=now() WHERE id=$1",
+      [responseId],
+    )
+  } finally {
+    await paidDatabase.end()
+  }
+  const guest = await page.context().browser()!.newContext()
+  const receiptPath = `/api/receipts/${responseId}`
+  expect((await guest.request.get(receiptPath)).status()).toBe(404)
+  expect((await guest.request.get(`${receiptPath}?token=invalid`)).status()).toBe(404)
+  const receipt = await guest.request.get(receiptPath + confirmation.search)
+  expect(receipt.status()).toBe(200)
+  expect(receipt.headers()['content-type']).toBe('application/pdf')
+  expect(receipt.headers()['cache-control']).toBe('no-store')
+  expect((await receipt.body()).subarray(0, 5).toString()).toBe('%PDF-')
+  const confirmationPage = await guest.newPage()
+  await confirmationPage.goto(`http://127.0.0.1:3199${privatePath}`)
+  await expect(confirmationPage.getByRole('heading', { name: 'Payment verified' })).toBeVisible()
+  await expect(confirmationPage.getByRole('link', { name: 'Download receipt' })).toBeVisible()
+  await confirmationPage.screenshot({
+    path: `test-results/payment-confirmation-${test.info().project.name}.png`,
+    fullPage: true,
+  })
+  await guest.close()
+  await page.route(url, async (route) => {
+    const response = await route.fetch()
+    await route.fulfill({
+      response,
+      headers: {
+        ...response.headers(),
+        'content-security-policy': "frame-ancestors 'self'",
+        'x-frame-options': 'SAMEORIGIN',
+      },
+    })
+  })
+  await page.route('**/embedded-questionnaire-test', (route) =>
+    route.fulfill({
+      contentType: 'text/html',
+      body: `<iframe title="Embedded questionnaire" src="${url}" style="width:100%;height:800px;border:0"></iframe>`,
+    }),
+  )
+  // Frame the runner on the same origin; no production embedding policy is changed.
+  await page.goto('/embedded-questionnaire-test')
+  await page.route('**/api/responses', (route) =>
+    route.fulfill({ json: { id: responseId, statusUrl: privatePath } }),
+  )
+  const frame = page.frameLocator('iframe')
+  await frame
+    .getByRole('textbox', { name: 'What would you like to learn next?' })
+    .fill('Embedded response')
+  await frame.getByRole('button', { name: 'Continue', exact: true }).click()
+  await frame
+    .getByRole('textbox', { name: 'Email address', exact: true })
+    .fill('respondent@example.test')
+  await frame.getByRole('button', { name: 'Continue', exact: true }).click()
+  await frame.getByRole('checkbox', { name: /I’m ready/ }).check()
+  await frame.getByRole('button', { name: 'Submit answers' }).click()
+  await expect(frame.getByText(/Continue in a secure new tab/)).toBeVisible()
+  await expect(frame.getByRole('link', { name: 'Continue to payment & report' })).toHaveAttribute(
+    'target',
+    '_blank',
+  )
 })
