@@ -351,6 +351,65 @@ body .staff .text-button {
 body .proposal-action-area {
   flex-shrink: 0;
 }
+body .app-toast {
+  position: fixed;
+  left: max(20px, env(safe-area-inset-left));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 100;
+  width: max-content;
+  max-width: min(440px, calc(100vw - 40px));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 12px 12px 12px 16px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--navy);
+  border-radius: 12px;
+  box-shadow: 0 6px 24px #06234f14;
+  font-size: 13px !important;
+  line-height: 1.6;
+  animation: toast-enter 180ms ease-out both;
+}
+body .app-toast > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+body .app-toast .icon-button {
+  flex: 0 0 42px;
+  border: 0;
+  background: transparent;
+}
+body .app-toast-closing {
+  animation: toast-exit 180ms ease-in both;
+}
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes toast-exit {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body .app-toast {
+    animation: none;
+  }
+}
 body .ai-clarification {
   margin-block: 20px;
   padding: 16px;

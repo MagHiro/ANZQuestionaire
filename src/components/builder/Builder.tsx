@@ -3,6 +3,7 @@ import { definitionSnapshot } from '@/core/proposal-state'
 
 import Link from 'next/link'
 import { Spinner } from '@/components/Spinner'
+import { Toast } from '@/components/Toast'
 import { OptionalPortal } from '@/components/OptionalPortal'
 import { AiWorkspace } from './AiWorkspace'
 import { OutcomeDialog } from './OutcomeDialog'
@@ -390,18 +391,7 @@ export function Builder({
           )}
         </div>
       </header>
-      {message && (
-        <div className="notice" role="status">
-          {message}
-          <button
-            className="icon-button"
-            onClick={() => setMessage('')}
-            aria-label="Dismiss message"
-          >
-            <X size={16} />
-          </button>
-        </div>
-      )}
+      {message && <Toast key={message} message={message} onDismiss={() => setMessage('')} />}
       <div
         className={`builder-body ${tab !== 'create' ? 'builder-body-wide' : ''} ${leftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''}`}
         inert={preview}

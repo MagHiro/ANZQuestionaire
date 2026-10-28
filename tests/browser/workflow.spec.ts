@@ -26,6 +26,9 @@ test('staff can create, edit, preview, publish and receive a real submission', a
     .fill('What would you like to learn next?')
   await page.getByRole('button', { name: 'Save draft' }).click()
   await expect(page.locator('.notice[role="status"]')).toContainText('Draft saved.')
+  await expect(page.locator('.app-toast')).toHaveCSS('position', 'fixed')
+  await page.getByRole('button', { name: 'Dismiss message', exact: true }).click()
+  await expect(page.locator('.app-toast')).toHaveCount(0)
   await page.getByRole('button', { name: 'Try it out' }).click()
   const choiceSizes = await page.locator('.answer-choice').evaluateAll((choices) =>
     choices.map((choice) => ({
