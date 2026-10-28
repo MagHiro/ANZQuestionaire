@@ -348,6 +348,12 @@ body .staff .text-button {
   letter-spacing: 0;
   text-transform: none;
 }
+body .proposal-action-area {
+  flex-shrink: 0;
+}
+body .proposal-action-area > p {
+  margin: 8px 0;
+}
 body .dashboard,
 body .login-panel,
 body .editing-canvas,

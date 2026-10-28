@@ -7,6 +7,7 @@ import { Markdown } from '@/components/Markdown'
 import type { Definition } from '@/core/questionnaire'
 import { loadAiModels } from '@/app/settings/ai/actions'
 import type { AiModel } from '@/core/ai-providers'
+import { needsClarification } from '@/core/proposal-state'
 
 export type AiPrompt = { label: string; prompt: string }
 export type AiTurn = { role: string; content: string }
@@ -172,20 +173,39 @@ export function AiWorkspace({
         )}
       </div>
       {proposal && (
-        <div className="button-row proposal-actions">
-          <button className="button secondary compact" disabled={busy} onClick={onPreview}>
-            Preview proposal
-          </button>
-          <button
-            className="button primary compact"
-            disabled={busy || !!proposal.clarification || proposalStale}
-            onClick={onApply}
-          >
-            Apply to draft
-          </button>
-          <button className="button secondary compact" disabled={busy} onClick={onDiscard}>
-            Discard
-          </button>
+        <div className="proposal-action-area">
+          {needsClarification(proposal.clarification) && (
+            <p className="small" role="status" id="proposal-apply-reason">
+              Answer the AI’s question before applying: {proposal.clarification?.trim()}
+            </p>
+          )}
+          {proposalStale && (
+            <p className="small error" role="status" id="proposal-stale-reason">
+              Your draft changed. Discard this proposal and ask again to preserve your edits.
+            </p>
+          )}
+          <div className="button-row proposal-actions">
+            <button className="button secondary compact" disabled={busy} onClick={onPreview}>
+              Preview proposal
+            </button>
+            <button
+              className="button primary compact"
+              disabled={busy || needsClarification(proposal.clarification) || proposalStale}
+              aria-describedby={
+                proposalStale
+                  ? 'proposal-stale-reason'
+                  : needsClarification(proposal.clarification)
+                    ? 'proposal-apply-reason'
+                    : undefined
+              }
+              onClick={onApply}
+            >
+              Apply to draft
+            </button>
+            <button className="button secondary compact" disabled={busy} onClick={onDiscard}>
+              Discard
+            </button>
+          </div>
         </div>
       )}
       {history.length === 0 && (

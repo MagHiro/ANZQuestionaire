@@ -213,6 +213,7 @@ test('question navigation preserves order, handles reorder, and panels scroll in
       body:
         JSON.stringify({
           proposal: {
+            clarification: '   ',
             summary:
               '**Improved wording.**\n\n- Clearer question\n\n' +
               Array.from(
@@ -231,7 +232,7 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await expect(page.locator('.chat-markdown strong').first()).toContainText('Improved wording.')
   await page.getByText('Review 1 changes', { exact: true }).click()
   await expect(page.locator('.proposal-comparison')).toContainText('Clearer question wording')
-  await expect(page.getByRole('button', { name: 'Apply to draft' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Apply to draft' })).toBeEnabled()
   const aiDialog = page.getByRole('dialog', { name: 'Create with AI' })
   await expect(aiDialog.getByLabel('Instructions for AI')).toBeInViewport()
   await expect(aiDialog.getByRole('button', { name: 'Apply to draft' })).toBeInViewport()
@@ -255,7 +256,8 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await expect(page.getByRole('dialog', { name: 'Questionnaire preview' })).toBeVisible()
   await page.getByRole('button', { name: 'Close preview' }).click()
   await expect(aiDialog.getByLabel('Instructions for AI')).toBeVisible()
-  await page.getByRole('button', { name: 'Discard', exact: true }).click()
+  await page.getByRole('button', { name: 'Apply to draft', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Proposed changes' })).toHaveCount(0)
   await page.keyboard.press('Escape')
   await page.getByRole('button', { name: 'Settings', exact: true }).click()
   await expect(page.getByLabel('Paid questionnaire')).toHaveCount(0)

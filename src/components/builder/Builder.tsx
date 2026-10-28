@@ -1,4 +1,5 @@
 'use client'
+import { definitionSnapshot, needsClarification } from '@/core/proposal-state'
 
 import Link from 'next/link'
 import { Spinner } from '@/components/Spinner'
@@ -94,6 +95,7 @@ export function Builder({
   const [history, setHistory] = useState<Awaited<ReturnType<typeof loadHistory>>>([])
   const current = definition.questions.find((q) => q.id === selected) || definition.questions[0]
   const dirty = saved !== JSON.stringify(definition)
+  const proposalStale = !!proposalBase && definitionSnapshot(definition) !== proposalBase
   const previewRef = useRef<HTMLDivElement>(null)
   const questionListRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -213,8 +215,7 @@ export function Builder({
     if (next) setSelected(next.id)
   }
   function applyProposal() {
-    if (!proposal || busy || proposal.clarification || proposalBase !== JSON.stringify(definition))
-      return
+    if (!proposal || busy || needsClarification(proposal.clarification) || proposalStale) return
     edit(proposal.definition)
     setSelected(
       proposal.definition.questions.some((q) => q.id === selected)
@@ -263,7 +264,7 @@ export function Builder({
         ]
   async function askAI() {
     setOperation('ai')
-    if (proposal && proposalBase !== JSON.stringify(definition)) {
+    if (proposal && proposalStale) {
       setMessage('Discard the outdated proposal before requesting changes to your updated draft.')
       return
     }
@@ -305,7 +306,7 @@ export function Builder({
       }
       if (result.proposal) {
         setProposal(result.proposal)
-        setProposalBase(JSON.stringify(definition))
+        setProposalBase(definitionSnapshot(definition))
         const turns: AiContext['history'] = [
           { role: 'user', content: instruction },
           {
@@ -825,7 +826,7 @@ export function Builder({
             }
             prompts={aiPrompts}
             proposal={proposal}
-            proposalStale={proposalBase !== JSON.stringify(definition)}
+            proposalStale={proposalStale}
             changes={proposal ? describeChanges(definition, proposal.definition) : []}
             comparisons={
               proposal
