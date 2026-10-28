@@ -93,7 +93,13 @@ test('staff can create, edit, preview, publish and receive a real submission', a
   const confirmationWidth = await confirmationContent.evaluate(
     (el) => el.getBoundingClientRect().width,
   )
-  expect(confirmationWidth).toBeGreaterThan((page.viewportSize()?.width || 0) * 0.85)
+  expect(confirmationWidth).toBeLessThanOrEqual(680)
+  const confirmationBounds = await confirmationContent.boundingBox()
+  expect(
+    Math.abs(
+      confirmationBounds!.x + confirmationBounds!.width / 2 - page.viewportSize()!.width / 2,
+    ),
+  ).toBeLessThan(2)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.screenshot({
     path: `test-results/confirmation-${test.info().project.name}.png`,
@@ -197,6 +203,13 @@ test('staff can create, edit, preview, publish and receive a real submission', a
   await confirmationPage.goto(`http://127.0.0.1:3199${privatePath}`)
   await expect(confirmationPage.getByRole('heading', { name: 'Payment verified' })).toBeVisible()
   await expect(confirmationPage.getByRole('link', { name: 'Download receipt' })).toBeVisible()
+  const paidBounds = await confirmationPage.locator('.confirmation-content').boundingBox()
+  expect(paidBounds!.width).toBeLessThanOrEqual(680)
+  expect(
+    Math.abs(paidBounds!.x + paidBounds!.width / 2 - confirmationPage.viewportSize()!.width / 2),
+  ).toBeLessThan(2)
+  const amount = confirmationPage.locator('.confirmation-payment-details dd').first()
+  await expect(amount).toHaveText('AUD 129.00')
   await confirmationPage.screenshot({
     path: `test-results/payment-confirmation-${test.info().project.name}.png`,
     fullPage: true,

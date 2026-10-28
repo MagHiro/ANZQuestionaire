@@ -74,8 +74,8 @@ export default async function Confirmation({
                   {new Intl.NumberFormat('en', {
                     style: 'currency',
                     currency: row.currency,
-                  }).format(row.amount_minor / 100)}{' '}
-                  <span className="small muted">{row.currency.toUpperCase()}</span>
+                    currencyDisplay: 'code',
+                  }).format(row.amount_minor / 100)}
                 </dd>
               </div>
               {row.paid_at && (

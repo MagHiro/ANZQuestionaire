@@ -939,19 +939,25 @@ body .report-feedback {
 }
 body .confirmation-screen,
 body .runner.confirmation-screen {
-  align-items: flex-start;
+  align-items: center;
   min-height: 100dvh;
   padding: 48px 24px;
 }
+body .confirmation-screen .confirmation-content {
+  width: 100%;
+  max-width: 680px;
+  margin: auto;
+}
 body .confirmation-header {
-  max-width: 900px;
+  text-align: center;
   margin-bottom: 24px;
-  padding-bottom: 24px;
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 body .confirmation-check {
   width: 42px;
   height: 42px;
-  margin-bottom: 16px;
+  margin: 0 auto 16px;
 }
 body .confirmation-screen .confirmation-header h1 {
   font-size: 24px;
@@ -960,6 +966,12 @@ body .confirmation-screen .confirmation-header h1 {
 body .confirmation-footer {
   gap: 20px;
   margin-top: 0;
+  align-items: center;
+  width: 100%;
+}
+body .confirmation-footer > p {
+  max-width: 560px;
+  text-align: center;
 }
 body .confirmation-footer .confirmation-payment {
   max-width: 680px;
@@ -985,22 +997,31 @@ body .confirmation-footer .confirmation-status-heading h2 {
 }
 body .confirmation-payment-details {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-  margin: 24px 0;
+  gap: 0;
+  margin: 20px 0 0;
+}
+body .confirmation-payment-details > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 24px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
 }
 body .confirmation-payment-details dt {
   font-size: 13px;
   color: #455e7d;
 }
 body .confirmation-payment-details dd {
-  margin: 4px 0 0;
+  margin: 0;
+  text-align: right;
 }
 body .confirmation-payment > :is(p, form, a) {
   margin-top: 16px;
 }
 body .confirmation-next-step {
   max-width: 680px;
+  text-align: center;
 }
 body .confirmation-next-step .button {
   margin-top: 16px;
@@ -1016,8 +1037,8 @@ body .confirmation-next-step .button {
   body .confirmation-footer .confirmation-payment {
     padding: 20px;
   }
-  body .confirmation-payment-details {
-    grid-template-columns: 1fr;
+  body .confirmation-payment-details > div {
     gap: 16px;
+    flex-wrap: wrap;
   }
 }
