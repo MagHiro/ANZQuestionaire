@@ -219,12 +219,17 @@ test('question navigation preserves order, handles reorder, and panels scroll in
     const body = route.request().postDataJSON()
     const definition = structuredClone(body.definition)
     definition.questions[0].title = 'Clearer question wording'
+    definition.questions[0].type = 'dropdown'
+    definition.questions[0].options = [
+      { value: 'yes', label: 'Yes' },
+      { value: 'no', label: 'No' },
+    ]
     await route.fulfill({
       contentType: 'application/x-ndjson',
       body:
         JSON.stringify({
           proposal: {
-            clarification: '   ',
+            clarification: 'Please confirm these proposed changes.',
             summary:
               '**Improved wording.**\n\n- Clearer question\n\n' +
               Array.from(
@@ -241,7 +246,7 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await expect(page.getByRole('dialog', { name: 'Create with AI' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Proposed changes' })).toBeVisible()
   await expect(page.locator('.chat-markdown strong').first()).toContainText('Improved wording.')
-  await page.getByText('Review 1 changes', { exact: true }).click()
+  await page.getByText(/Review \d+ changes/).click()
   await expect(page.locator('.proposal-comparison')).toContainText('Clearer question wording')
   await expect(page.getByRole('button', { name: 'Apply to draft' })).toBeEnabled()
   const aiDialog = page.getByRole('dialog', { name: 'Create with AI' })
@@ -265,8 +270,14 @@ test('question navigation preserves order, handles reorder, and panels scroll in
   await page.screenshot({ path: `test-results/ai-workspace-${test.info().project.name}.png` })
   await aiDialog.getByRole('button', { name: 'Preview proposal' }).click()
   await expect(page.getByRole('dialog', { name: 'Questionnaire preview' })).toBeVisible()
+  await page.getByRole('combobox', { name: 'Clearer question wording' }).click()
+  await page.getByRole('option', { name: 'Yes', exact: true }).click()
+  await expect(page.getByRole('combobox', { name: 'Clearer question wording' })).toContainText(
+    'Yes',
+  )
   await page.getByRole('button', { name: 'Close preview' }).click()
   await expect(aiDialog.getByLabel('Instructions for AI')).toBeVisible()
+  page.once('dialog', (dialog) => dialog.accept())
   await page.getByRole('button', { name: 'Apply to draft', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Proposed changes' })).toHaveCount(0)
   await page.keyboard.press('Escape')

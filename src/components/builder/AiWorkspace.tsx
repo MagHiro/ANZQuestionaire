@@ -177,7 +177,8 @@ export function AiWorkspace({
         <div className="proposal-action-area">
           {needsClarification(proposal.clarification) && (
             <p className="small" role="status" id="proposal-apply-reason">
-              Answer the AI’s question before applying: {proposal.clarification?.trim()}
+              The AI has a question: {proposal.clarification?.trim()} You can reply below or apply
+              the proposal as-is after confirmation.
             </p>
           )}
           {proposalStale && (
@@ -191,7 +192,7 @@ export function AiWorkspace({
             </button>
             <button
               className="button primary compact"
-              disabled={busy || needsClarification(proposal.clarification) || proposalStale}
+              disabled={busy || proposalStale}
               aria-describedby={
                 proposalStale
                   ? 'proposal-stale-reason'

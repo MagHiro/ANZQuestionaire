@@ -215,7 +215,14 @@ export function Builder({
     if (next) setSelected(next.id)
   }
   function applyProposal() {
-    if (!proposal || busy || needsClarification(proposal.clarification) || proposalStale) return
+    if (!proposal || busy || proposalStale) return
+    if (
+      needsClarification(proposal.clarification) &&
+      !window.confirm(
+        `The AI has an unanswered question:\n\n${proposal.clarification?.trim()}\n\nApply this proposal as-is without resolving it?`,
+      )
+    )
+      return
     edit(proposal.definition)
     setSelected(
       proposal.definition.questions.some((q) => q.id === selected)

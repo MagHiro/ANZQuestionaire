@@ -1,5 +1,6 @@
 'use client'
 import * as Select from '@radix-ui/react-select'
+import { useCallback, useState } from 'react'
 import { Check, ChevronDown } from '@/components/Icons'
 
 export function StyledSelect({
@@ -15,15 +16,19 @@ export function StyledSelect({
   label: string
   placeholder?: string
 }) {
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null)
+  const triggerRef = useCallback((node: HTMLButtonElement | null) => {
+    setPortalContainer(node?.closest('dialog') || null)
+  }, [])
   return (
     <Select.Root value={value} onValueChange={onChange}>
-      <Select.Trigger aria-label={label} className="styled-select">
+      <Select.Trigger ref={triggerRef} aria-label={label} className="styled-select">
         <Select.Value placeholder={placeholder} />
         <Select.Icon>
           <ChevronDown size={18} />
         </Select.Icon>
       </Select.Trigger>
-      <Select.Portal>
+      <Select.Portal container={portalContainer}>
         <Select.Content position="popper" className="select-menu" sideOffset={6}>
           <Select.Viewport>
             {options
